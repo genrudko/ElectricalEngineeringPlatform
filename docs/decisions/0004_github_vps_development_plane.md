@@ -1,21 +1,21 @@
-# ADR 0004 — GitHub Control Plane + Existing VPS Execution Plane
+# ADR 0004 — GitHub как Control Plane + existing VPS как Execution Plane
 
-Статус: **ACCEPTED по owner direction / зафиксирован в `UNIFIED-FOUNDATION-001`**  
+Статус: **ACCEPTED по решению владельца / зафиксирован в `UNIFIED-FOUNDATION-001`**  
 Дата: 2026-08-18
 
 ## Контекст
 
-Предыдущие workflows становились operationally expensive: local manual patching, routine SSH intervention, broad CI до visual acceptance и слишком много infrastructure steps для small changes.
+Предыдущие процессы разработки становились слишком дорогими по времени: ручная работа на локальной машине, регулярные SSH-сессии, тяжёлый CI до визуальной приёмки и слишком много инфраструктурных действий для небольших изменений.
 
-У владельца уже есть GitHub, ChatGPT Plus и existing VPS; новый mandatory paid orchestration platform для normal development не требуется.
+У владельца уже есть GitHub, ChatGPT Plus и existing VPS. Новый обязательный платный orchestration platform для нормальной разработки не нужен.
 
-Во время Foundation был отдельно проверен прямой ChatGPT→VPS development bridge.
+Во время Foundation отдельно проверен прямой ChatGPT→VPS development bridge.
 
 ## Решение
 
-Использовать два complementary contours.
+Использовать два взаимодополняющих контура.
 
-### Интерактивный contour
+### Интерактивный контур
 
 ```text
 ChatGPT Plus Project chat
@@ -25,9 +25,9 @@ ChatGPT Plus Project chat
 → existing VPS
 ```
 
-Назначение: fast inspect/build/test/preview tasks без routine owner SSH.
+Назначение: быстрые inspect/build/test/preview tasks без регулярного SSH со стороны владельца.
 
-### Формальный contour
+### Формальный контур проверки
 
 ```text
 GitHub = canonical control plane
@@ -37,30 +37,30 @@ GitHub = canonical control plane
 → owner acceptance
 ```
 
-Owner workstation остаётся acceptance endpoint.
+Рабочая станция владельца остаётся acceptance endpoint.
 
-Local SSH — infrastructure/admin escape hatch, а не normal workflow.
+Local SSH — инфраструктурный/admin escape hatch, а не normal workflow.
 
-CI risk-based; UI visual acceptance по возможности происходит до expensive unrelated gates.
+CI остаётся risk-based; визуальная приёмка UI по возможности выполняется до дорогих unrelated gates.
 
-## Доказанное evidence 2026-08-18
+## Доказательства от 2026-08-18
 
-Практический test подтвердил:
+Практический тест подтвердил:
 
 - Custom GPT Action работает на текущем ChatGPT Plus;
 - endpoint опубликован по HTTPS через Caddy;
-- Let's Encrypt certificate получен успешно;
-- bridge FastAPI слушает localhost;
-- service работает под unprivileged `eepbridge` account;
-- Bearer authentication работает (`401` without token / `200` with token);
+- сертификат Let's Encrypt получен успешно;
+- bridge FastAPI слушает только localhost;
+- service работает под непривилегированным `eepbridge` account;
+- Bearer authentication работает: `401` без token и `200` с корректным token;
 - GPT Action реально дошёл до VPS: `GET /health ... 200 OK` зафиксирован server log;
-- Custom GPT Action работает внутри existing ChatGPT Project chat;
+- Custom GPT Action работает внутри существующего ChatGPT Project chat;
 - GitHub connector доступен в том же Project conversation;
-- GitHub query и subsequent bridge query работают последовательно.
+- GitHub query и последующий bridge query работают последовательно.
 
-Следствие: Business/MCP/OpenAI API не являются required dependencies current baseline.
+Следствие: Business/MCP/OpenAI API не являются обязательными dependencies текущего baseline.
 
-## Ограничение Bridge architecture
+## Ограничение архитектуры Bridge
 
 Development Bridge — bounded typed development API, а не universal remote shell.
 
@@ -70,26 +70,26 @@ Execution operations задаются explicit allowlist/profiles и должн�
 
 Положительные:
 
-- не требуется новый mandatory paid control service;
+- новый обязательный платный control service не нужен;
 - build toolchains/corpora остаются вне owner workstation;
 - private NPT corpus может тестироваться на controlled VPS;
 - GitHub остаётся auditable canonical state;
 - interactive Bridge сокращает turnaround time;
 - self-hosted runner даёт formal exact-head evidence;
-- owner не должен routinely работать через SSH.
+- владелец не должен routinely работать через SSH.
 
-Costs/risks:
+Затраты/риски:
 
-- bridge hardening/maintenance;
-- one-time self-hosted runner setup;
+- hardening и maintenance bridge;
+- одноразовый setup self-hosted runner;
 - VPS capacity limits нужно измерить;
-- private corpus/security isolation должна быть deliberate;
+- isolation private corpus/security должна быть deliberate;
 - token rotation/task isolation требуют explicit operational procedure.
 
 ## Отклонённые альтернативы
 
-- **Owner workstation as mandatory build machine** — rejected из-за friction/environment drift.
-- **New paid orchestration platform by default** — rejected до доказательства measurable value сверх GitHub+existing VPS+ChatGPT Plus.
-- **Full CI after every trivial change** — rejected из-за poor feedback/risk ratio.
-- **Use GitHub Actions as pseudo-terminal for every interactive step** — rejected после proof прямого bounded ChatGPT→VPS bridge.
-- **Universal command-execution endpoint** — rejected из-за unnecessary security/operational risk.
+- **Рабочая станция владельца как обязательная build machine** — отклонено из-за friction/environment drift.
+- **Новая платная orchestration platform по умолчанию** — отклонено до доказательства measurable value сверх GitHub + existing VPS + ChatGPT Plus.
+- **Full CI после каждого trivial change** — отклонено из-за плохого feedback/risk ratio.
+- **GitHub Actions как pseudo-terminal для каждого interactive step** — отклонено после proof прямого bounded ChatGPT→VPS bridge.
+- **Universal command-execution endpoint** — отклонено из-за unnecessary security/operational risk.
