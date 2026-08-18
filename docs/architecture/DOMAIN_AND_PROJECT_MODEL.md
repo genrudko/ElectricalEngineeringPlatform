@@ -1,10 +1,10 @@
-# Domain and Project Model
+# Domain и Project Model
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
 ## 1. Source of truth
 
-The canonical engineering authority is `ElectricalProject`.
+Каноническим инженерным источником истины является `ElectricalProject`.
 
 ```text
 ElectricalProject
@@ -22,60 +22,93 @@ ElectricalProject
 └── ModuleExtensions
 ```
 
-Exact classes/schema remain PENDING until implementation spike. This document defines semantics/invariants, not frozen serialization syntax.
+Exact classes/schema остаются PENDING до implementation spike. Этот документ определяет semantics/invariants, а не фиксированную serialization syntax.
 
 ## 2. Identity
 
-All canonical engineering entities use stable internal IDs independent from display names/KKS/vendor IDs.
+Все canonical engineering entities используют stable internal IDs, независимые от display names/KKS/vendor IDs.
 
-Rules:
+Правила:
 
-- display name changes do not change identity;
-- external IDs are mapped/provenance data, not canonical identity;
-- duplicate external IDs are diagnosable;
-- stable IDs survive layout/view changes.
+- изменение display name не меняет identity;
+- external IDs являются mapping/provenance data, а не canonical identity;
+- duplicate external IDs диагностируются;
+- stable IDs сохраняются при layout/view changes.
 
 ## 3. Equipment
 
-`Equipment` represents a semantic device/object, not its picture.
+`Equipment` представляет semantic device/object, а не картинку.
 
-Core attributes are intentionally small: stable ID, equipment type reference, names/designations, object/site/voltage context, typed properties, terminal set, state reference/current simulated state where applicable, and source/provenance references.
+Core attributes намеренно компактны:
 
-Equipment type definitions live in Equipment Library rather than a giant inheritance hierarchy.
+- stable ID;
+- equipment type reference;
+- names/designations;
+- object/site/voltage context;
+- typed properties;
+- terminal set;
+- state reference/current simulated state where applicable;
+- source/provenance references.
 
-Typical types may include circuit breaker, disconnector, earthing switch, bus/bus section, transformer/autotransformer, line/cable, generator, load and measurement transformers as real workflows justify.
+Equipment type definitions живут в Equipment Library, а не в giant inheritance hierarchy.
+
+Representative types по мере реальной необходимости:
+
+- `CircuitBreaker`;
+- `Disconnector`;
+- `EarthingSwitch`;
+- `Busbar` / `BusSection`;
+- `Transformer` / `Autotransformer`;
+- `TransmissionLine` / `CableLine`;
+- `Generator`;
+- `Load`;
+- `CurrentTransformer`;
+- `VoltageTransformer`.
 
 ## 4. Equipment Library
 
-A type definition may declare semantic type/category, terminal schema, supported properties, supported states, validation constraints, graphic representation bindings and optional manufacturer/model profiles.
+Type definition может объявлять:
 
-Manufacturer/model profile may add stricter ratings/constraints without redefining the core equipment category.
+- semantic type/category;
+- terminal schema;
+- supported properties;
+- supported states;
+- validation constraints;
+- graphic representation bindings;
+- optional manufacturer/model profiles.
+
+Manufacturer/model profile может добавлять stricter ratings/constraints без переопределения core equipment category.
 
 ## 5. Terminals
 
-A terminal is the semantic connection point of equipment.
+`Terminal` — semantic connection point оборудования.
 
-Coordinates are not terminal identity. A symbol exposes visual anchors mapped to semantic terminals; moving the symbol does not recreate terminals.
+Coordinates не являются terminal identity. Symbol exposes visual anchors, mapped to semantic terminals; перемещение symbol не пересоздаёт terminals.
 
 ## 6. Connections
 
-A connection represents an electrical/network relationship between semantic endpoints and does not own screen polyline geometry.
+`Connection` представляет electrical/network relationship между semantic endpoints и не владеет screen polyline geometry.
 
-Endpoints must exist; terminal/type/cardinality rules are validated; connection changes are explicit transactions; the same connection may be rendered differently in multiple views.
+Правила:
 
-## 7. Topology Graph
+- endpoints должны существовать;
+- terminal/type/cardinality rules валидируются;
+- connection changes — explicit transactions;
+- одна `Connection` может render по-разному в нескольких views.
 
-Expected capabilities:
+## 7. TopologyGraph
+
+Ожидаемые capabilities:
 
 - connectivity queries;
 - path search;
 - electrical islands/sections;
 - state-dependent continuity;
-- energized/de-energized/unknown propagation with explicit assumptions;
+- energized/de-energized/unknown propagation с explicit assumptions;
 - switching impact calculation;
-- diagnostics for impossible/dangling structures.
+- diagnostics impossible/dangling structures.
 
-Important distinction:
+Критическое различие:
 
 ```text
 NO_PATH
@@ -84,11 +117,11 @@ PATH_CLOSED
 PATH_STATUS_UNKNOWN
 ```
 
-Unknown data must not become an optimistic safe state.
+Unknown data не превращается в optimistic safe state.
 
 ## 8. State
 
-State consists of typed values with knowledge/quality semantics.
+State состоит из typed values с knowledge/quality semantics.
 
 ```text
 CircuitBreakerPosition:
@@ -101,31 +134,57 @@ SignalQuality:
   GOOD | BAD | UNCERTAIN | UNKNOWN
 ```
 
-`DEENERGIZED_PROVEN` is deliberately different from absence of a known energized path under incomplete data.
+`DEENERGIZED_PROVEN` намеренно отличается от отсутствия известного energized path при incomplete data.
 
 ## 9. Signals
 
-A signal is a domain binding/reference, not necessarily an online runtime channel. It may carry source/system, KKS/other designation, type/unit, relation to equipment/property/state, quality semantics and provenance.
+`Signal` — domain binding/reference, не обязательно online runtime channel.
 
-NPT ASU/TECH implementation details remain in the NPT adapter/catalog.
+Он может содержать:
+
+- source/system;
+- KKS/other designation;
+- type/unit;
+- relation to equipment/property/state;
+- quality semantics;
+- provenance.
+
+NPT ASU/TECH implementation details остаются в NPT adapter/catalog.
 
 ## 10. Views
 
-A `View` is a controlled representation over project entities.
+`View` — controlled representation поверх project entities.
 
-Possible views include general single-line, voltage-level, detailed bay/switchgear, operational, NPT-compatible mnemonic, tabular and switching simulation views.
+Возможные views:
 
-A view stores entity inclusion/filters, representation profile, geometry/layout, labels/annotations, layer/group settings and layout constraints, but not duplicate authoritative topology.
+- general single-line;
+- voltage-level;
+- detailed bay/switchgear;
+- operational;
+- NPT-compatible mnemonic;
+- tabular;
+- switching simulation.
+
+View хранит entity inclusion/filters, representation profile, geometry/layout, labels/annotations, layer/group settings и layout constraints, но не duplicate authoritative topology.
 
 ## 11. Layout constraints
 
-Manual correction after auto-layout is first-class data: pinned position, relative ordering, orientation, bus extent/orientation, group/bay placement, user-owned edge route/bends, protected label placement and layout regions.
+Manual correction после auto-layout является first-class data:
 
-Auto-layout must preserve protected constraints during incremental updates.
+- pinned position;
+- relative ordering;
+- orientation;
+- bus extent/orientation;
+- group/bay placement;
+- user-owned edge route/bends;
+- protected label placement;
+- layout regions.
+
+Auto-layout обязан сохранять protected constraints при incremental updates.
 
 ## 12. Provenance
 
-Imported/generated entities retain enough provenance to explain origin and reconcile updates:
+Imported/generated entities сохраняют достаточно provenance для объяснения origin и reconciliation:
 
 ```text
 SourceRef
@@ -137,7 +196,7 @@ SourceRef
 └── transformation notes/confidence
 ```
 
-Provenance is not canonical identity.
+Provenance не является canonical identity.
 
 ## 13. Compliance profile references
 
@@ -152,24 +211,48 @@ ProjectCompliance
 └── project overlay
 ```
 
-Resolved rules/source versions used for a release should be snapshot-able/auditable.
+Resolved rules/source versions, использованные для release, должны быть snapshot-able/auditable.
 
 ## 14. Module extensions
 
-Vendor/module-specific information that must survive round-trip but has no neutral meaning belongs in namespaced module extensions such as `extensions.npt`.
+Vendor/module-specific information, которое должно пережить round-trip, но не имеет neutral meaning, хранится в namespaced module extensions, например `extensions.npt`.
 
-Extensions must not become required to interpret neutral topology unless promoted through an ADR/model change.
+Extension не становится required для interpretation neutral topology без отдельного ADR/model change.
 
-## 15. Undo/redo and transactions
+## 15. Undo/redo и transactions
 
-Engineering changes are represented as transactions/change sets: add equipment, reconnect terminal, apply approved import plan, change property, change layout constraint, apply simulated switching operation.
+Engineering changes представлены как transactions/change sets:
 
-Simulation state and persisted observed/current state must remain clearly separated.
+- add equipment;
+- reconnect terminal;
+- apply approved `ImportPlan`;
+- change property;
+- change layout constraint;
+- apply simulated switching operation.
+
+Simulation state и persisted observed/current state должны оставаться явно разделёнными.
 
 ## 16. Native project format requirements
 
-Before selecting serialization, implementation must prove schema versioning, deterministic round-trip, migrations, stable identity, atomic write/recovery, module-extension preservation, diffability/diagnostics and no hidden dependency on GUI-framework object serialization.
+До выбора serialization implementation должен доказать:
 
-## 17. Non-goals of initial Core
+- schema versioning;
+- deterministic round-trip;
+- migrations;
+- stable identity;
+- atomic write/recovery;
+- module-extension preservation;
+- diffability/diagnostics;
+- отсутствие hidden dependency на GUI-framework object serialization.
 
-Do not include full CIM ontology, every protection/automation data class, realtime SCADA channel engine, complete manufacturer database or universal calculation model before product workflows require them.
+## 17. Non-goals initial Core
+
+Не включать заранее:
+
+- full CIM ontology;
+- every protection/automation data class;
+- realtime SCADA channel engine;
+- complete manufacturer database;
+- universal calculation model.
+
+Core расширяется только через реальные product workflows.
