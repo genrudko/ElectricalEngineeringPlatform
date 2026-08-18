@@ -1,10 +1,12 @@
-# Legacy Source Index
+# Индекс legacy-источников
 
-Статус: canonical migration/reference index
+Статус: канонический migration/reference index
 
-## 1. Purpose
+## 1. Назначение
 
-This repository is the new product authority. Existing repositories/corpora are used only where they provide concrete validated evidence that is cheaper and safer to reuse than rebuilding from the new contracts.
+Новый repository является authority продукта.
+
+Existing repositories/corpora используются только там, где они дают конкретное validated evidence, которое дешевле и безопаснее переиспользовать, чем заново исследовать ту же проблему.
 
 ## 2. ElectroScheme Studio
 
@@ -14,34 +16,34 @@ Canonical historical source:
 genrudko/electroscheme-studio
 ```
 
-Important areas to retain as reference/migration evidence:
+Важные области для reference/migration evidence:
 
 - Visio/VSDX/VSSX interoperability research;
 - ShapeSheet inspection/conversion tooling;
 - prototype/editor interaction research;
 - snapping/grid/busbar/symbol experiments;
 - market/reference-product research;
-- Tauri/WebView desktop spike and packaging/native-integration evidence;
-- old UI behavior/examples useful for comparison.
+- Tauri/WebView desktop spike и packaging/native-integration evidence;
+- old UI behavior/examples для comparison.
 
-Do **not** copy the whole repository tree into this repo during Foundation.
+Не копировать весь repository tree в новый repo.
 
-When a component is considered for reuse, copy/reimplement only the accepted asset behind the new module contract and record the original commit/path in the migration PR.
+Если компонент рассматривается для reuse, переносить или реализовывать заново только accepted asset за новым module contract и фиксировать original commit/path в migration PR.
 
 ## 3. NPT / Modus reference corpus
 
-Current known source archives/materials:
+Known source archives/materials:
 
 ```text
 scada-npt-expert.zip
 LW.zip / 000. LW.zip
 ```
 
-These contain vendor/deployed-system materials including NPT/Modus binaries, project files, XSDE/XTABL corpora, libraries and database dumps.
+Они содержат vendor/deployed-system materials, включая NPT/Modus binaries, project files, XSDE/XTABL corpora, libraries и database dumps.
 
-### Storage rule
+### 3.1. Storage rule
 
-**Do not commit these archives or extracted full vendor trees to GitHub**, even if repository visibility is private today.
+**Не commit эти archives или extracted full vendor trees в GitHub**, даже если repository сегодня private.
 
 Preferred controlled location:
 
@@ -64,23 +66,23 @@ npt-reference/
     └── analysis-reports/
 ```
 
-Only project-created sanitized/minimal fixtures and derived non-proprietary test data may be promoted into this Git repository after explicit review.
+В Git могут попасть только project-created sanitized/minimal fixtures и derived non-proprietary test data после explicit review.
 
 ## 4. Old TBP project
 
-Owner disposition: **DO_NOT_MIGRATE**.
+Owner disposition: **`DO_NOT_MIGRATE`**.
 
-The old TBP codebase/configuration/rule implementation is not an input dependency for the new `Modules.Switching` and does not need to be uploaded, archived into this repository or inventoried before development.
+Old TBP codebase/configuration/rule implementation не является input dependency для нового `Modules.Switching` и не требуется для старта его разработки.
 
-The new Switching module is written clean-sheet against:
+Новый Switching module реализуется clean-sheet на основе:
 
 - Domain Core;
 - Compliance Core;
 - current verified normative sources;
 - synthetic/cleared switching scenarios;
-- future local-policy configuration through the new overlay mechanism.
+- future local-policy configuration через новый overlay mechanism.
 
-The old TBP project may remain in its existing local archive only as historical context. It is not a normative source or test oracle.
+Old TBP может оставаться в существующем локальном архиве только как historical context. Он не является normative source или test oracle.
 
 ## 5. EOD reference
 
@@ -94,25 +96,25 @@ Relevant accepted implementation evidence:
 
 - `MODULE-ACTIVATION-CONTRACT-001` / merged PR #62;
 - `MODULE-REGISTRY-001` / merged PR #68;
-- scoped activation over `ORGANIZATION`, `ENERGY_SITE`, `WORKPLACE`;
+- scoped activation для `ORGANIZATION`, `ENERGY_SITE`, `WORKPLACE`;
 - optional integration semantics;
 - lifecycle/audit/access-decision patterns.
 
-Do not copy EOD code wholesale. A future electrical bridge module is developed through a separate bounded EOD integration work item.
+Не копировать EOD code wholesale. Future electrical bridge module разрабатывается через отдельный bounded EOD integration work item.
 
 ## 6. Public normative sources
 
-Government/sector rules and applicable standards should be discovered and re-verified from current online authoritative sources when the relevant compliance slice is implemented.
+Government/sector rules и applicable standards должны обнаруживаться и re-verify по current online authoritative sources при реализации соответствующего compliance slice.
 
-Preferred authority:
+Приоритет authority:
 
 ```text
 official publication / official issuer
 → official Rosstandart standards catalogue
-→ authoritative consolidated legal/reference cross-check where needed
+→ authoritative consolidated legal/reference cross-check when needed
 ```
 
-Repository stores:
+Repository хранит:
 
 - source metadata;
 - effective/amendment information;
@@ -120,44 +122,46 @@ Repository stores:
 - project-authored machine requirements;
 - tests/coverage matrices.
 
-Full source texts are stored/copied only when access and redistribution are permitted and when doing so provides practical value. A random internet copy is never promoted to normative authority merely because it is downloadable.
+Full source texts копируются/хранятся только при разрешённом доступе/redistribution и реальной практической необходимости. Random internet copy не становится normative authority только потому, что она доступна для скачивания.
 
 ## 7. Enterprise/site internal instructions
 
-Internal enterprise/site instructions are **not part of the shared development corpus and should not be uploaded to this repository or normal project staging**.
+Internal enterprise/site instructions **не входят в shared development corpus и не должны загружаться в этот repository или normal project staging**.
 
-The product supports them as an optional deployment-time Local Policy Overlay capability. Development of that capability uses synthetic/cleared examples.
+Продукт поддерживает их как optional deployment-time Local Policy Overlay capability. Development механизма использует synthetic/cleared examples.
 
-At a real deployment, internal instructions remain within the authorized enterprise environment. The project needs only the formalized local policy package and source metadata required by that deployment's governance; the shared GitHub development process does not need the original internal documents.
+При реальном deployment internal instructions остаются внутри authorized enterprise environment.
 
 ## 8. Manufacturer documentation
 
-Manufacturer manuals/technical requirements are handled case-by-case. Use public manufacturer sources where available; copyrighted/restricted manuals stay outside Git unless redistribution is clearly allowed.
+Manufacturer manuals/technical requirements рассматриваются case-by-case.
 
-Machine constraints need explicit model/revision/applicability provenance.
+Использовать public manufacturer sources, когда доступны. Copyrighted/restricted manuals остаются вне Git без clear redistribution permission.
 
-## 9. What may be committed to this repository
+Machine constraints требуют explicit model/revision/applicability provenance.
+
+## 9. Что можно commit в repository
 
 Allowed/expected:
 
-- our source code;
-- our architecture/docs/ADRs;
-- synthetic or cleared CSV/XLSX import fixtures;
-- sanitized/minimal XSDE/XTABL fixtures when legally/operationally cleared;
-- project-authored native symbol assets with provenance;
-- derived inventories/catalog schemas without proprietary payload;
-- benchmark generators/datasets created by the project;
-- rule metadata and machine tests;
+- наш source code;
+- architecture/docs/ADRs;
+- synthetic или cleared CSV/XLSX import fixtures;
+- sanitized/minimal XSDE/XTABL fixtures;
+- project-authored native symbol assets с provenance;
+- derived inventories/catalog schemas без proprietary payload;
+- benchmark generators/datasets проекта;
+- rule metadata и machine tests;
 - synthetic local-policy fixtures.
 
-## 10. What must stay out of Git by default
+## 10. Что по умолчанию остаётся вне Git
 
 - complete NPT installation/deployed backup;
-- Modus/NPT executables/DLLs/vendor libraries unless explicit redistribution right exists;
+- Modus/NPT executables/DLLs/vendor libraries без explicit redistribution right;
 - full station project corpus;
-- raw LW SQL dumps/databases containing operational/proprietary data;
+- raw LW SQL dumps/databases с operational/proprietary data;
 - internal enterprise/site instructions;
-- manufacturer manuals with redistribution restrictions;
+- manufacturer manuals с redistribution restrictions;
 - secrets/certificates/credentials;
 - private production/exported EOD data;
-- old TBP source tree unless the owner later reopens a specific narrow migration need.
+- old TBP source tree, пока владелец явно не переоткроет конкретную narrow migration need.
