@@ -33,6 +33,8 @@ ChatGPT Project
 - branching позволяет исследовать альтернативное направление, сохраняя исходную conversation;
 - Custom GPT можно использовать для сообщений в уже существующем Project chat.
 
+Важно: на текущем product/tooling baseline `Save to project` является **пользовательским UI-действием**. У assistant/coordinator нет отдельного programmatic tool/action, который мог бы самостоятельно добавить собственный ответ в Project Sources. Поэтому сохранение checkpoint требует действия владельца в интерфейсе: menu конкретного ответа → `Save to project` / `Add to project sources`.
+
 Product behavior ChatGPT может меняться. Эти capability assumptions должны повторно проверяться по official OpenAI documentation, если UI/plan behavior изменился.
 
 ## 3. Ограничение Project Memory
@@ -123,9 +125,27 @@ Next intended work item
 
 Он не должен пересказывать весь chat.
 
+### Operating rule для assistant/coordinator
+
+Когда появляется действительно ценный checkpoint, assistant/coordinator должен **явно пометить ответ как кандидат для Project Source**, сделать его коротким и самодостаточным и не смешивать с длинной discussion/history.
+
+Предпочтительный marker:
+
+```text
+📌 Кандидат в Project Source
+<название checkpoint> — <дата>
+```
+
+После этого владелец вручную сохраняет именно этот ответ через menu → `Save to project` / `Add to project sources`.
+
+Не просить владельца сохранять каждый summary. Marker используется только для durable accepted checkpoint/decision/evidence.
+
+Если в будущем появится поддерживаемый programmatic tool для записи Project Sources, этот manual step может быть заменён автоматическим, но до фактического появления такого capability его нельзя предполагать.
+
 ### Пример
 
 ```text
+📌 Кандидат в Project Source
 Electrical Engineering Platform — Foundation accepted — YYYY-MM-DD
 
 Status: ACCEPTED
@@ -291,7 +311,8 @@ Project Sources должны оставаться небольшим curated н�
 - Project Memory считается гарантированным полным архивом;
 - Task/reminder считается state database;
 - branch chat заменяет ADR;
-- chat summary переопределяет GitHub/runtime evidence.
+- chat summary переопределяет GitHub/runtime evidence;
+- assistant делает вид, что сам сохранил Project Source без фактического product capability.
 
 ## 16. Текущий baseline Electrical Engineering Platform
 
