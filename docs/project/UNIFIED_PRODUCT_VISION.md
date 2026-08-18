@@ -1,31 +1,33 @@
-# Unified Product Vision
+# Единое видение продукта
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Product thesis
+## 1. Тезис продукта
 
-Продукт — единый локальный desktop-комплекс для электротехнической инженерии и эксплуатации, в котором **одна нейтральная модель электроустановки** используется для создания/редактирования схем, импорта структурированных перечней, совместимости с NPT и подготовки/проверки оперативных переключений.
+Продукт — единый локальный desktop-комплекс для электротехнической инженерии и эксплуатации, в котором **одна нейтральная модель электроустановки** используется для создания и редактирования схем, импорта структурированных перечней, совместимости с NPT и подготовки/проверки оперативных переключений.
 
 Ценность комплекса возникает из общей электротехнической семантики:
 
 ```text
-оборудование
-+ терминалы
-+ соединения
-+ topology
-+ state
-+ signals
-+ normative rules
-+ controlled views
+Equipment
++ Terminals
++ Connections
++ Topology
++ State
++ Signals
++ Normative Rules
++ controlled Views
 ```
 
 ## 2. Почему объединение оправдано
 
-Scheme Studio, NPT Engineering Toolkit и Switching/TBP независимо пришли к одной и той же необходимости: оборудование, terminal/connection model, topology, state и rules.
+Scheme Studio, NPT Compatibility и Switching требуют одних и тех же базовых сущностей: equipment identity, terminal/connection model, topology, state и rules.
 
-Три независимые архитектуры означали бы три базы оборудования, три topology/state model и постоянное расхождение данных.
+Три независимые архитектуры означали бы три базы оборудования, три topology/state model и постоянное расхождение инженерных данных.
 
-## 3. Core user promise
+Цель объединения — не механически сложить старые проекты, а создать один общий `ElectricalProject` и подключать к нему специализированные модули.
+
+## 3. Основное обещание пользователю
 
 Инженер описывает объект данными один раз и использует одну модель в разных сценариях:
 
@@ -33,90 +35,104 @@ Scheme Studio, NPT Engineering Toolkit и Switching/TBP независимо п�
 структурированный перечень оборудования/соединений
         ↓
 ElectricalProject
-        ├── normal single-line view
+        ├── обычная однолинейная схема
         ├── operational view
         ├── NPT-compatible representation
         ├── equipment/table views
-        └── switching simulation / TBP
+        └── switching simulation / SwitchingForm
 ```
 
-## 4. Killer workflow
+## 4. Главный продуктовый workflow
 
 > Импортировать структурированный CSV/XLSX перечень оборудования и соединений, получить построенную electrical topology и автоматически сгенерированную схему, после чего инженер исправляет только неоднозначности и компоновку.
 
-После импорта пользователь должен видеть однозначно распознанные сущности, предположения для подтверждения, конфликты и diff при повторном импорте.
+После импорта пользователь должен видеть:
 
-## 5. Product values
+- однозначно распознанные сущности;
+- случаи, требующие подтверждения;
+- конфликты;
+- источник и provenance изменений;
+- reconciliation diff при повторном импорте.
 
-### Engineering semantics over drawing primitives
+## 5. Ценности продукта
+
+### 5.1. Инженерная семантика важнее графических примитивов
 
 Выключатель — не картинка. Он имеет identity, type, terminals, state, properties, signal bindings, applicable rules и representations.
 
-### Human authority over silent automation
+### 5.2. Инженер сохраняет контроль над автоматизацией
 
-Автоматизация сокращает рутину, но не прячет инженерные допущения.
+Автоматизация сокращает рутину, но не скрывает инженерные допущения и неоднозначности.
 
-### Traceable compliance over folklore
+### 5.3. Трассируемое соответствие вместо «нормативного фольклора»
 
 Нормативное требование существует в продукте как правило с источником, редакцией, областью применимости и доказуемым поведением.
 
-### Modern professional UX
+### 5.4. Современный профессиональный UX
 
-Сложная domain model не оправдывает архаичный интерфейс. Complex engineering software должно быть современным, плотным и быстрым.
+Сложная domain model не оправдывает архаичный интерфейс. Complex engineering software должно быть современным, плотным, быстрым и пригодным для длительной работы.
 
-### Fast iteration is a development requirement
+### 5.5. Быстрая итерация — требование к Development Platform
 
-Малый UI change должен быстро становиться видимым. Надёжность достигается risk-based gates, а не запуском всего мира после изменения двух кнопок.
+Небольшое UI change должно быстро становиться видимым. Надёжность достигается risk-based gates, а не запуском полного набора тяжёлых проверок после изменения двух элементов интерфейса.
 
-### Standalone first
+### 5.6. Standalone first
 
 Комплекс работает самостоятельно. NPT и EOD — optional compatibility/integration boundaries, а не обязательные runtime dependencies.
 
-## 6. Target users and environments
+## 6. Целевые пользователи и среда
 
-Primary users:
+Основные пользователи:
 
 - оперативный и оперативно-ремонтный персонал;
 - инженерно-технический персонал электроэнергетики;
-- специалисты по схемам/мнемосхемам/operational documentation;
+- специалисты по схемам, мнемосхемам и operational documentation;
 - инженеры, формирующие и проверяющие переключения;
 - специалисты по поддержке NPT-compatible projects.
 
-Usage assumptions:
+Предполагаемая среда:
 
 - desktop workstation;
-- potentially several monitors;
-- large projects;
-- long continuous sessions;
-- keyboard+mouse;
-- local/offline operation required;
-- Windows and Linux target classes, exact support fixed after platform spike.
+- несколько мониторов;
+- большие проекты;
+- длительные рабочие сессии;
+- keyboard + mouse;
+- local/offline operation;
+- Windows и Linux как target classes, точный support фиксируется после Platform Stack Spike.
 
-## 7. Product modules
+## 7. Модули продукта
 
 - **Domain Core** — project/equipment/terminals/connections/topology/state/signals/rules/views.
 - **UI Core** — application shell, workspace, design system, commands, inspectors, data views, canvas infrastructure.
-- **Equipment Library** — semantic equipment types, terminal configurations, properties, states and approved representations.
-- **Import & Reconciliation** — CSV/XLSX mapping, staging, normalization, ambiguity handling, diff/reconciliation and provenance.
+- **Equipment Library** — semantic equipment types, terminal configurations, properties, states и approved representations.
+- **Import & Reconciliation** — CSV/XLSX mapping, staging, normalization, ambiguity handling, diff/reconciliation и provenance.
 - **Scheme Studio** — electrical views, domain-aware auto-layout, manual layout constraints, rendering/editing/output.
-- **NPT Compatibility** — XSDE/XTABL, NPT properties/IDs, signal catalog/adapters and validation.
-- **Switching / TBP** — operations, sequences, rule evaluation, interlocks, simulation and document generation.
-- **Compliance Core** — normative registry, applicability, profile composition and local policy overlays.
-- **Optional EOD Adapter** — thin integration only if feasibility/cost gate passes.
+- **NPT Compatibility** — XSDE/XTABL, NPT properties/IDs, signal catalog/adapters и validation.
+- **Switching / TBP** — clean-sheet operations, sequences, rule evaluation, interlocks, simulation и document generation.
+- **Compliance Core** — normative registry, applicability, profile composition и local policy overlays.
+- **Optional EOD Adapter** — тонкая интеграция только при успешном feasibility/cost gate.
 
-## 8. What the product is not
+## 8. Чем продукт не является
 
-Current vision does not include a replacement full SCADA runtime, historian, universal CAD, remote control platform or arbitrary automation platform.
+Текущее vision не включает:
 
-## 9. Success criteria
+- replacement full SCADA runtime;
+- historian;
+- universal CAD;
+- remote real-equipment control platform;
+- arbitrary automation platform;
+- обязательную cloud collaboration platform.
 
-1. Structured equipment/topology list becomes a usable project/scheme with much less manual work than drawing from scratch.
-2. Engineer corrections survive re-import.
-3. One domain model feeds multiple modules/views.
-4. Scheme symbols/output are traceable to applicable standards profiles.
-5. Switching validation identifies uncertainty and explains restrictions using versioned rules.
-6. Site-specific rules can be configured without weakening mandatory requirements.
-7. NPT compatibility preserves required vendor-format information without contaminating neutral Core.
-8. UI stays responsive and multi-monitor capable on realistic sizes.
-9. Common UI changes can be visually accepted in minutes/hours rather than days.
-10. Standalone product remains usable without NPT or EOD integrations.
+## 9. Критерии успеха
+
+1. Structured equipment/topology list превращается в usable project/scheme с существенно меньшей ручной работой, чем отрисовка с нуля.
+2. Engineer corrections сохраняются при re-import.
+3. Одна domain model используется несколькими модулями/views.
+4. Scheme symbols/output трассируются к применимым standards profiles.
+5. Switching validation выявляет uncertainty и объясняет ограничения через versioned rules.
+6. Site-specific rules настраиваются без ослабления mandatory requirements.
+7. NPT compatibility сохраняет необходимую vendor-format информацию без загрязнения neutral Core.
+8. UI остаётся responsive и multi-monitor-capable на representative sizes.
+9. Common UI changes можно визуально принять за минуты/часы, а не дни.
+10. Standalone product остаётся usable без NPT или EOD integrations.
+11. Интерактивный ChatGPT→VPS development loop и formal GitHub CI разделены и не требуют от владельца ежедневной SSH-работы.
