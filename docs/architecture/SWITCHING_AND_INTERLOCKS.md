@@ -1,14 +1,14 @@
-# Switching and Interlock Architecture
+# Архитектура Switching и Interlocks
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Purpose
+## 1. Назначение
 
-Switching/TBP module uses the shared electrical model to prepare, simulate and validate switching sequences and to generate/check switching-form documents.
+Switching/TBP module использует shared electrical model для подготовки, simulation и validation switching sequences, а также для generation/checking switching-form documents.
 
-It is a **clean-sheet implementation**. The old TBP codebase/configuration/rules are not migration inputs or normative authority.
+Это **clean-sheet implementation**. Старый TBP codebase/configuration/rules не являются migration inputs или normative authority.
 
-It is not a real-equipment control system.
+Module не является real-equipment control system.
 
 ## 2. Core flow
 
@@ -35,7 +35,7 @@ SwitchingSequence
 
 ## 3. SwitchingOperation
 
-Operation is semantic, not merely a text line.
+Operation является semantic, а не просто текстовой строкой.
 
 Conceptual fields:
 
@@ -49,33 +49,50 @@ Conceptual fields:
 - sequence position;
 - simulation before/after references.
 
-Possible operation families are introduced only as real product/normative evidence justifies them.
+Operation families вводятся только по мере подтверждения real product/normative use cases.
 
 ## 4. Sequence model
 
-SwitchingSequence supports manual authoring, template-based generation, future assisted generation, insert/remove/reorder with revalidation, per-step simulation, whole-sequence validation, document rendering/export, rule provenance and explicit unresolved conditions.
+`SwitchingSequence` поддерживает:
 
-Reordering one step can invalidate downstream assumptions; sequence validation must account for state after each preceding step.
+- manual authoring;
+- template-based generation;
+- future assisted generation;
+- insert/remove/reorder с revalidation;
+- per-step simulation;
+- whole-sequence validation;
+- document rendering/export;
+- rule provenance;
+- explicit unresolved conditions.
+
+Reordering одного step может invalid downstream assumptions, поэтому validation учитывает state после каждого preceding step.
 
 ## 5. State transition
 
-Before applying a simulated operation:
+Перед simulated operation:
 
 1. verify target identity/type;
 2. evaluate applicable mandatory rules;
 3. evaluate local/manufacturer constraints;
-4. determine whether required state/quality evidence is known;
+4. определить, известны ли required state/quality facts;
 5. calculate transition;
 6. recalculate affected topology;
-7. store explanation/evidence.
+7. сохранить explanation/evidence.
 
-Simulation state is never silently written back as observed real-world state.
+Simulation state никогда не записывается молча как observed real-world state.
 
 ## 6. Interlock engine
 
-Interlock engine evaluates predicates over equipment type/state, topology, energization knowledge, dependent devices, configured site/project relationships and rule/profile data.
+Interlock engine оценивает predicates над:
 
-Illustrative semantic shape only:
+- equipment type/state;
+- topology;
+- energization knowledge;
+- dependent devices;
+- configured site/project relationships;
+- rule/profile data.
+
+Иллюстративный semantic shape:
 
 ```text
 operation: CLOSE_EARTHING_SWITCH(target)
@@ -85,63 +102,96 @@ requires:
   AND conflicting devices satisfy required states
 ```
 
-The engine must not encode `UNKNOWN` as success.
+`UNKNOWN` никогда не кодируется как success.
 
 ## 7. Explainability
 
-Every block/warning/unknown result should include operation, equipment/section, violated/unsatisfied rule ID, normative/local source, facts/states used, missing facts, topology dependency/path where relevant and what confirmation/action is needed.
+Каждый block/warning/unknown result должен по возможности содержать:
 
-Avoid opaque `Operation not allowed` messages.
+- operation;
+- equipment/section;
+- violated/unsatisfied rule ID;
+- normative/local source;
+- facts/states used;
+- missing facts;
+- topology dependency/path where relevant;
+- required confirmation/action.
 
-## 8. Normative rules vs physical interlocks
+Opaque сообщение `Operation not allowed` недостаточно.
 
-Keep three layers explicit:
+## 8. Normative rules и physical interlocks
 
-1. normative/logical operational rules implemented by software;
-2. site/project operational interlocks/instructions;
+Явно разделяются три слоя:
+
+1. normative/logical operational rules, реализованные software;
+2. site/project operational restrictions/instructions;
 3. physical/hardwired/protection/controller interlocks.
 
-The software model does not claim to replace or verify physical implementation unless a separate engineering workflow explicitly does so.
+Software model не заявляет, что заменяет или верифицирует physical implementation, если отдельный engineering workflow этого не доказывает.
 
 ## 9. Human review boundary
 
 Foundation safety baseline:
 
-> generated forms/sequences are drafts/decision support requiring qualified human review before operational use.
+> Generated forms/sequences являются draft/decision-support output и требуют qualified human review до operational use.
 
-Changing this boundary requires separate safety/legal/normative acceptance and cannot be relaxed by ordinary configuration.
+Изменение этой границы требует отдельного safety/legal/normative acceptance и не может выполняться обычной configuration.
 
 ## 10. Normative integration
 
-Switching module consumes resolved rules from Compliance Core with source/version/effective dates, applicability, authority/severity, local-overlay resolution and test/evidence status.
+Switching module получает resolved rules из Compliance Core вместе с:
 
-Applicable government/sector sources are acquired/re-verified online from authoritative sources as the relevant compliance work is implemented. The old TBP implementation is not used as a source of normative truth.
+- source/version/effective dates;
+- applicability;
+- authority/severity;
+- local-overlay resolution;
+- test/evidence status.
 
-## 11. Local instructions and enterprise policy
+Applicable government/sector sources re-verify online по authoritative sources при реализации соответствующего compliance work.
 
-The product must support site-specific rules that add checks, stricter sequences, equipment-specific restrictions, local operational names, mandatory intermediate steps, approved wording and special conditions for normal/repair schemes.
+Old TBP implementation не используется как source of normative truth.
 
-They cannot suppress an applicable locked mandatory requirement. Conflict is an explicit error.
+## 11. Local instructions и enterprise policy
 
-Shared development does **not** require real internal enterprise/site instructions. These mechanics are developed against synthetic/cleared policy fixtures. Real internal instructions remain inside the authorized deployment environment and are formalized into local policy packages there.
+Продукт должен поддерживать site-specific rules, которые могут добавлять:
+
+- extra checks;
+- stricter sequences;
+- equipment-specific restrictions;
+- local operational names;
+- mandatory intermediate steps;
+- approved wording;
+- special conditions для normal/repair schemes.
+
+Они не могут suppress applicable locked mandatory requirement. Conflict — explicit error.
+
+Shared development не требует real internal enterprise/site instructions. Mechanics разрабатываются на synthetic/cleared policy fixtures. Реальные instructions остаются внутри authorized deployment environment и formalized в local policy packages там.
 
 ## 12. Operational names vs identity
 
-Display/dispatch names are attributes/views over stable equipment identity. This supports local names, aliases, imported/NPT IDs and equipment renaming without breaking historical sequence identity.
+Display/dispatch names — attributes/views над stable equipment identity.
+
+Это позволяет использовать local names, aliases, imported/NPT IDs и equipment renaming без разрушения historical sequence identity.
 
 ## 13. Topology dependency
 
-The module reports degraded confidence when topology is incomplete, connections unresolved, equipment state UNKNOWN, signal quality bad/uncertain or required policy data missing.
+Module снижает confidence или блокирует вывод, когда:
 
-Missing evidence never becomes a pass.
+- topology incomplete;
+- connections unresolved;
+- equipment state `UNKNOWN`;
+- signal quality bad/uncertain;
+- required policy data missing.
+
+Missing evidence никогда не становится pass.
 
 ## 14. Scheme integration
 
 Target UX:
 
 ```text
-select equipment on operational scheme
-→ choose semantic operation
+выбрать equipment на operational scheme
+→ выбрать semantic operation
 → validate
 → append to sequence
 → simulate
@@ -149,35 +199,35 @@ select equipment on operational scheme
 → continue
 ```
 
-Textual form and visual simulation stay synchronized through semantic operation/entity IDs, not text parsing.
+Textual form и visual simulation синхронизируются через semantic operation/entity IDs, а не text parsing.
 
 ## 15. Document generation
 
-Switching-form document is an output/projection of semantic sequence plus organization/profile requirements.
+Switching-form document — output/projection semantic sequence + organization/profile requirements.
 
-Formatting/templates may vary by enterprise/site without changing semantic operation identity.
+Formatting/templates могут различаться по enterprise/site без изменения semantic operation identity.
 
-A blocked/unresolved sequence must never be silently rendered as approved/ready.
+Blocked/unresolved sequence нельзя молча render как approved/ready.
 
 ## 16. Testing strategy
 
-- unit tests for predicates/rule resolution;
-- scenario tests on known schemes/states;
+- unit tests для predicates/rule resolution;
+- scenario tests на known schemes/states;
 - invariant/property tests where useful;
 - synthetic/cleared regression scenarios;
-- normative rule tests bound to rule IDs/source versions;
-- negative tests for UNKNOWN/incomplete topology;
-- sequence revalidation after reorder/change;
-- local-policy tests proving stricter overlays and rejection of weakening attempts.
+- normative rule tests, привязанные к rule IDs/source versions;
+- negative tests для `UNKNOWN`/incomplete topology;
+- sequence revalidation после reorder/change;
+- local-policy tests для stricter overlays и weakening rejection.
 
-Old TBP tests are not accepted as canonical regression fixtures merely because they already exist.
+Old TBP tests не становятся canonical regression fixtures только потому, что уже существуют.
 
 ## 17. Prohibited early features
 
 - direct equipment command transmission;
-- bypass of human review;
+- bypass human review;
 - automatic approval/signature;
-- assertion that simulation guarantees physical safety;
-- local switch that disables mandatory rules;
-- black-box AI-generated sequence accepted without deterministic validation/provenance;
-- migration of old TBP rules/configuration without a new explicit owner decision.
+- claim, что simulation гарантирует physical safety;
+- local switch, отключающий mandatory rules;
+- black-box AI-generated sequence без deterministic validation/provenance;
+- migration old TBP rules/configuration без нового explicit owner decision.
