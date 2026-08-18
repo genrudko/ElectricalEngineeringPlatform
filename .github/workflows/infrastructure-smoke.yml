@@ -54,6 +54,26 @@ jobs:
           echo "actual_head=${ACTUAL_HEAD}"
           test "${ACTUAL_HEAD}" = "${EXPECTED_HEAD}"
 
+      - name: Checkout exact event head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: Verify checked-out HEAD
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOCAL_HEAD="$(git rev-parse HEAD)"
+          echo "expected_checkout=${EXPECTED_HEAD}"
+          echo "checked_out_head=${LOCAL_HEAD}"
+          test "${LOCAL_HEAD}" = "${EXPECTED_HEAD}"
+          test -z "$(git status --porcelain)"
+
       - name: Verify runner credential isolation
         shell: bash
         run: |
@@ -87,11 +107,18 @@ jobs:
 
       - name: Build evidence file
         if: always()
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         shell: bash
         run: |
           set -euo pipefail
           EVIDENCE_DIR="$RUNNER_TEMP/infrastructure-smoke"
+          rm -rf "$EVIDENCE_DIR"
           mkdir -p "$EVIDENCE_DIR"
+          CHECKED_OUT_HEAD="unknown"
+          if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            CHECKED_OUT_HEAD="$(git rev-parse HEAD)"
+          fi
           {
             echo "work_item=INFRASTRUCTURE-SPIKE-001"
             echo "runner_name=${RUNNER_NAME:-unknown}"
@@ -101,6 +128,8 @@ jobs:
             echo "user=$(id -un)"
             echo "event=${GITHUB_EVENT_NAME}"
             echo "event_sha=${GITHUB_SHA}"
+            echo "expected_head=${EXPECTED_HEAD}"
+            echo "checked_out_head=${CHECKED_OUT_HEAD}"
             if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
               echo "pr_head=${{ github.event.pull_request.head.sha }}"
             fi
@@ -132,6 +161,9 @@ jobs:
             echo "- Host: \`$(hostname)\`"
             echo "- User: \`$(id -un)\`"
             echo "- Event SHA: \`${GITHUB_SHA}\`"
+            if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+              echo "- Checked-out HEAD: \`$(git rev-parse HEAD)\`"
+            fi
             if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
               echo "- PR head: \`${{ github.event.pull_request.head.sha }}\`"
             fi
@@ -140,3 +172,12 @@ jobs:
             echo "- Deliberate failure path: exercised with continue-on-error"
             echo "- Evidence artifact: \`infrastructure-smoke-evidence\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean smoke temporary evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/infrastructure-smoke"
+          test ! -e "$RUNNER_TEMP/infrastructure-smoke"
+          echo "temporary_evidence=clean"
