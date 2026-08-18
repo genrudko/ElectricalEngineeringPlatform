@@ -1,20 +1,20 @@
-# Normative / Compliance Architecture
+# Архитектура Normative / Compliance
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Purpose
+## 1. Назначение
 
-The product must convert applicable engineering and operational requirements into **traceable, versioned, explainable rules/profiles** without pretending that naming a document equals implementing it.
+Продукт должен превращать применимые engineering и operational requirements в **traceable, versioned, explainable rules/profiles**, не создавая ложное впечатление, что упоминание документа означает его полную реализацию.
 
-Compliance architecture serves:
+Compliance architecture обслуживает:
 
 1. graphics/scheme execution;
 2. electrical/domain validation;
-3. switching/TBP/interlocks.
+3. Switching/TBP/interlocks.
 
 ## 2. Core principle
 
-A production rule is not just code.
+Production rule — это не просто code.
 
 ```text
 Rule
@@ -32,11 +32,11 @@ Rule
 └── exceptions/limitations
 ```
 
-If a requirement cannot be automated reliably, it may remain an assisted-review/checklist/documentation rule rather than being omitted or falsely automated.
+Если requirement нельзя надёжно автоматизировать, он остаётся assisted-review/checklist/documentation rule, а не удаляется и не получает fake automation.
 
-## 3. Normative source types
+## 3. Типы normative sources
 
-Conceptual source classes:
+Conceptual classes:
 
 ```text
 FEDERAL_MANDATORY_RULE
@@ -51,11 +51,11 @@ PROJECT_REQUIREMENT
 RECOMMENDATION_GUIDANCE
 ```
 
-Actual legal force/applicability is determined per source/context; software classifications are not legal conclusions by themselves.
+Actual legal force/applicability определяется для конкретного source/context; software classification сама по себе не является legal conclusion.
 
 ## 4. Source registry
 
-Every source record should include:
+Каждый source record должен содержать минимум:
 
 ```text
 source_id
@@ -73,11 +73,11 @@ last_verified_at
 verification_source
 ```
 
-For standards, record official status/current changes from national standards catalogue.
+Для standards official status/current changes проверяются по national standards catalogue.
 
 ## 5. Rule registry
 
-Rule IDs remain stable across implementation refactors.
+Rule IDs сохраняют стабильность при implementation refactors.
 
 Conceptual examples:
 
@@ -87,47 +87,69 @@ GRAPHICS.ESKD.2_702.<semantic-name>
 SITE.<site>.<instruction>.<semantic-name>
 ```
 
-Rule record includes source references, semantic requirement note, applicability predicate, implementation type, severity, non-weakening lock state, tests and review status.
+Rule record содержит source references, semantic requirement, applicability predicate, implementation type, severity, non-weakening lock state, tests и review status.
 
 ## 6. Applicability resolution
 
-Applicability may depend on organization role, equipment/object category, voltage class, installation type, operation type, work conditions, date/baseline edition, scheme/document type, site/project profile and manufacturer/model.
+Applicability может зависеть от:
 
-Compliance Core must explain why a rule is or is not applicable.
+- organization role;
+- equipment/object category;
+- voltage class;
+- installation type;
+- operation type;
+- work conditions;
+- date/baseline edition;
+- scheme/document type;
+- site/project profile;
+- manufacturer/model.
 
-## 7. Baseline date and reproducibility
+Compliance Core должен объяснять, почему rule применяется или не применяется.
 
-A project/released document should be verifiable against a recorded normative baseline date and resolved source/rule versions.
+## 7. Baseline date и reproducibility
 
-When registry updates, product must distinguish old release baseline from new current rules and expose migration/revalidation requirements.
+Project/released document должен быть проверяемым против recorded normative baseline date и resolved source/rule versions.
+
+При registry update продукт различает:
+
+- historical release baseline;
+- current rules;
+- migration/revalidation requirement.
 
 ## 8. Amendment/supersession lifecycle
 
-Registry supports amendment chains and replacements/supersession.
+Registry поддерживает amendment chains и replacements/supersession.
 
-A source update triggers registry update, impacted-rule identification, review, test updates, project/profile migration decision and release note where behavior changes.
+Source update запускает:
+
+- registry update;
+- impacted-rule identification;
+- review;
+- test updates;
+- project/profile migration decision;
+- release note, если behavior меняется.
 
 ## 9. Implementation classes
 
-### MACHINE_BLOCKING
+### `MACHINE_BLOCKING`
 
-Deterministic condition can be checked and violation must block an operation/output under selected profile.
+Deterministic condition проверяется программно, а violation блокирует operation/output в выбранном profile.
 
-### MACHINE_ERROR / WARNING
+### `MACHINE_ERROR` / `WARNING`
 
-Deterministic validation finding without universal operational block.
+Deterministic validation finding без universal operational block.
 
-### ASSISTED_REVIEW
+### `ASSISTED_REVIEW`
 
-Software collects facts/checks partial conditions but qualified human judgement remains required.
+Software собирает facts/частично проверяет condition, но qualified human judgement остаётся required.
 
-### DOCUMENTATION_ONLY
+### `DOCUMENTATION_ONLY`
 
-Relevant requirement is surfaced but not machine-checkable in current model.
+Relevant requirement показывается пользователю, но пока не machine-checkable в current model.
 
-### OUT_OF_PRODUCT_BOUNDARY
+### `OUT_OF_PRODUCT_BOUNDARY`
 
-Requirement concerns physical/process/organizational control outside software authority.
+Requirement относится к physical/process/organizational control вне authority продукта.
 
 ## 10. Rule evaluation result
 
@@ -143,33 +165,50 @@ explanation
 suggested resolution
 ```
 
-`UNKNOWN` is not PASS.
+`UNKNOWN` не является PASS.
 
-## 11. Rule layers and non-weakening
+## 11. Rule layers и non-weakening
 
-Resolved project policy is composed from baseline + local layers. Mandatory locked rules cannot be disabled or relaxed by local overlays.
+Resolved project policy складывается из baseline + local layers.
 
-Local rules may add checks, narrow permitted conditions, require extra steps, choose stricter limits, define local naming/templates and encode equipment-specific restrictions.
+Mandatory locked rules нельзя отключить или ослабить local overlay.
 
-Attempted weakening produces `POLICY_CONFLICT`.
+Local rules могут:
+
+- добавлять checks;
+- сужать permitted conditions;
+- требовать extra steps;
+- выбирать stricter limits;
+- задавать local naming/templates;
+- кодировать equipment-specific restrictions.
+
+Attempted weakening даёт `POLICY_CONFLICT`.
 
 ## 12. Graphics profiles
 
-Standards-oriented scheme rules are handled as graphic/document profiles, not hard-coded renderer magic.
+Standards-oriented scheme rules оформляются как graphic/document profiles, а не hard-coded renderer magic.
 
-A profile may define/check symbol family, line styles/weights, connection semantics, labels/designations, orientation/transformation, sheet/document conventions and output rules.
+Profile может определять/check:
+
+- symbol family;
+- line styles/weights;
+- connection semantics;
+- labels/designations;
+- orientation/transformation;
+- sheet/document conventions;
+- output rules.
 
 ## 13. Switching rules
 
-Switching/TBP consumes the same rule registry but uses specialized evaluators over topology/state/sequence context.
+Switching/TBP использует тот же rule registry, но specialized evaluators работают над topology/state/sequence context.
 
-Rule engine preserves source and explanation in diagnostics and audit/report output where required.
+Rule engine сохраняет source и explanation в diagnostics/audit/report output where required.
 
 ## 14. Local policy storage
 
-Local/company/site policies are versioned assets with organization/site scope, source document ID/revision/date, effective period, mapped rules/templates and supersedes relation.
+Local/company/site policies — versioned assets с organization/site scope, source document ID/revision/date, effective period, mapped rules/templates и supersedes relation.
 
-Do not encourage storing unauthorized full proprietary manuals in GitHub.
+Shared development использует synthetic/cleared examples. Internal enterprise/site source documents не являются общим development corpus.
 
 ## 15. Review workflow
 
@@ -179,21 +218,40 @@ source identified
 → relevant provision scoped
 → semantic rule proposal
 → implementation class chosen
-→ domain/legal/normative review as appropriate
+→ domain/legal/normative review where appropriate
 → tests/evidence
 → accepted profile release
 ```
 
-LLM extraction can assist discovery/drafting but is not normative authority.
+LLM может помогать discovery/drafting, но не является normative authority.
 
-## 16. No fake full-compliance claims
+## 16. Запрет fake full-compliance claims
 
-Until a defined coverage matrix is complete, use scoped claims such as `ГОСТ 2.702 profile: implemented rules X/Y/Z` rather than `fully compliant with all ГОСТ/ПУЭ/ПТЭЭС`.
+Пока coverage matrix не завершена, использовать scoped claims, например:
+
+```text
+ГОСТ 2.702 profile: implemented rules X/Y/Z
+```
+
+а не:
+
+```text
+полностью соответствует всем ГОСТ/ПУЭ/ПТЭЭС
+```
 
 ## 17. Testing
 
-Compliance tests are indexed by rule ID and source version and include positive, negative, boundary, NOT_APPLICABLE, UNKNOWN, stricter-overlay, weakening-conflict and amendment-migration scenarios where relevant.
+Compliance tests indexed by rule ID/source version и покрывают where relevant:
 
-## 18. Update monitoring
+- positive;
+- negative;
+- boundary;
+- NOT_APPLICABLE;
+- UNKNOWN;
+- stricter-overlay;
+- weakening-conflict;
+- amendment-migration scenarios.
 
-Future automation may monitor official registries for changes, but detected changes never automatically alter production rule semantics without human/domain review.
+## 18. Source update monitoring
+
+Future automation может monitor official registries, но обнаруженное изменение никогда не переписывает production rule semantics автоматически без human/domain review.
