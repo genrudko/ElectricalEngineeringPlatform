@@ -101,7 +101,7 @@ public sealed partial class MainWindow : Window
         return new Grid
         {
             RowDefinitions = RowDefinitions.Parse("Auto,*"),
-            Margin = new Avalonia.Thickness(18),
+            Margin = new global::Avalonia.Thickness(18),
             Children =
             {
                 new TextBlock
@@ -113,12 +113,12 @@ public sealed partial class MainWindow : Window
                 new Border
                 {
                     [Grid.RowProperty] = 1,
-                    Margin = new Avalonia.Thickness(0, 16, 0, 0),
+                    Margin = new global::Avalonia.Thickness(0, 16, 0, 0),
                     BorderBrush = new SolidColorBrush(Color.Parse("#D8DEE6")),
-                    BorderThickness = new Avalonia.Thickness(1),
-                    CornerRadius = new Avalonia.CornerRadius(4),
+                    BorderThickness = new global::Avalonia.Thickness(1),
+                    CornerRadius = new global::Avalonia.CornerRadius(4),
                     Background = new SolidColorBrush(Color.Parse("#FAFBFC")),
-                    Padding = new Avalonia.Thickness(24),
+                    Padding = new global::Avalonia.Thickness(24),
                     Child = new StackPanel
                     {
                         VerticalAlignment = VerticalAlignment.Center,
@@ -142,7 +142,7 @@ public sealed partial class MainWindow : Window
 
     private Control BuildUiGallery()
     {
-        var gallery = new StackPanel { Spacing = 14, Margin = new Avalonia.Thickness(18) };
+        var gallery = new StackPanel { Spacing = 14, Margin = new global::Avalonia.Thickness(18) };
         gallery.Children.Add(new TextBlock { Text = "UI Gallery", FontSize = 20, FontWeight = FontWeight.SemiBold });
         gallery.Children.Add(new TextBlock
         {
@@ -220,9 +220,9 @@ public sealed partial class MainWindow : Window
                 {
                     Background = new SolidColorBrush(Color.Parse("#FDECEC")),
                     BorderBrush = new SolidColorBrush(Color.Parse("#E6AAAA")),
-                    BorderThickness = new Avalonia.Thickness(1),
-                    CornerRadius = new Avalonia.CornerRadius(4),
-                    Padding = new Avalonia.Thickness(10),
+                    BorderThickness = new global::Avalonia.Thickness(1),
+                    CornerRadius = new global::Avalonia.CornerRadius(4),
+                    Padding = new global::Avalonia.Thickness(10),
                     Child = new TextBlock { Text = _fixture.Gallery.MultilineError, TextWrapping = TextWrapping.Wrap }
                 }
             }
@@ -234,9 +234,9 @@ public sealed partial class MainWindow : Window
     private static Border Section(string title, Control content) => new()
     {
         BorderBrush = new SolidColorBrush(Color.Parse("#D8DEE6")),
-        BorderThickness = new Avalonia.Thickness(1),
-        CornerRadius = new Avalonia.CornerRadius(4),
-        Padding = new Avalonia.Thickness(12),
+        BorderThickness = new global::Avalonia.Thickness(1),
+        CornerRadius = new global::Avalonia.CornerRadius(4),
+        Padding = new global::Avalonia.Thickness(12),
         Child = new StackPanel
         {
             Spacing = 10,
@@ -265,11 +265,11 @@ public sealed partial class MainWindow : Window
     {
         var border = new Border
         {
-            BorderThickness = new Avalonia.Thickness(1),
+            BorderThickness = new global::Avalonia.Thickness(1),
             BorderBrush = StateBrush(state),
             Background = StateBackground(state),
-            CornerRadius = new Avalonia.CornerRadius(3),
-            Padding = new Avalonia.Thickness(8),
+            CornerRadius = new global::Avalonia.CornerRadius(3),
+            Padding = new global::Avalonia.Thickness(8),
             Child = new Grid
             {
                 ColumnDefinitions = ColumnDefinitions.Parse("190,*"),
@@ -287,8 +287,8 @@ public sealed partial class MainWindow : Window
     private static Border Badge(string text, string background, string foreground) => new()
     {
         Background = new SolidColorBrush(Color.Parse(background)),
-        CornerRadius = new Avalonia.CornerRadius(10),
-        Padding = new Avalonia.Thickness(9, 3),
+        CornerRadius = new global::Avalonia.CornerRadius(10),
+        Padding = new global::Avalonia.Thickness(9, 3),
         Child = new TextBlock { Text = text, Foreground = new SolidColorBrush(Color.Parse(foreground)), FontSize = 12, FontWeight = FontWeight.SemiBold }
     };
 
@@ -304,9 +304,9 @@ public sealed partial class MainWindow : Window
         {
             Background = new SolidColorBrush(Color.Parse(background)),
             BorderBrush = new SolidColorBrush(Color.Parse(border)),
-            BorderThickness = new Avalonia.Thickness(1),
-            CornerRadius = new Avalonia.CornerRadius(4),
-            Padding = new Avalonia.Thickness(9),
+            BorderThickness = new global::Avalonia.Thickness(1),
+            CornerRadius = new global::Avalonia.CornerRadius(4),
+            Padding = new global::Avalonia.Thickness(9),
             Child = new TextBlock { Text = notification.Text, TextWrapping = TextWrapping.Wrap }
         };
     }
@@ -343,7 +343,7 @@ public sealed partial class MainWindow : Window
         _renderedPropertyModes.Clear();
 
         PropertiesHost.Children.Add(new TextBlock { Text = equipment.Designation, FontSize = 17, FontWeight = FontWeight.SemiBold });
-        PropertiesHost.Children.Add(new TextBlock { Text = equipment.Name, Foreground = new SolidColorBrush(Color.Parse("#5D6875")), Margin = new Avalonia.Thickness(0, 0, 0, 6) });
+        PropertiesHost.Children.Add(new TextBlock { Text = equipment.Name, Foreground = new SolidColorBrush(Color.Parse("#5D6875")), Margin = new global::Avalonia.Thickness(0, 0, 0, 6) });
 
         foreach (var property in equipment.Properties)
         {
@@ -365,10 +365,10 @@ public sealed partial class MainWindow : Window
             PropertiesHost.Children.Add(new Border
             {
                 BorderBrush = StateBrush(property.State),
-                BorderThickness = property.State == "normal" ? new Avalonia.Thickness(0) : new Avalonia.Thickness(1),
+                BorderThickness = property.State == "normal" ? new global::Avalonia.Thickness(0) : new global::Avalonia.Thickness(1),
                 Background = StateBackground(property.State),
-                CornerRadius = new Avalonia.CornerRadius(3),
-                Padding = new Avalonia.Thickness(7),
+                CornerRadius = new global::Avalonia.CornerRadius(3),
+                Padding = new global::Avalonia.Thickness(7),
                 Child = rowContent
             });
         }
