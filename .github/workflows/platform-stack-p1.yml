@@ -150,7 +150,7 @@ jobs:
           echo 'a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0  spikes/platform-stack/avalonia/src/Assets/Fonts/NotoSans-SemiBold.ttf' | sha256sum --check -
           sha256sum "$FONT_DIR/NotoSans-Regular.ttf" "$FONT_DIR/NotoSans-SemiBold.ttf" | tee "$EVIDENCE/noto-fonts.sha256"
 
-      - name: Restore and expose generated lock files
+      - name: Restore committed locks in locked mode
         shell: bash
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -158,15 +158,8 @@ jobs:
         run: |
           set -euo pipefail
           cd spikes/platform-stack/avalonia
-          timeout 120s dotnet restore smoke/EEP.P1.Avalonia.Smoke.csproj --use-lock-file
-          test -f src/packages.lock.json
-          test -f smoke/packages.lock.json
-          echo '=== BEGIN src/packages.lock.json ==='
-          cat src/packages.lock.json
-          echo '=== END src/packages.lock.json ==='
-          echo '=== BEGIN smoke/packages.lock.json ==='
-          cat smoke/packages.lock.json
-          echo '=== END smoke/packages.lock.json ==='
+          timeout 120s dotnet restore src/EEP.P1.Avalonia.csproj --locked-mode
+          timeout 120s dotnet restore smoke/EEP.P1.Avalonia.Smoke.csproj --locked-mode
 
       - name: Build Avalonia app Release
         shell: bash
@@ -189,11 +182,12 @@ jobs:
           timeout 120s dotnet build smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-restore
           timeout 30s dotnet run --project smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-build
 
-      - name: Capture dependency and environment evidence
+      - name: Capture dependency and exact-head environment evidence
         shell: bash
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: '1'
           DOTNET_NOLOGO: '1'
+          EXACT_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
           EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
@@ -210,11 +204,13 @@ jobs:
           evidence = Path(os.environ['RUNNER_TEMP']) / 'eep-p1-avalonia-evidence'
           fixture = Path('spikes/platform-stack/shared/fixtures/p1-shell-fixture.json')
           font_provenance = json.loads((evidence / 'noto-acquisition.json').read_text(encoding='utf-8'))
+          runtimes = subprocess.check_output(['dotnet', '--list-runtimes'], text=True).splitlines()
+          runtime = next((line.split()[1] for line in runtimes if line.startswith('Microsoft.NETCore.App ')), 'unknown')
           record = {
               'schema': 'eep.environment/v1',
               'work_item': 'PLATFORM-STACK-SPIKE-001',
               'candidate': 'avalonia',
-              'git_sha': os.environ['GITHUB_SHA'],
+              'git_sha': os.environ['EXACT_HEAD'],
               'run_id': os.environ['GITHUB_RUN_ID'],
               'timestamp_utc': subprocess.check_output(['date','-u','+%Y-%m-%dT%H:%M:%SZ'], text=True).strip(),
               'os': {'name': 'Ubuntu', 'version': '24.04.4 LTS', 'build': '', 'kernel': platform.release(), 'arch': platform.machine()},
@@ -225,9 +221,9 @@ jobs:
                   'disk_free_bytes': shutil.disk_usage('/').free
               },
               'gpu': [], 'displays': [],
-              'toolchain': {'dotnet_sdk': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'dotnet_runtime': '10.0.10', 'compiler': 'C#/.NET SDK', 'compiler_detail': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'windows_sdk': None, 'cmake': None, 'ninja': None, 'runner_image': None},
+              'toolchain': {'dotnet_sdk': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'dotnet_runtime': runtime, 'compiler': 'C#/.NET SDK', 'compiler_detail': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'windows_sdk': None, 'cmake': None, 'ninja': None, 'runner_image': None},
               'framework': {'name': 'avalonia', 'version': '12.1.1'},
-              'build': {'configuration': 'Release', 'options': {'tfm': 'net10.0'}},
+              'build': {'configuration': 'Release', 'options': {'tfm': 'net10.0', 'restore': 'locked-mode'}},
               'renderer': {'name': 'not exercised in Linux behavior smoke', 'backend': 'none', 'software': False},
               'fixture': {'schema': 'eep.p1-shell-fixture/v1', 'manifest_sha256': hashlib.sha256(fixture.read_bytes()).hexdigest()},
               'font': {'family': 'Noto Sans', 'version': '2.015', 'files_sha256': [f['sha256'] for f in font_provenance['files']]}
