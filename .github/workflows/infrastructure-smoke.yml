@@ -109,6 +109,10 @@ jobs:
             code="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:8788${path}" 2>/dev/null || true)"
             printf '%s=%s\n' "$path" "${code:-request_failed}"
           done
+          echo "--- OpenAPI path/method inventory ---"
+          curl --silent --show-error http://127.0.0.1:8788/openapi.json 2>/dev/null \
+            | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(f"{m.upper()} {p}") for p,ops in sorted(d.get("paths",{}).items()) for m in sorted(ops) if m.lower() in {"get","post","put","patch","delete"}]' \
+            || true
 
       - name: Exercise deliberate failure diagnostics
         id: deliberate_failure
