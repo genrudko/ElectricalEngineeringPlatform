@@ -16,11 +16,14 @@ application: /opt/eep-dev-bridge
 state: /var/lib/eep-dev-bridge
 credential env file: /etc/eep-dev-bridge.env
 public TLS endpoint: https://eep-dev-5-181-177-72.nip.io
+repository view: /home/eep-workspace/workspace/ElectricalEngineeringPlatform
 ```
 
 Caddy remains the public TLS reverse proxy. The Bridge itself binds only localhost.
 
 The bearer credential is stored outside Git and is never written to GitHub Actions artifacts or logs.
+
+The Bridge service keeps home isolation enabled and receives only the fixed repository path as an explicit read-only systemd bind. The deploy-key directory is not exposed to `eepbridge`.
 
 ## 2. Normal status checks
 
@@ -72,7 +75,7 @@ Recommended controlled sequence:
 
 A failure at steps 3–8 requires restoring the previous root-only env backup and restarting the service before further diagnosis.
 
-## 4. Recovery after Bridge start failure
+## 4. Recovery after Bridge start/runtime failure
 
 First determine whether the failure is application/configuration or dependency/runtime related:
 
@@ -88,7 +91,10 @@ Deployment source has its own rollback in `scripts/install_development_bridge.sh
 Known proven failure classes from `INFRASTRUCTURE-SPIKE-001`:
 
 - Git cross-owner `dubious ownership` — handled with an explicit fixed `safe.directory`, never wildcard `safe.directory=*`;
-- write failure under `ProtectSystem=strict` — handled with dedicated `StateDirectory=eep-dev-bridge` and `ReadWritePaths=/var/lib/eep-dev-bridge` rather than disabling systemd hardening.
+- write failure under `ProtectSystem=strict` — handled with dedicated `StateDirectory=eep-dev-bridge` and `ReadWritePaths=/var/lib/eep-dev-bridge` rather than disabling systemd hardening;
+- repository `Permission denied` only inside the service namespace — caused by home isolation; handled by keeping `ProtectHome=tmpfs` and exposing only the fixed repository path with an explicit read-only bind, not by disabling `ProtectHome` and not by exposing the SSH/deploy-key directory.
+
+A host-side `sudo -u eepbridge git ...` success does not by itself prove service-namespace access. After any systemd sandbox change, verify through the authenticated Bridge endpoint itself.
 
 ## 5. Repository sync recovery
 
@@ -115,7 +121,7 @@ sudo systemctl start eep-workspace-sync.service
 
 `eepbridge` must remain unable to read `/home/eep-workspace/.ssh/eep_github_ed25519` and unable to write the repository root or `.git`.
 
-## 6. ChatGPT Action recovery
+## 6. ChatGPT Action recovery and approval behavior
 
 If the public TLS endpoint works but Action calls fail:
 
@@ -126,8 +132,11 @@ If the public TLS endpoint works but Action calls fail:
 5. Verify bearer authentication remains configured in the Action UI.
 6. Re-save the canonical schema from `tools/development_bridge/openapi-action.yaml` if operation IDs changed.
 7. Test `getBridgeHealth` before any task operation.
+8. Test `bridge_selftest` against an exact commit that actually contains the Bridge test directory; do not use an older `main` snapshot for a test introduced only in the active work-item branch.
 
 Do not enable runtime `/openapi.json` merely to make the Action easier to configure.
+
+The bounded `runBridgeTask` and `cancelTask` operations are explicitly marked non-consequential in the canonical Action schema. This does not broaden server permissions: the API still accepts only allowlisted profiles and validated refs. When the ChatGPT UI offers a persistent approval choice for this private Action, the owner may select it to avoid repeated approval clicks during routine bounded development work.
 
 ## 7. Decommission
 
