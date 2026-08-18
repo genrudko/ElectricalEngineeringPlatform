@@ -10,8 +10,9 @@
 - Bootstrap commit: `5aa73328917447fb410489e8f67685ee4907ae66`.
 - Active issue: #1 `UNIFIED-FOUNDATION-001`.
 - Active branch: `architecture/unified-foundation-001`.
-- Foundation Draft PR: to be opened after migration of the canonical document set into this branch.
-- Previous working Foundation source: `genrudko/electroscheme-studio` issue #5 / Draft PR #6 / branch `architecture/unified-foundation-001`; it is historical migration evidence after this new repository becomes canonical.
+- Foundation Draft PR: #2 `UNIFIED-FOUNDATION-001 — establish canonical platform foundation`.
+- PR #2: OPEN / DRAFT / NOT MERGED at this documentation snapshot.
+- Previous working Foundation source: `genrudko/electroscheme-studio` issue #5 / Draft PR #6 / branch `architecture/unified-foundation-001`; it is now historical migration evidence.
 - Previous Tauri desktop spike remains in `genrudko/electroscheme-studio` issue #3 / Draft PR #4 as research evidence only.
 
 Exact heads/compare/workflow state are volatile and must be read from GitHub before implementation/acceptance actions.
@@ -62,14 +63,7 @@ The target is one standalone, desktop-first/local-first **modular electrical-eng
 
 ### ElectroScheme Studio source repository
 
-Useful evidence/assets include:
-
-- object/terminal/connection research;
-- SVG/editor interaction experiments;
-- VSDX/VSSX/ShapeSheet tooling;
-- snapping/busbar/symbol research;
-- desktop packaging and Tauri spike evidence;
-- market/reference-product research.
+Useful evidence/assets include object/terminal/connection research, SVG/editor interaction experiments, VSDX/VSSX/ShapeSheet tooling, snapping/busbar/symbol research, desktop packaging/Tauri spike evidence and market/reference-product research.
 
 These are migration inputs, not automatically accepted production architecture.
 
@@ -91,28 +85,15 @@ Full vendor/reference corpus stays outside GitHub.
 
 ### TBP source materials
 
-Useful inherited concepts include:
+Useful inherited concepts include draft switching-form generation with mandatory human review, profile-driven site-specific behavior, normative-reference structures, operational wording/pattern research and rule-authority concepts.
 
-- draft switching-form generation with mandatory human review;
-- profile-driven site-specific behavior;
-- normative-reference structures;
-- operational wording/pattern research;
-- rule-authority concepts.
-
-At Foundation time the TBP source should be treated as an explicit migration source; do not invent a canonical GitHub repository if the source remains local.
+At Foundation time TBP source is an explicit migration source; do not invent a canonical GitHub repository if the source remains local.
 
 ## Normative baseline state
 
 Foundation establishes the registry mechanism, not a claim that all requirements are encoded.
 
-Initial high-priority source set includes:
-
-- ГОСТ 2.701-2008 and ГОСТ 2.702-2011;
-- ПОТЭЭ under Mintrud order №903н;
-- PTEEP consumer rules under Minenergo order №811;
-- PTEES under Minenergo order №1070 with amendment chain;
-- Switching Rules under Minenergo order №757 with amendment chain;
-- applicable ПУЭ chapters/sources tracked separately rather than as one synthetic version.
+Initial high-priority source set includes ГОСТ 2.701-2008, ГОСТ 2.702-2011, ПОТЭЭ №903н, PTEEP №811, PTEES №1070, Switching Rules №757 and applicable ПУЭ chapters tracked separately rather than as one synthetic version.
 
 Every production rule still needs source-level extraction, applicability classification, testability decision and domain review.
 
@@ -139,17 +120,7 @@ module expansion: Scheme / NPT / Switching
 
 ## Explicitly out of current scope
 
-Without a new owner decision, do not build:
-
-- replacement SCADA runtime;
-- IEC-104 server/client platform as product objective;
-- historian;
-- P/Q control;
-- redundancy/failover SCADA platform;
-- remote real-equipment switching execution;
-- microservice platform;
-- dynamic plugin marketplace;
-- universal CAD replacement.
+Without a new owner decision, do not build replacement SCADA runtime, IEC-104 server/client platform as product objective, historian, P/Q control, redundancy/failover SCADA, remote real-equipment switching execution, microservice platform, dynamic plugin marketplace or universal CAD replacement.
 
 ## Acceptance posture
 
