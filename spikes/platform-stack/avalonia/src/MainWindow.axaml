@@ -64,7 +64,18 @@
         <Grid RowDefinitions="Auto,Auto,*">
           <TextBlock Classes="sectionTitle" Text="Оборудование" />
           <TextBox Grid.Row="1" Margin="0,8,0,8" PlaceholderText="Поиск оборудования" />
-          <TreeView x:Name="EquipmentTree" Grid.Row="2" SelectionChanged="EquipmentTree_OnSelectionChanged" />
+          <TreeView x:Name="EquipmentTree" Grid.Row="2" SelectionChanged="EquipmentTree_OnSelectionChanged">
+            <TreeView.ItemTemplate>
+              <TreeDataTemplate ItemsSource="{Binding Children}">
+                <TextBlock Text="{Binding Label}" />
+              </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+            <TreeView.Styles>
+              <Style Selector="TreeViewItem">
+                <Setter Property="IsExpanded" Value="{Binding Expanded}" />
+              </Style>
+            </TreeView.Styles>
+          </TreeView>
         </Grid>
       </Border>
 

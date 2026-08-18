@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -18,7 +19,7 @@ public sealed partial class MainWindow : Window
     };
 
     private readonly P1Fixture _fixture;
-    private readonly Dictionary<string, TreeViewItem> _treeItems = [];
+    private readonly Dictionary<string, EquipmentNodeFixture> _equipmentNodes = [];
     private readonly HashSet<string> _equipmentIds = [];
     private readonly List<string> _renderedPropertyStates = [];
     private readonly List<string> _renderedPropertyModes = [];
@@ -26,26 +27,17 @@ public sealed partial class MainWindow : Window
 
     public MainWindow()
     {
-        Console.WriteLine("P1 MainWindow: InitializeComponent begin");
         InitializeComponent();
-        Console.WriteLine("P1 MainWindow: InitializeComponent complete");
         _fixture = P1FixtureLoader.Load();
-        Console.WriteLine("P1 MainWindow: fixture loaded");
         Title = _fixture.ApplicationTitle;
-        Console.WriteLine("P1 MainWindow: title assigned");
 
-        Console.WriteLine("P1 MainWindow: BuildEquipmentTree begin");
         BuildEquipmentTree();
-        Console.WriteLine("P1 MainWindow: BuildEquipmentTree complete");
         BuildDocumentTabs();
-        Console.WriteLine("P1 MainWindow: BuildDocumentTabs complete");
         SelectEquipmentForTest(_fixture.SelectedEquipmentId);
-        Console.WriteLine("P1 MainWindow: initial equipment selected");
 
         StatusText.Text = _fixture.Status.Project;
         DiagnosticsText.Text = _fixture.Status.Diagnostics;
         ConnectionText.Text = _fixture.Status.Connection;
-        Console.WriteLine("P1 MainWindow: constructor complete");
     }
 
     public string FixtureSchema => _fixture.Schema;
@@ -62,28 +54,18 @@ public sealed partial class MainWindow : Window
 
     private void BuildEquipmentTree()
     {
-        var root = CreateTreeItem(_fixture.EquipmentTree);
-        EquipmentTree.ItemsSource = new[] { root };
+        IndexEquipmentNode(_fixture.EquipmentTree);
+        EquipmentTree.ItemsSource = new[] { _fixture.EquipmentTree };
     }
 
-    private TreeViewItem CreateTreeItem(EquipmentNodeFixture node)
+    private void IndexEquipmentNode(EquipmentNodeFixture node)
     {
-        var item = new TreeViewItem
-        {
-            Header = node.Label,
-            Tag = node.Id,
-            IsExpanded = node.Expanded
-        };
-
-        _treeItems[node.Id] = item;
+        _equipmentNodes[node.Id] = node;
         _equipmentIds.Add(node.Id);
-
-        if (node.Children.Count > 0)
+        foreach (var child in node.Children)
         {
-            item.ItemsSource = node.Children.Select(CreateTreeItem).ToArray();
+            IndexEquipmentNode(child);
         }
-
-        return item;
     }
 
     private void BuildDocumentTabs()
@@ -192,13 +174,27 @@ public sealed partial class MainWindow : Window
         propertyRows.Children.Add(GalleryPropertyRow("UNKNOWN", new TextBlock { Text = "Состояние неизвестно", VerticalAlignment = VerticalAlignment.Center }, "unknown"));
         gallery.Children.Add(Section("Состояния свойств", propertyRows));
 
-        var treeDemo = new TreeViewItem { Header = "КРУ 35 кВ", IsExpanded = true };
-        treeDemo.ItemsSource = new[]
+        var demoRoot = new EquipmentNodeFixture
         {
-            new TreeViewItem { Header = "QF-35-01", IsSelected = true },
-            new TreeViewItem { Header = "QS-35-01" }
+            Id = "gallery-kru-35",
+            Label = "КРУ 35 кВ",
+            Expanded = true,
+            Children =
+            [
+                new EquipmentNodeFixture { Id = "gallery-QF-35-01", Label = "QF-35-01", Expanded = false, Children = [] },
+                new EquipmentNodeFixture { Id = "gallery-QS-35-01", Label = "QS-35-01", Expanded = false, Children = [] }
+            ]
         };
-        gallery.Children.Add(Section("Tree states", new TreeView { ItemsSource = new[] { treeDemo }, Height = 110 }));
+        var galleryTree = new TreeView
+        {
+            Height = 110,
+            ItemsSource = new[] { demoRoot },
+            ItemTemplate = new FuncTreeDataTemplate<EquipmentNodeFixture>(
+                (node, _) => new TextBlock { Text = node.Label },
+                node => node.Children)
+        };
+        galleryTree.SelectedItem = demoRoot.Children[0];
+        gallery.Children.Add(Section("Tree states", galleryTree));
 
         var badgeRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         badgeRow.Children.Add(Badge("Норма", "#E9F7EF", "#176B3A"));
@@ -269,25 +265,19 @@ public sealed partial class MainWindow : Window
 
     private static Border GalleryPropertyRow(string label, Control editor, string state)
     {
-        var border = new Border
+        var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse("190,*") };
+        grid.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
+        Grid.SetColumn(editor, 1);
+        grid.Children.Add(editor);
+        return new Border
         {
             BorderThickness = new global::Avalonia.Thickness(1),
             BorderBrush = StateBrush(state),
             Background = StateBackground(state),
             CornerRadius = new global::Avalonia.CornerRadius(3),
             Padding = new global::Avalonia.Thickness(8),
-            Child = new Grid
-            {
-                ColumnDefinitions = ColumnDefinitions.Parse("190,*"),
-                Children =
-                {
-                    new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center },
-                    editor
-                }
-            }
+            Child = grid
         };
-        Grid.SetColumn(editor, 1);
-        return border;
     }
 
     private static Border Badge(string text, string background, string foreground) => new()
@@ -319,13 +309,15 @@ public sealed partial class MainWindow : Window
 
     private void EquipmentTree_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (EquipmentTree.SelectedItem is TreeViewItem { Tag: string id })
+        if (EquipmentTree.SelectedItem is EquipmentNodeFixture node)
         {
-            SelectEquipmentForTest(id);
+            ApplyEquipmentSelection(node.Id, updateTreeSelection: false);
         }
     }
 
-    public bool SelectEquipmentForTest(string id)
+    public bool SelectEquipmentForTest(string id) => ApplyEquipmentSelection(id, updateTreeSelection: true);
+
+    private bool ApplyEquipmentSelection(string id, bool updateTreeSelection)
     {
         if (!_fixture.Equipment.TryGetValue(id, out var equipment))
         {
@@ -333,12 +325,13 @@ public sealed partial class MainWindow : Window
         }
 
         _selectedEquipmentId = id;
-        if (_treeItems.TryGetValue(id, out var item) && !ReferenceEquals(EquipmentTree.SelectedItem, item))
+        RenderProperties(equipment);
+
+        if (updateTreeSelection && _equipmentNodes.TryGetValue(id, out var node) && !ReferenceEquals(EquipmentTree.SelectedItem, node))
         {
-            EquipmentTree.SelectedItem = item;
+            EquipmentTree.SelectedItem = node;
         }
 
-        RenderProperties(equipment);
         return true;
     }
 
