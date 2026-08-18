@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../src/EEP.P1.Avalonia.csproj" />
+    <PackageReference Include="Avalonia.Headless" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../shared/fixtures/p1-shell-fixture.json" Link="Fixtures/p1-shell-fixture.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../shared/fixtures/typography.txt" Link="Fixtures/typography.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

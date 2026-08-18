@@ -118,3 +118,139 @@ jobs:
           echo '=== DISPLAY/GL LIBRARY CACHE ==='
           ldconfig -p 2>/dev/null | grep -E 'lib(X11|xcb|xkbcommon|fontconfig|freetype|GL|EGL|OpenGL|dbus|glib)' | head -80 || true
           echo 'NOTE: inventory only; no package installation or configuration change performed.'
+
+  avalonia-linux-materialize:
+    name: P1.2 Avalonia Linux materialization
+    needs: linux-preflight
+    runs-on: [self-hosted, linux, x64, eep-vps]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout exact event head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: Materialize .NET SDK 10.0.302 in runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOL_ROOT="$RUNNER_TEMP/eep-p1-tools"
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          rm -rf "$TOOL_ROOT" "$EVIDENCE"
+          mkdir -p "$TOOL_ROOT" "$EVIDENCE"
+          python3 spikes/platform-stack/scripts/materialize_dotnet.py \
+            --version 10.0.302 \
+            --rid linux-x64 \
+            --install-dir "$TOOL_ROOT/dotnet-10.0.302" \
+            --provenance "$EVIDENCE/dotnet-acquisition.json"
+          echo "$TOOL_ROOT/dotnet-10.0.302" >> "$GITHUB_PATH"
+          echo "DOTNET_ROOT=$TOOL_ROOT/dotnet-10.0.302" >> "$GITHUB_ENV"
+          "$TOOL_ROOT/dotnet-10.0.302/dotnet" --version
+          test "$("$TOOL_ROOT/dotnet-10.0.302/dotnet" --version)" = "10.0.302"
+
+      - name: Materialize Noto Sans 2.015 static hinted fonts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          FONT_DIR="spikes/platform-stack/avalonia/src/Assets/Fonts"
+          rm -rf "$FONT_DIR"
+          mkdir -p "$FONT_DIR"
+          python3 spikes/platform-stack/scripts/materialize_noto.py \
+            --destination "$FONT_DIR" \
+            --provenance "$EVIDENCE/noto-acquisition.json"
+          sha256sum "$FONT_DIR/NotoSans-Regular.ttf" "$FONT_DIR/NotoSans-SemiBold.ttf" | tee "$EVIDENCE/noto-fonts.sha256"
+
+      - name: Restore with generated lock files
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cd spikes/platform-stack/avalonia
+          dotnet restore smoke/EEP.P1.Avalonia.Smoke.csproj --use-lock-file
+          test -f src/packages.lock.json
+          test -f smoke/packages.lock.json
+
+      - name: Build Release and run framework-native headless smoke
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cd spikes/platform-stack/avalonia
+          dotnet build src/EEP.P1.Avalonia.csproj -c Release --no-restore
+          dotnet build smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-restore
+          dotnet run --project smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-build
+
+      - name: Capture dependency and environment evidence
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          mkdir -p "$EVIDENCE/lockfiles"
+          cp spikes/platform-stack/avalonia/src/packages.lock.json "$EVIDENCE/lockfiles/src.packages.lock.json"
+          cp spikes/platform-stack/avalonia/smoke/packages.lock.json "$EVIDENCE/lockfiles/smoke.packages.lock.json"
+          dotnet list spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj package --include-transitive > "$EVIDENCE/dependencies.txt"
+          sha256sum spikes/platform-stack/shared/fixtures/p1-shell-fixture.json > "$EVIDENCE/fixture.sha256"
+          find spikes/platform-stack/avalonia/src/bin/Release/net10.0 -type f -print0 | sort -z | xargs -0 sha256sum > "$EVIDENCE/release-files.sha256"
+          python3 - <<'PY'
+          import hashlib, json, os, platform, shutil, subprocess
+          from pathlib import Path
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'eep-p1-avalonia-evidence'
+          fixture = Path('spikes/platform-stack/shared/fixtures/p1-shell-fixture.json')
+          font_provenance = json.loads((evidence / 'noto-acquisition.json').read_text(encoding='utf-8'))
+          record = {
+              'schema': 'eep.environment/v1',
+              'work_item': 'PLATFORM-STACK-SPIKE-001',
+              'candidate': 'avalonia',
+              'git_sha': os.environ['GITHUB_SHA'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'timestamp_utc': subprocess.check_output(['date','-u','+%Y-%m-%dT%H:%M:%SZ'], text=True).strip(),
+              'os': {'name': 'Ubuntu', 'version': '24.04.4 LTS', 'build': '', 'kernel': platform.release(), 'arch': platform.machine()},
+              'host': {
+                  'cpu_model': next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown'),
+                  'logical_cpus': os.cpu_count(),
+                  'ram_bytes': int(subprocess.check_output("awk '/MemTotal/ {print $2*1024}' /proc/meminfo", shell=True, text=True).strip().split('.')[0]),
+                  'disk_free_bytes': shutil.disk_usage('/').free
+              },
+              'gpu': [], 'displays': [],
+              'toolchain': {'dotnet_sdk': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'dotnet_runtime': '10.0.10', 'compiler': 'C#/.NET SDK', 'compiler_detail': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'windows_sdk': None, 'cmake': None, 'ninja': None, 'runner_image': None},
+              'framework': {'name': 'avalonia', 'version': '12.1.1'},
+              'build': {'configuration': 'Release', 'options': {'tfm': 'net10.0'}},
+              'renderer': {'name': 'Avalonia.Headless smoke', 'backend': 'headless', 'software': True},
+              'fixture': {'schema': 'eep.p1-shell-fixture/v1', 'manifest_sha256': hashlib.sha256(fixture.read_bytes()).hexdigest()},
+              'font': {'family': 'Noto Sans', 'version': '2.015', 'files_sha256': [f['sha256'] for f in font_provenance['files']]}
+          }
+          (evidence / 'environment.json').write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          cat "$EVIDENCE/environment.json"
+
+      - name: Upload Avalonia materialization evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: p1-avalonia-linux-materialization
+          path: ${{ runner.temp }}/eep-p1-avalonia-evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Clean user-scoped temporary tool materialization
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/eep-p1-tools"
+          rm -rf "$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          rm -rf spikes/platform-stack/avalonia/src/Assets/Fonts
+          echo 'P1 temporary tools/evidence/fonts cleaned; no system packages changed.'

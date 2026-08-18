@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EEP.P1.Avalonia</AssemblyName>
+    <RootNamespace>Eep.PlatformStack.P1.Avalonia</RootNamespace>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/Fonts/*.ttf" />
+    <Content Include="../../shared/fixtures/p1-shell-fixture.json" Link="Fixtures/p1-shell-fixture.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../shared/fixtures/typography.txt" Link="Fixtures/typography.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="RequirePinnedP1Fonts" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('Assets/Fonts/NotoSans-Regular.ttf')" Text="P1 pinned font missing: Assets/Fonts/NotoSans-Regular.ttf. Run the bounded font materialization step." />
+    <Error Condition="!Exists('Assets/Fonts/NotoSans-SemiBold.ttf')" Text="P1 pinned font missing: Assets/Fonts/NotoSans-SemiBold.ttf. Run the bounded font materialization step." />
+  </Target>
+</Project>

@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Eep.PlatformStack.P1.Avalonia.MainWindow"
+        Width="1500"
+        Height="900"
+        MinWidth="1180"
+        MinHeight="680"
+        FontFamily="{StaticResource P1Font}"
+        Background="#F4F6F8"
+        Title="Electrical Engineering Platform">
+  <Window.Styles>
+    <Style Selector="TextBlock.sectionTitle">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="#5D6875" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#D8DEE6" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Menu Grid.Row="0" Background="#FFFFFF">
+      <MenuItem Header="_Файл">
+        <MenuItem Header="Открыть…" InputGesture="Ctrl+O" Click="Open_OnClick" />
+        <MenuItem Header="Сохранить" InputGesture="Ctrl+S" Click="Save_OnClick" />
+        <Separator />
+        <MenuItem Header="Выход" Click="Exit_OnClick" />
+      </MenuItem>
+      <MenuItem Header="_Правка">
+        <MenuItem Header="Отменить" InputGesture="Ctrl+Z" Click="Undo_OnClick" />
+        <MenuItem Header="Повторить" InputGesture="Ctrl+Y" Click="Redo_OnClick" />
+      </MenuItem>
+      <MenuItem Header="_Вид">
+        <MenuItem Header="Панель оборудования" Click="ToggleEquipment_OnClick" />
+        <MenuItem Header="Свойства" Click="ToggleProperties_OnClick" />
+        <MenuItem Header="Диагностика" Click="ToggleDiagnostics_OnClick" />
+      </MenuItem>
+      <MenuItem Header="_Справка">
+        <MenuItem Header="О программе" Click="About_OnClick" />
+      </MenuItem>
+    </Menu>
+
+    <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#D8DEE6" BorderThickness="0,1,0,1" Padding="8,6">
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <Button Content="Открыть" Click="Open_OnClick" />
+        <Button Content="Сохранить" Click="Save_OnClick" />
+        <Border Width="1" Margin="4,2" Background="#D8DEE6" />
+        <Button Content="Отменить" Click="Undo_OnClick" />
+        <Button Content="Повторить" Click="Redo_OnClick" />
+        <Border Width="1" Margin="4,2" Background="#D8DEE6" />
+        <Button Content="Проверить" Classes="accent" Click="Validate_OnClick" />
+        <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Classes="muted" Text="P1 · Professional Shell / UI Gallery" />
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="260,4,*,4,350" Margin="8">
+      <Border x:Name="EquipmentPane" Grid.Column="0" Classes="panel" CornerRadius="4" Padding="10">
+        <Grid RowDefinitions="Auto,Auto,*">
+          <TextBlock Classes="sectionTitle" Text="Оборудование" />
+          <TextBox Grid.Row="1" Margin="0,8,0,8" Watermark="Поиск оборудования" />
+          <TreeView x:Name="EquipmentTree" Grid.Row="2" />
+        </Grid>
+      </Border>
+
+      <GridSplitter Grid.Column="1" Width="4" Background="#D8DEE6" />
+
+      <Border Grid.Column="2" Classes="panel" CornerRadius="4">
+        <TabControl x:Name="DocumentTabs" />
+      </Border>
+
+      <GridSplitter Grid.Column="3" Width="4" Background="#D8DEE6" />
+
+      <Border x:Name="PropertiesPane" Grid.Column="4" Classes="panel" CornerRadius="4" Padding="10">
+        <Grid RowDefinitions="Auto,*">
+          <TextBlock Classes="sectionTitle" Text="Свойства" />
+          <ScrollViewer Grid.Row="1" Margin="0,8,0,0">
+            <StackPanel x:Name="PropertiesHost" Spacing="6" />
+          </ScrollViewer>
+        </Grid>
+      </Border>
+    </Grid>
+
+    <Border x:Name="DiagnosticsPane" Grid.Row="3" Background="#FFFFFF" BorderBrush="#D8DEE6" BorderThickness="0,1,0,0" Padding="10,6">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+        <TextBlock x:Name="StatusText" FontWeight="SemiBold" />
+        <TextBlock x:Name="DiagnosticsText" Grid.Column="1" Margin="18,0,0,0" Classes="muted" />
+        <TextBlock x:Name="ConnectionText" Grid.Column="2" Margin="18,0" Classes="muted" />
+        <TextBlock Grid.Column="3" Text="G0 frozen · Decision pending" Classes="muted" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
