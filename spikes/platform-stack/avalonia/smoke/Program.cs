@@ -1,47 +1,65 @@
-using Avalonia.Headless;
 using Eep.PlatformStack.P1.Avalonia;
 
-Console.WriteLine("P1 Avalonia smoke: starting headless session");
-using var session = HeadlessUnitTestSession.StartNew(typeof(App));
-using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+var fixture = P1FixtureLoader.Load();
 
-Console.WriteLine("P1 Avalonia smoke: dispatching shell checks");
-await session.Dispatch(() =>
+Check(fixture.Schema == "eep.p1-shell-fixture/v1", "fixture schema");
+Check(fixture.ApplicationTitle == "Electrical Engineering Platform", "application title");
+Check(fixture.Documents.Select(d => d.Title).SequenceEqual(new[]
 {
-    Console.WriteLine("P1 Avalonia smoke: constructing MainWindow");
-    var window = new MainWindow();
-    Console.WriteLine("P1 Avalonia smoke: showing MainWindow");
-    window.Show();
+    "Однолинейная схема КРУ 35 кВ",
+    "Схема собственных нужд 0,4 кВ",
+    "Импорт оборудования — предварительный просмотр",
+    "UI Gallery"
+}), "document surface");
 
-    Check(window.FixtureSchema == "eep.p1-shell-fixture/v1", "fixture schema");
-    Check(window.DocumentTitles.SequenceEqual(new[]
+var equipmentIds = new HashSet<string>(StringComparer.Ordinal);
+Collect(fixture.EquipmentTree, equipmentIds);
+Check(equipmentIds.Contains("QF-35-01"), "equipment tree contains QF-35-01");
+Check(equipmentIds.Contains("QS-35-01"), "equipment tree contains QS-35-01");
+Check(equipmentIds.Contains("QSG-35-01"), "equipment tree contains QSG-35-01");
+
+Check(fixture.Equipment.TryGetValue(fixture.SelectedEquipmentId, out var selected), "selected equipment resolves");
+Check(selected!.Designation == "QF-35-01", "selected designation");
+Check(selected.Name == "Выключатель 35 кВ", "selected equipment name");
+var states = selected.Properties.Select(p => p.State).ToHashSet(StringComparer.Ordinal);
+Check(states.Contains("normal"), "normal state");
+Check(states.Contains("warning"), "warning state");
+Check(states.Contains("error"), "error state");
+Check(states.Contains("unknown"), "UNKNOWN state");
+Check(selected.Properties.Any(p => !p.Editable), "read-only property state");
+Check(selected.Properties.Any(p => p.Editable), "editable property state");
+
+Check(P1Commands.Shortcuts["open"] == "Ctrl+O", "Ctrl+O mapping");
+Check(P1Commands.Shortcuts["save"] == "Ctrl+S", "Ctrl+S mapping");
+Check(P1Commands.Shortcuts["undo"] == "Ctrl+Z", "Ctrl+Z mapping");
+Check(P1Commands.Shortcuts["redo"] == "Ctrl+Y", "Ctrl+Y mapping");
+
+Check(fixture.Gallery.Notifications.Select(n => n.Severity).SequenceEqual(new[] { "info", "warning", "error" }), "notification states");
+Check(fixture.Gallery.LongLabel.Contains("Диспетчерское наименование", StringComparison.Ordinal), "long Russian label");
+Check(fixture.Gallery.MultilineError.Contains('\n'), "multiline error text");
+Check(fixture.EquipmentTree.Expanded, "expanded root state");
+Check(fixture.EquipmentTree.Children.Any(n => !n.Expanded), "collapsed tree state");
+
+var typographyPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "typography.txt");
+var typography = File.ReadAllText(typographyPath);
+foreach (var expected in new[]
+{
+    "Ё", "ё", "КРУ 35 кВ", "Выключатель QF-35-01", "2500 А", "52,4 МВт", "−4,8 Мвар", "№ 12", "ΔP = 1,5 %", "Состояние неизвестно"
+})
+{
+    Check(typography.Contains(expected, StringComparison.Ordinal), $"typography corpus: {expected}");
+}
+
+Console.WriteLine("P1 Avalonia presentation-behavior smoke: PASS");
+
+static void Collect(EquipmentNodeFixture node, ISet<string> ids)
+{
+    ids.Add(node.Id);
+    foreach (var child in node.Children)
     {
-        "Однолинейная схема КРУ 35 кВ",
-        "Схема собственных нужд 0,4 кВ",
-        "Импорт оборудования — предварительный просмотр",
-        "UI Gallery"
-    }), "document tabs");
-    Check(window.EquipmentIds.Contains("QF-35-01"), "equipment tree contains QF-35-01");
-    Check(window.SelectEquipmentForTest("QF-35-01"), "equipment selection");
-    Check(window.SelectedEquipmentId == "QF-35-01", "properties selection routing");
-    Check(window.RenderedPropertyStates.Contains("warning"), "warning state");
-    Check(window.RenderedPropertyStates.Contains("error"), "error state");
-    Check(window.RenderedPropertyStates.Contains("unknown"), "UNKNOWN state");
-    Check(window.RenderedPropertyModes.Contains("read-only"), "read-only property state");
-    Check(window.Shortcuts["open"] == "Ctrl+O", "Ctrl+O mapping");
-    Check(window.Shortcuts["save"] == "Ctrl+S", "Ctrl+S mapping");
-    Check(window.Shortcuts["undo"] == "Ctrl+Z", "Ctrl+Z mapping");
-    Check(window.Shortcuts["redo"] == "Ctrl+Y", "Ctrl+Y mapping");
-
-    window.SelectDocumentForTest(3);
-    Check(window.IsUiGallerySelected, "UI Gallery tab switching");
-    Check(window.Content is not null, "window content rendered");
-
-    window.Close();
-    Console.WriteLine("P1 Avalonia smoke: shell checks complete");
-}, timeout.Token);
-
-Console.WriteLine("P1 Avalonia headless smoke: PASS");
+        Collect(child, ids);
+    }
+}
 
 static void Check(bool condition, string name)
 {

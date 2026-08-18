@@ -4,9 +4,27 @@
   "version": "2.015",
   "license": "SIL OFL 1.1",
   "sourceCommit": "c4a321e123e4d4ff315f57f4e0adf294fe3a95be",
+  "releaseTag": "NotoSans-v2.015",
+  "releaseId": 186477268,
+  "assetId": 207878997,
+  "assetName": "NotoSans-v2.015.zip",
+  "assetSize": 117491253,
+  "archiveSha256": "0c34df072a3fa7efbb7cbf34950e1f971a4447cffe365d3a359e2d4089b958f5",
   "files": [
-    { "style": "Regular", "weight": 400, "file": "NotoSans-Regular.ttf", "sha256": null },
-    { "style": "SemiBold", "weight": 600, "file": "NotoSans-SemiBold.ttf", "sha256": null }
+    {
+      "style": "Regular",
+      "weight": 400,
+      "file": "NotoSans-Regular.ttf",
+      "archiveMember": "NotoSans/hinted/ttf/NotoSans-Regular.ttf",
+      "sha256": "478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823"
+    },
+    {
+      "style": "SemiBold",
+      "weight": 600,
+      "file": "NotoSans-SemiBold.ttf",
+      "archiveMember": "NotoSans/hinted/ttf/NotoSans-SemiBold.ttf",
+      "sha256": "a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0"
+    }
   ],
-  "status": "hashes-pending-first-materialization-before-visual-evidence"
+  "status": "materialized-and-hash-frozen-before-visual-evidence"
 }
