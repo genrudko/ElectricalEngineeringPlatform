@@ -1,17 +1,19 @@
-# ADR 0003 — Layered Normative Policy and Non-Weakening
+# ADR 0003 — Layered Normative Policy и Non-Weakening
 
-Status: **ACCEPTED by owner direction / recorded in UNIFIED-FOUNDATION-001**  
-Date: 2026-08-18
+Статус: **ACCEPTED по owner direction / зафиксирован в `UNIFIED-FOUNDATION-001`**  
+Дата: 2026-08-18
 
-## Context
+## Контекст
 
-Russian energy-sector operational requirements come from multiple legal/normative sources. Real sites also have manufacturer manuals, enterprise standards and local instructions that can add or tighten requirements.
+Russian energy-sector operational requirements приходят из нескольких legal/normative sources.
 
-A simple `override=true` model could accidentally weaken an applicable mandatory baseline.
+Реальные sites дополнительно могут иметь manufacturer manuals, enterprise standards и local instructions, которые добавляют или ужесточают требования.
 
-## Decision
+Simple `override=true` model может случайно ослабить applicable mandatory baseline.
 
-Implement a versioned Compliance Core with explicit source provenance, applicability and layered policy resolution.
+## Решение
+
+Реализовать versioned Compliance Core с explicit source provenance, applicability и layered policy resolution.
 
 ```text
 mandatory regulatory baseline
@@ -22,24 +24,27 @@ mandatory regulatory baseline
 → project policy
 ```
 
-Lower/local layers may add or tighten requirements but may not disable/relax an applicable locked mandatory rule.
+Lower/local layers могут добавлять/ужесточать requirements, но не могут disable/relax applicable locked mandatory rule.
 
-Attempted weakening is a policy conflict/error.
+Attempted weakening является policy conflict/error.
 
-Every production rule identifies source/version/scope and machine/review behavior.
+Каждое production rule идентифицирует source/version/scope и machine/review behavior.
 
-## Consequences
+Internal enterprise/site instructions не являются shared development inputs; механизм Local Policy развивается на synthetic/cleared examples и применяется внутри authorized deployment environment.
 
-- normative documents registered with editions/amendments/effective dates;
-- projects can snapshot normative baseline date/profile;
-- local policy packages are versioned/separately deployable;
-- diagnostics identify source/conflict;
-- switching forms retain mandatory human-review boundary until separately changed;
-- graphics profiles distinguish ГОСТ/ЕСКД requirements from enterprise conventions/layout heuristics.
+## Последствия
 
-## Rejected alternatives
+- normative documents регистрируются с editions/amendments/effective dates;
+- projects могут snapshot normative baseline date/profile;
+- local policy packages versioned/separately deployable;
+- diagnostics показывают source/conflict;
+- switching forms сохраняют mandatory human-review boundary;
+- graphics profiles различают ГОСТ/ЕСКД requirements, enterprise conventions и layout heuristics;
+- shared development не требует публикации confidential internal instructions.
 
-- Hard-code rules throughout modules — poor provenance/update/conflict handling.
-- Last-file-wins configuration — unsafe authority model.
-- Treat local instructions as equal to mandatory rules — source authority/applicability differs.
-- Encode every rule immediately — fake completeness is worse than scoped coverage.
+## Отклонённые альтернативы
+
+- **Hard-code rules throughout modules** — poor provenance/update/conflict handling.
+- **Last-file-wins configuration** — unsafe authority model.
+- **Treat local instructions as equal to mandatory rules** — source authority/applicability различаются.
+- **Encode every rule immediately** — fake completeness хуже scoped coverage.
