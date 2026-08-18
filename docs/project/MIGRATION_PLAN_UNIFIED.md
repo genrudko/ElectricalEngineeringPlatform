@@ -1,16 +1,22 @@
-# Migration Plan — Three Directions to One Product
+# Migration Plan — Legacy Sources into One Product
 
 Статус: canonical foundation document
 
 ## 1. Purpose
 
-Migration does **not** mean copying three repositories/codebases into one tree.
+Migration does **not** mean copying three old codebases into one tree.
 
-It means extracting proven knowledge/behavior/data contracts from each previous direction, assigning a new module owner, adding missing tests/provenance, and retiring duplicate state models only after equivalent behavior is accepted.
+The new product has three different legacy relationships:
+
+1. **ElectroScheme Studio** — research/prototype source from which selected evidence/tools may be reused after review;
+2. **NPT Engineering Toolkit / NPT materials** — compatibility/research source whose proven format knowledge must be preserved behind the NPT boundary;
+3. **old TBP project** — **not a code/config migration source for the new Switching module**. The Switching/TBP module is designed and implemented from scratch against the new Domain Core, Compliance Core and current verified normative sources.
+
+The objective is to preserve proven knowledge only where it is actually useful, without dragging obsolete architecture into the new product.
 
 ## 2. Migration classification
 
-For every significant asset classify:
+For every significant legacy asset that is considered for reuse classify:
 
 ```text
 RETAIN_AS_EVIDENCE
@@ -18,6 +24,7 @@ SALVAGE_BEHIND_NEW_CONTRACT
 REIMPLEMENT_FROM_BEHAVIOR
 MIGRATE_DATA_ONLY
 ARCHIVE_HISTORICAL
+DO_NOT_MIGRATE
 RETIRE_AFTER_ACCEPTANCE
 ```
 
@@ -100,65 +107,90 @@ Until this passes, do not make NPT topology import a Core invariant.
 
 Existing Mnemo renderer is not accepted for fidelity. Compare known mnemonic(s) side-by-side with native NPT/Modus before broad editor expansion.
 
-## 5. TBP / switching migration
+## 5. Switching / TBP — clean-sheet implementation
 
-At Foundation time, TBP source is treated as a migration source; do not invent a canonical GitHub repository if the authoritative source remains local.
+Owner decision: **do not migrate the old TBP codebase, YAML/configuration or rule implementation into the new product.**
 
-Valuable concepts:
+The new `Modules.Switching` is written from scratch using:
 
-- draft-generation workflow;
-- mandatory human review boundary;
-- profiles/local customization;
-- operational wording/patterns;
-- normative reference data;
-- rule-authority hierarchy;
-- real project tests/examples.
+- the neutral `ElectricalProject` model;
+- shared equipment/terminal/connection/topology/state semantics;
+- the new Compliance Core;
+- current verified Russian normative sources;
+- synthetic/cleared engineering scenarios;
+- later user/site configuration through the Local Policy Overlay mechanism.
 
-Existing code/YAML behavior is **not normative authority by itself**.
+The old TBP project may remain archived outside the new repository as historical context only. It is not a dependency, test oracle, normative authority or required migration input.
 
-Each migrated rule must be reclassified as:
+### What may be retained conceptually
+
+Only product-level lessons already explicitly accepted in the new Foundation may survive, for example:
+
+- switching-form generation is decision support, not real-equipment control;
+- qualified human review remains required;
+- rules require provenance/applicability/versioning;
+- object/site-specific stricter policy is a supported capability.
+
+These principles are redefined in current canonical documents and do **not** require copying old TBP implementation.
+
+## 6. Normative source strategy
+
+Federal/sector normative acts and standards are obtained from current online authoritative sources during rule/profile development.
+
+Priority:
 
 ```text
-normative mandatory
-normative conditional
-enterprise/site policy
-manufacturer/equipment constraint
-formatting/wording convention
-heuristic/recommendation
+official publication / official issuer
+→ official standards catalogue
+→ authoritative legal/reference cross-check where needed
 ```
 
-and linked to source/version/applicability metadata.
+Do not use the old TBP repository as a source of current normative truth.
 
-TBP must consume shared equipment identity, terminals/connections/topology, state and compliance rules rather than recreate a second project database.
+For ГОСТ, official status/metadata must come from Rosstandart/catalogue sources. Full-text access/redistribution is handled only through legally permitted sources; random internet copies are not promoted to normative authority.
 
-## 6. Data migration philosophy
+## 7. Enterprise/site instructions
 
-Old data may be imported through explicit adapters/migrations, but native project format is not required to mimic any old format.
+Internal enterprise/site instructions are **not required development inputs and should not be uploaded into this project/repository by default**.
 
-Where round-trip compatibility is required, preserve vendor-specific payload in adapter-owned structures/extension blocks rather than flattening unknown information into neutral Core.
+The platform must support such local policy in deployment, but Foundation/development tests use synthetic or deliberately cleared overlay examples.
 
-## 7. Repository strategy
+At a real enterprise/site, authorized administrators may configure local policy packages from internal documentation inside that controlled environment without publishing the source documents to GitHub or the shared development corpus.
+
+## 8. Data migration philosophy
+
+Old data may be imported through explicit adapters/migrations only where a real product workflow requires it.
+
+Where round-trip compatibility is required, especially NPT, preserve vendor-specific payload in adapter-owned structures/extension blocks rather than flattening unknown information into neutral Core.
+
+## 9. Repository strategy
 
 During Foundation and early spikes:
 
-- keep this new repository clean;
+- keep this repository clean;
 - do not bulk-vendor old product trees;
+- do not import the old TBP project;
 - do not commit NPT vendor binaries/full corpus;
-- do not assume local TBP source has a GitHub authority until explicitly imported;
+- do not collect internal enterprise/site instructions as development assets;
+- fetch/re-verify public normative sources when rule/profile work begins;
 - create production source tree only after platform stack selection;
-- record asset disposition before retirement.
+- record asset disposition before any reuse.
 
-## 8. Migration gates
+## 10. Migration gates
 
-An old subsystem can be retired only if:
+A legacy asset is reused only if:
 
-1. target module/owner exists;
-2. required behavior/data has a mapping decision;
-3. representative tests pass;
-4. required provenance/unknown fields are not lost;
-5. owner accepts replacement workflow;
-6. rollback/reference material remains available where appropriate.
+1. a concrete target module/use case exists;
+2. reuse is cheaper/safer than clean reimplementation;
+3. behavior/data semantics are understood;
+4. representative tests can prove it;
+5. required provenance/unknown fields are not lost;
+6. owner accepts the reuse decision.
 
-## 9. Anti-goal
+For the old TBP project, the current disposition is explicitly `DO_NOT_MIGRATE` unless the owner later reopens that decision for a narrowly identified artifact.
 
-Do not optimize migration for preserving old implementation effort. Preserve **validated knowledge, user value, format semantics and evidence**, while discarding architecture that reproduces old limitations.
+## 11. Anti-goal
+
+Do not optimize for preserving old implementation effort.
+
+Preserve **validated knowledge, compatibility semantics and useful research evidence** where they materially reduce risk. Rebuild product logic cleanly where the old implementation does not fit the new architecture.
