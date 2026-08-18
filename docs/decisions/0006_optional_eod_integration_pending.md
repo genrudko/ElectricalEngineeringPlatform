@@ -5,9 +5,9 @@
 
 ## Контекст
 
-Electrical product может дать дополнительную ценность рядом с EOD, особенно через shared object/workplace context и references к schemes/switching forms.
+Electrical Engineering Platform может дать дополнительную ценность рядом с EOD, особенно через shared object/workplace context и references на schemes/switching forms.
 
-Foundation inspection actual EOD repository materially повысил feasibility:
+Foundation inspection фактического EOD repository существенно повысил feasibility:
 
 - `MODULE-ACTIVATION-CONTRACT-001` accepted/merged;
 - `MODULE-REGISTRY-001` completed/merged;
@@ -32,11 +32,11 @@ ELECTRICAL-BRIDGE first-party module
 Standalone Electrical Desktop Application
 ```
 
-Это preference, а не production acceptance. Exact context-security, mapping и packaging cost требуют executable spike.
+Это preference, а не production acceptance. Exact context security, mapping и packaging cost требуют executable spike.
 
-## Reject/defer conditions
+## Условия reject/defer
 
-Интеграция откладывается/отклоняется, если требует:
+Integration откладывается/отклоняется, если требует:
 
 - EOD-specific mandatory Core fields;
 - mandatory EOD runtime/network dependency;
@@ -48,7 +48,7 @@ Standalone Electrical Desktop Application
 
 Критическая boundary:
 
-> EOD module activation authorizes EOD bridge capability, но не arbitrary mutations в standalone electrical application.
+> EOD module activation даёт доступ к EOD bridge capability, но не authorizes arbitrary mutations в standalone electrical application.
 
 ## Required output
 
