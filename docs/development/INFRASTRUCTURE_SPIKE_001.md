@@ -1,9 +1,11 @@
 # INFRASTRUCTURE-SPIKE-001 — GitHub ↔ development VPS
 
-Статус: **ACCEPTANCE READY — GitHub/VPS runner PROVEN; Bridge v0.2 DEPLOYED; authenticated ChatGPT Action E2E PASS**  
-Issue: #3  
-Branch: `infrastructure/infrastructure-spike-001`  
-Draft PR: #4
+Статус: **ACCEPTED / MERGED — GitHub/VPS runner PROVEN; Bridge v0.2 DEPLOYED; authenticated ChatGPT Action E2E PASS**  
+Issue: #3 — **CLOSED / COMPLETED**  
+Branch: `infrastructure/infrastructure-spike-001` — historical work-item branch  
+PR: #4 — **MERGED**  
+Accepted head: `530c7f8058a0c4d30a60f2e62db0acf888f16687`  
+Merge commit: `b9cf480474f63b2145a22f541c21190b007cb120`
 
 ## 1. Цель
 
@@ -20,7 +22,7 @@ GitHub
 
 GitHub остаётся canonical control plane. VPS остаётся execution plane.
 
-Одновременно `INFRASTRUCTURE-SPIKE-001` сохраняет отдельный интерактивный contour через `EEP Development Bridge`; его production-quality hardening выполняется в том же work item после доказанного runner baseline.
+Одновременно `INFRASTRUCTURE-SPIKE-001` сохранил отдельный интерактивный contour через `EEP Development Bridge`; production-quality hardening Bridge v0.2 выполнен и принят в этом же work item.
 
 ## 2. Доказанный runtime layout — 2026-08-18
 
@@ -132,13 +134,13 @@ External Actions в persistent self-hosted workflow pinned на immutable commit
 
 ## 6. Smoke / failure / artifact evidence — PROVEN
 
-Последний exact-head smoke перед final acceptance:
+Финальный exact-head smoke принятого PR head:
 
 - workflow: `Infrastructure Smoke`;
-- run ID: `32178488664`;
-- job ID: `95845779180`;
+- run ID: `32180025769`;
+- job ID: `95850606343`;
 - runner: `eep-development-vps`;
-- exact head: `bd442d3ee4c0de39dd2c8c73a11aab90b6119ded`;
+- exact head: `530c7f8058a0c4d30a60f2e62db0acf888f16687`;
 - job conclusion: `success`.
 
 Успешно выполнены:
@@ -160,13 +162,12 @@ External Actions в persistent self-hosted workflow pinned на immutable commit
 - GitHub job summary;
 - explicit temporary evidence cleanup.
 
-Current artifact:
+Acceptance artifact:
 
 ```text
 name: infrastructure-smoke-evidence
-artifact id: 9339903901
-size: 681 bytes
-digest: sha256:ba7944eb76567aa09a21132dd40537cd3ef8a3df7303d6b08efe8f8620a5ea71
+artifact id: 9340434117
+digest: sha256:ceabf88189bffd058648d2dae4374d889e20c60d5a00d4b52c2cd514e7474921
 retention: 3 days
 ```
 
@@ -357,9 +358,9 @@ POST task/cancel operations в canonical Action schema явно помечены
 | 3 | runner Online | PASS | jobs received/executed |
 | 4 | PR workflow picked by intended runner | PASS | `eep-development-vps` |
 | 5 | exact head + runner identity recorded | PASS | workflow logs/artifact |
-| 6 | deterministic smoke succeeds | PASS | run `32178488664` |
+| 6 | deterministic smoke succeeds | PASS | run `32180025769` |
 | 7 | deliberate failure diagnostic | PASS | controlled `exit 17` + asserted outcome |
-| 8 | small artifact in GitHub | PASS | artifact `9339903901` |
+| 8 | small artifact in GitHub | PASS | artifact `9340434117` |
 | 9 | result inspectable without SSH | PASS | GitHub + ChatGPT Action evidence |
 | 10 | runner returns usable | PASS | successful rerun after service restart |
 | 11 | existing Bridge functional | PASS | authenticated ChatGPT Action E2E + `bridge_selftest` success |
@@ -383,7 +384,7 @@ Additional Bridge-hardening acceptance:
 
 ## 14. Final acceptance state
 
-`INFRASTRUCTURE-SPIKE-001` technical acceptance criteria выполнены. Финальный merge остаётся отдельным owner-controlled действием.
+`INFRASTRUCTURE-SPIKE-001` technical acceptance criteria выполнены, owner acceptance получена, PR #4 merged 2026-08-18.
 
 Формальный contour доказан:
 
@@ -406,8 +407,12 @@ ChatGPT Action
 → bridge_selftest success
 ```
 
-PR #4 остаётся Draft до явного owner merge command. После merge `Closes #3` закрывает issue автоматически.
+Post-merge state:
 
-Следующий product work item после merge:
+- PR #4 — **MERGED**;
+- merge commit — `b9cf480474f63b2145a22f541c21190b007cb120`;
+- Issue #3 — **CLOSED / COMPLETED**.
 
-`PLATFORM-STACK-SPIKE-001`.
+Следующий work item по canonical roadmap:
+
+`PLATFORM-STACK-SPIKE-001` — formal opening только после owner review final contract.

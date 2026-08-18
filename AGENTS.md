@@ -89,7 +89,7 @@ issue
 Правила:
 
 1. Для одного work item переиспользовать существующий issue/branch/Draft PR; не создавать duplicates.
-2. Не коммитить напрямую в `main`, кроме неизбежного initial repository bootstrap.
+2. Не коммитить напрямую в `main`, кроме неизбежного initial repository bootstrap или явно owner-authorized маленького docs-only canonical-state refresh вне active work item.
 3. Не переводить PR в Ready for Review без явной команды владельца.
 4. Не merge без явной команды владельца.
 5. Держать изменения risk-bounded; избегать repair-on-repair churn.
@@ -323,26 +323,23 @@ Standalone product tests проходят при отсутствии EOD adapte
 
 Каноническая документация должна соответствовать `LANGUAGE_POLICY.md`: narrative — русский, точные technical identifiers — английские.
 
-## 19. Текущий work item
+## 19. Текущий work item и volatile state
 
-Для `UNIFIED-FOUNDATION-001`:
+`AGENTS.md` не является хранилищем volatile issue/branch/PR/SHA state. Перед началом работы текущий work item определяется по `docs/project/CURRENT_STATE.md` и затем перепроверяется непосредственно в GitHub.
 
-- repository `genrudko/ElectricalEngineeringPlatform`;
-- issue #1;
-- branch `architecture/unified-foundation-001`;
-- Draft PR only;
-- documentation/governance/architecture contracts first;
-- no bulk product-code migration;
-- no final platform-stack selection;
-- no Ready/Merge без explicit owner command.
+На момент canonical-state refresh 2026-08-18:
 
-После accepted Foundation:
+- `UNIFIED-FOUNDATION-001` — accepted/merged;
+- `INFRASTRUCTURE-SPIKE-001` — accepted/merged;
+- следующий work item по roadmap — `PLATFORM-STACK-SPIKE-001`;
+- Issue/branch/Draft PR для `PLATFORM-STACK-SPIKE-001` ещё не создаются до отдельной owner-проверки его final contract.
+
+Принятая последовательность:
 
 ```text
-INFRASTRUCTURE-SPIKE-001
-→ PLATFORM-STACK-SPIKE-001
+PLATFORM-STACK-SPIKE-001
 → UI-CORE-FOUNDATION-001 + DOMAIN-CORE-FOUNDATION-001
 → IMPORT-TO-SCHEME-VERTICAL-SLICE-001
 ```
 
-`INFRASTRUCTURE-SPIKE-001` должен hardened-оформить proven Development Bridge, развернуть self-hosted GitHub runner и доказать exact-head build/test/artifact workflow.
+Final platform stack остаётся PENDING до equivalent executable evidence и owner acceptance.

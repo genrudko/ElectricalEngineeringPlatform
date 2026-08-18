@@ -1,9 +1,8 @@
 # Electrical Engineering Platform — индекс документации
 
-Статус: **канонический индекс для `UNIFIED-FOUNDATION-001`**  
+Статус: **канонический индекс**  
 Репозиторий: `genrudko/ElectricalEngineeringPlatform`  
-Активный issue: #1  
-Активная ветка: `architecture/unified-foundation-001`
+Текущее issue/branch/PR состояние здесь намеренно не дублируется: фактический срез хранится в `docs/project/CURRENT_STATE.md` и перед работой перепроверяется напрямую в GitHub.
 
 ## 1. Порядок чтения
 

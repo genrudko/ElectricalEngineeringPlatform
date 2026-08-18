@@ -1,21 +1,20 @@
 # Текущее состояние — Electrical Engineering Platform
 
 Дата среза: **2026-08-18**  
-Активная программа: `UNIFIED-FOUNDATION-001`
+Текущий переход: `INFRASTRUCTURE-SPIKE-001` accepted/merged → `PLATFORM-STACK-SPIKE-001` contract review перед formal opening
 
 ## 1. Фактическое состояние GitHub
 
 - Канонический repository: `genrudko/ElectricalEngineeringPlatform`.
 - Default branch: `main`.
 - Bootstrap commit: `5aa73328917447fb410489e8f67685ee4907ae66`.
-- Активный issue: #1 `UNIFIED-FOUNDATION-001`.
-- Активная branch: `architecture/unified-foundation-001`.
-- Foundation Draft PR: #2 `UNIFIED-FOUNDATION-001 — канонический Foundation Electrical Engineering Platform`.
-- PR #2 остаётся **OPEN / DRAFT / NOT MERGED** до отдельной owner acceptance и явной команды на Ready/Merge.
+- `UNIFIED-FOUNDATION-001`: Issue #1 **CLOSED / COMPLETED**; PR #2 **MERGED**; merge commit `c62a67064145610cc41711c21b79d0cc0eecb5b9`.
+- `INFRASTRUCTURE-SPIKE-001`: Issue #3 **CLOSED / COMPLETED**; PR #4 **MERGED**; accepted head `530c7f8058a0c4d30a60f2e62db0acf888f16687`; merge commit `b9cf480474f63b2145a22f541c21190b007cb120`.
+- На момент этого canonical-state refresh отдельные Issue/branch/Draft PR для `PLATFORM-STACK-SPIKE-001` **ещё не созданы**; formal opening выполняется только после owner review final contract.
 - Previous Foundation source в `genrudko/electroscheme-studio` issue #5 / Draft PR #6 закрыт как superseded и остаётся historical migration evidence.
 - Tauri desktop spike в `genrudko/electroscheme-studio` issue #3 / Draft PR #4 остаётся research evidence only.
 
-Exact head, compare state, changed files и workflow/check state являются volatile и перед implementation/acceptance всегда читаются напрямую из GitHub.
+Exact current `main`, compare state, changed files и workflow/check state являются volatile и перед implementation/acceptance всегда читаются напрямую из GitHub. SHA `b9cf480474f63b2145a22f541c21190b007cb120` — post-merge baseline непосредственно перед этим docs-only canonical-state refresh, а не вечный alias для `main`.
 
 ## 2. Принятое направление продукта
 
@@ -97,11 +96,11 @@ Manually assembled large normative document pack сейчас не требуе�
 
 Для ГОСТ authoritative catalogue/status обязателен; detailed full-text extraction использует lawful source и не считает random internet copies normative authority.
 
-## 5. Доказанный ChatGPT → VPS Development Bridge
+## 5. Доказанная Development Platform после `INFRASTRUCTURE-SPIKE-001`
 
-2026-08-18 выполнен practical feasibility test прямого interactive access из ChatGPT Plus к existing VPS.
+2026-08-18 practical feasibility прямого interactive access из ChatGPT Plus к existing VPS был доведён до bounded Bridge v0.2, а formal GitHub contour — до repository-level self-hosted runner с exact-head evidence.
 
-Фактически доказана chain:
+Доказанная interactive chain:
 
 ```text
 ChatGPT Plus Project chat
@@ -131,10 +130,21 @@ ChatGPT Plus Project chat
 Доказано:
 
 1. Custom GPT Action работает на current ChatGPT Plus;
-2. Action реально вызывает external bridge — VPS log зафиксировал `GET /health ... 200 OK`;
+2. Action реально вызывает external bridge;
 3. Custom GPT Action работает внутри existing Project chat `Electrical Engineering Platform`;
 4. в том же Project chat сохраняется working GitHub connector;
-5. после GitHub query bridge снова успешно вызывается в том же conversation.
+5. Bridge v0.2 предоставляет fixed read-only repository view, typed/allowlisted operations, bounded tasks/status/log/cancel, timeout/output/concurrency policy и не предоставляет arbitrary shell.
+
+### Formal runner evidence
+
+- runner: `eep-development-vps`;
+- service account: `eep-runner`, не root;
+- repository-level self-hosted runner;
+- exact accepted PR #4 head: `530c7f8058a0c4d30a60f2e62db0acf888f16687`;
+- final exact-head workflow run: `32180025769` — `success`;
+- evidence artifact: `infrastructure-smoke-evidence`, id `9340434117`;
+- accepted Bridge runtime source deployed из `bd442d3ee4c0de39dd2c8c73a11aab90b6119ded`;
+- runner restart/re-acquisition доказан; deliberate full VPS reboot специально не выполнялся.
 
 ### Архитектурное следствие
 
@@ -143,7 +153,7 @@ Target Development Platform использует два contours:
 ```text
 Interactive development loop:
 ChatGPT Project
-→ EEP Development Bridge
+→ bounded EEP Development Bridge
 → VPS
 
 Formal verification loop:
@@ -154,15 +164,16 @@ GitHub
 → owner acceptance
 ```
 
-Bridge не является universal remote shell. Следующая version должна использовать typed/allowlisted operations, fixed workspace, timeout, task IDs, audit log и bounded execution profiles.
+Bridge v0.2 уже реализует bounded execution contract, но его текущие execution profiles ограничены `bridge_compile` и `bridge_selftest`. Stack-specific Avalonia/Qt build/benchmark/preview profiles ещё не определены и не считаются доказанными capabilities.
 
 Business/MCP/OpenAI API не являются required dependencies current development baseline.
 
 ## 6. Что ещё не доказано / не выбрано
 
 - Avalonia vs Qt final selection;
-- heavy-canvas performance на representative workload;
+- heavy semantic canvas performance на representative workload;
 - reproducible Windows build/test/package lane в no-new-mandatory-paid-service baseline;
+- exact stack-specific Bridge execution profiles и необходимость их использования в `PLATFORM-STACK-SPIKE-001`;
 - exact native project package format/schema v1;
 - complete equipment-type library;
 - completeness/correctness NPT `nodes` как topology source;
@@ -170,9 +181,7 @@ Business/MCP/OpenAI API не являются required dependencies current deve
 - full normative rule coverage;
 - exact EOD bridge API/context-security/deployment cost;
 - installer/update channel;
-- final branding beyond repository/product working name;
-- hardened production-quality Development Bridge API;
-- self-hosted GitHub runner exact-head workflow в новом repository.
+- final branding beyond repository/product working name.
 
 ## 7. Важное inherited evidence
 
@@ -225,17 +234,14 @@ Initial high-priority source set включает:
 
 Каждое production rule требует current-source verification, source-level extraction, applicability classification, testability decision и domain review.
 
-## 9. Development sequence после Foundation
+## 9. Текущая development sequence
 
 ```text
-UNIFIED-FOUNDATION-001
+UNIFIED-FOUNDATION-001              [ACCEPTED / MERGED PR #2]
         ↓
-INFRASTRUCTURE-SPIKE-001
-hardening Development Bridge
-+ self-hosted GitHub runner
-+ exact-head build/test/artifact workflow
+INFRASTRUCTURE-SPIKE-001            [ACCEPTED / MERGED PR #4]
         ↓
-PLATFORM-STACK-SPIKE-001
+PLATFORM-STACK-SPIKE-001            [NEXT — FORMAL OPENING PENDING]
 Avalonia vs Qt
 + reproducible Windows/Linux build/package lanes
         ↓
@@ -265,7 +271,7 @@ module expansion: Scheme / NPT / clean-sheet Switching
 
 ## 11. Acceptance posture
 
-Foundation должен защитить project как минимум от девяти known failure modes:
+Принятый Foundation защищает project как минимум от девяти known failure modes:
 
 1. competing domain models;
 2. legacy-looking/unusable UI despite correct backend;
