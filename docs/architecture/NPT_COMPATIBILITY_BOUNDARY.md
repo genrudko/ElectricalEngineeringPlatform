@@ -1,15 +1,15 @@
-# NPT Compatibility Boundary
+# Граница NPT Compatibility
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Role
+## 1. Роль
 
-NPT Expert/Modus compatibility is a product module/adaptation layer, not the source architecture of the unified platform.
+NPT Expert/Modus compatibility — отдельный product module/adaptation layer, а не source architecture единой платформы.
 
-NPT provides:
+NPT даёт проекту:
 
-1. a valuable real industrial corpus for requirements/topology/state/equipment research;
-2. a compatibility target for XSDE/XTABL/project workflows.
+1. ценный реальный industrial corpus для research equipment/topology/state/format behavior;
+2. compatibility target для XSDE/XTABL/project workflows.
 
 ## 2. Boundary
 
@@ -27,69 +27,76 @@ Modules.Npt
 Neutral Domain Core
 ```
 
-Core does not know how NPT serializes `sTag`, `TechData`, `RTID`, `CustElem` or `scd*`.
+Core не знает, как NPT сериализует `sTag`, `TechData`, `RTID`, `CustElem` или `scd*`.
 
-## 3. Proven research baseline to preserve
+## 3. Доказанный research baseline
 
-Current evidence includes:
+Текущее evidence включает:
 
-- 475 studied XSDE documents parse successfully;
-- large real object corpus (~145k objects in studied set);
-- lossless unchanged XSDE round-trip across studied corpus;
-- embedded `customView`/`CustElem` definitions cover used custom views in studied documents;
-- external `.menu` libraries are relevant to insertion/palette while embedded definitions are source of truth for an existing saved file;
-- NPT custom-value semantics are typed and not uniformly KKS;
-- `scdCommand` may be KKS-like or named NPT command;
-- `scdValue`, `scdColor`, `scdFormat` and other literals must not be treated as signal references;
-- ASU/TECH/KKS catalog research exists at large scale;
-- XTABL v6.0 lossless core is proven for seven current tables / 1461 records;
-- several XTABL fields remain preserve-only/unknown;
-- NPT ID/counter allocation has hidden/reserved behavior; simple `+1` assumptions are unsafe for arbitrary object creation.
+- 475 studied XSDE documents успешно parse;
+- large real object corpus (~145k objects в изученном наборе);
+- lossless unchanged XSDE round-trip для studied corpus;
+- embedded `customView`/`CustElem` definitions покрывают used custom views в изученных документах;
+- external `.menu` libraries важны для insertion/palette, а embedded definitions являются source of truth existing saved file;
+- NPT custom-value semantics typed и не сводятся к KKS;
+- `scdCommand` может быть KKS-like reference или named NPT command;
+- `scdValue`, `scdColor`, `scdFormat` и другие literals нельзя считать signal references;
+- существует large-scale ASU/TECH/KKS catalog research;
+- XTABL v6.0 lossless core доказан для seven current tables / 1461 records;
+- несколько XTABL fields остаются preserve-only/unknown;
+- NPT ID/counter allocation имеет hidden/reserved behavior, поэтому simple `+1` unsafe для arbitrary object creation.
 
-These are compatibility facts, not neutral domain invariants.
+Это compatibility facts, а не neutral domain invariants.
 
 ## 4. Lossless/preserve-first rule
 
-When editing vendor files, unknown data is preserved by default.
+При editing vendor files unknown data сохраняется по умолчанию.
 
-XSDE writer must preserve where required unknown attributes/elements, XML order, comments, embedded definitions, vendor values and untouched byte representation where lossless core permits.
+XSDE writer должен сохранять where required:
 
-Do not reconstruct full documents from a simplified neutral representation and discard unknown content.
+- unknown attributes/elements;
+- XML order;
+- comments;
+- embedded definitions;
+- vendor values;
+- untouched byte representation там, где lossless core это позволяет.
+
+Нельзя reconstruct full document из simplified neutral representation с потерей unknown content.
 
 ## 5. Safe editing vs creation
 
-Current posture:
+Текущий posture:
 
-- reading existing objects: strong evidence;
-- lossless unchanged write: strong evidence;
-- editing known non-topological properties/objects: bounded/promising evidence;
-- inserting arbitrary new Tech-backed objects: experimental until native Modus/SCADA acceptance is repeated;
-- electrical topology creation/reconnection and `nodes` manipulation: blocked until explicitly proven.
+- reading existing objects — strong evidence;
+- lossless unchanged write — strong evidence;
+- editing known non-topological properties/objects — bounded/promising evidence;
+- inserting arbitrary new Tech-backed objects — experimental до repeated native Modus/SCADA acceptance;
+- electrical topology creation/reconnection и `nodes` manipulation — blocked до explicit proof.
 
-UI must reflect capability level.
+UI должен явно отражать capability level.
 
 ## 6. Renderer fidelity
 
-Existing prototype Mnemo renderer is not accepted as visually faithful.
+Existing prototype Mnemo renderer не принят как visually faithful.
 
-Before broad editor expansion:
+До broad editor expansion:
 
-1. choose known mnemonic(s);
-2. capture native NPT/Modus screenshot at known state/scale;
-3. render same XSDE;
-4. compare geometry, text, colors, line styles, custom symbols, images/resources and clipping;
-5. separate static-render defects from runtime-state/value semantics;
-6. close high-impact fidelity gaps first.
+1. выбрать known mnemonic(s);
+2. получить native NPT/Modus screenshot при known state/scale;
+3. render тот же XSDE;
+4. сравнить geometry, text, colors, line styles, custom symbols, images/resources и clipping;
+5. отделить static-render defects от runtime-state/value semantics;
+6. закрыть high-impact fidelity gaps.
 
 ## 7. NPT signal catalog
 
-Shared NPT catalog may expose neutral signal references/search results but retains source-system semantics.
+Shared NPT catalog может expose neutral signal references/search results, но сохраняет source-system semantics.
 
-Neutral Domain SignalBinding references catalog identity through adapter contracts. Core does not copy the NPT SQL/data model.
+Neutral Domain `SignalBinding` ссылается на catalog identity через adapter contracts. Core не копирует NPT SQL/data model.
 
 ## 8. Typed property model
 
-NPT property UI requires typed descriptors:
+NPT property UI требует typed descriptors:
 
 ```text
 signal reference
@@ -102,14 +109,14 @@ quality/static flags
 preserve-only unknown
 ```
 
-Generic `name=value string` editing is insufficient as the primary UX.
+Generic `name=value string` editing недостаточно как primary UX.
 
 ## 9. XTABL direction
 
 High-value target:
 
 ```text
-select equipment set (e.g. WTG 1..84)
+select equipment set (например WTG 1..84)
 + select parameter columns
 + choose template/profile
 → generate table records
@@ -117,29 +124,35 @@ select equipment set (e.g. WTG 1..84)
 → write compatible XTABL
 ```
 
-Use proven field semantics and known-good templates; unknown fields remain copied/preserved rather than inferred.
+Использовать только proven field semantics и known-good templates; unknown fields copied/preserved, а не inferred.
 
 ## 10. Topology extraction experiment
 
-Critical unknown: whether `nodes`/Tech relationships are sufficient to reconstruct usable electrical connectivity.
+Критический unknown: достаточно ли `nodes`/Tech relationships для usable electrical connectivity.
 
-Required experiment must produce neutral graph artifact, mapping table NPT object ↔ domain equipment/terminal, unresolved references, visual/manual comparison and state-dependent connectivity test.
+Required experiment должен дать:
 
-Until accepted, NPT topology extraction is research, not a promised import capability.
+- neutral graph artifact;
+- mapping table NPT object ↔ domain equipment/terminal;
+- unresolved references;
+- visual/manual comparison;
+- state-dependent connectivity test.
 
-## 11. Native assets and IP/provenance
+До acceptance NPT topology extraction остаётся research и не считается promised import capability.
 
-NPT symbol/library assets may be necessary for compatibility rendering/editing where rights/usage permit.
+## 11. Native assets и IP/provenance
 
-They are not automatically the native Scheme Studio symbol library. Native symbols should have independent provenance and applicable standards basis.
+NPT symbol/library assets могут быть необходимы для compatibility rendering/editing там, где usage rights это разрешают.
+
+Они не становятся автоматически native Scheme Studio symbol library. Native symbols получают independent provenance и applicable standards basis.
 
 ## 12. Corpus location
 
-Full NPT reference corpus/vendor binaries remain outside GitHub on controlled development storage/VPS.
+Full NPT reference corpus/vendor binaries остаются вне GitHub на controlled development storage/VPS.
 
-Repository contains synthetic fixtures, cleared/minimal examples where permissible, schemas/tests and project-created normalized outputs.
+Repository содержит synthetic fixtures, cleared/minimal examples where permissible, schemas/tests и project-created normalized outputs.
 
-Full-corpus compatibility tests run only in controlled runner lane.
+Full-corpus compatibility tests выполняются только в controlled runner lane.
 
 ## 13. Module deliverables
 
@@ -156,4 +169,4 @@ Eventually:
 - controlled resource-library palette;
 - optional topology import after proof.
 
-It does not include replacement NPT runtime/server/SCADA services under current scope.
+Текущий scope не включает replacement NPT runtime/server/SCADA services.
