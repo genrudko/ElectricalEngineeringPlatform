@@ -78,6 +78,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          bash -n scripts/install_development_bridge.sh
           python3 -m compileall -q tools/development_bridge
           python3 -m unittest discover -s tools/development_bridge/tests -v
           python3 - <<'PY'
