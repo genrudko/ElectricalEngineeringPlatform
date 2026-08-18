@@ -7,7 +7,8 @@
         MinHeight="680"
         FontFamily="{StaticResource P1Font}"
         Background="#F4F6F8"
-        Title="Electrical Engineering Platform">
+        Title="Electrical Engineering Platform"
+        KeyDown="MainWindow_OnKeyDown">
   <Window.Styles>
     <Style Selector="TextBlock.sectionTitle">
       <Setter Property="FontSize" Value="14" />
@@ -62,8 +63,8 @@
       <Border x:Name="EquipmentPane" Grid.Column="0" Classes="panel" CornerRadius="4" Padding="10">
         <Grid RowDefinitions="Auto,Auto,*">
           <TextBlock Classes="sectionTitle" Text="Оборудование" />
-          <TextBox Grid.Row="1" Margin="0,8,0,8" Watermark="Поиск оборудования" />
-          <TreeView x:Name="EquipmentTree" Grid.Row="2" />
+          <TextBox Grid.Row="1" Margin="0,8,0,8" PlaceholderText="Поиск оборудования" />
+          <TreeView x:Name="EquipmentTree" Grid.Row="2" SelectionChanged="EquipmentTree_OnSelectionChanged" />
         </Grid>
       </Border>
 
