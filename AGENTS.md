@@ -4,13 +4,17 @@
 
 Repository `genrudko/ElectricalEngineeringPlatform` is the canonical umbrella for one **standalone, desktop-first, local-first, modular electrical-engineering software complex**.
 
-The product unifies three former directions:
+The product contains three major functional directions:
 
-- ElectroScheme Studio;
-- NPT Engineering Toolkit;
-- TBP / switching-form work.
+- Scheme Studio;
+- NPT Engineering Toolkit / compatibility;
+- Switching / TBP.
 
-These old projects are reference/migration sources, not three future sources of truth.
+Legacy-source disposition is not identical for all three:
+
+- `genrudko/electroscheme-studio` is historical research/migration evidence;
+- NPT/Modus materials are compatibility/reference corpus;
+- the **old TBP project is explicitly `DO_NOT_MIGRATE`**. The new Switching module is a clean-sheet implementation against current Domain/Compliance contracts and current verified normative sources.
 
 ## 2. Canonical source and precedence
 
@@ -28,12 +32,12 @@ Before work restore from GitHub:
 
 Do not ask the owner for handoffs/SHA/state that GitHub can provide.
 
-For product/architecture meaning use this precedence:
+For product/architecture meaning use:
 
 ```text
 explicit owner instruction
 → accepted ADR
-→ canonical architecture/compliance documents from docs/INDEX.md
+→ canonical architecture/compliance docs from docs/INDEX.md
 → CURRENT_STATE / roadmap
 → research and migration evidence
 → historical prototype documents
@@ -56,13 +60,13 @@ issue
 Rules:
 
 1. Reuse an existing issue/branch/Draft PR for the same work item; do not create duplicates.
-2. Do not commit directly to `main` except the unavoidable initial repository bootstrap.
+2. Do not commit directly to `main` except unavoidable initial repository bootstrap.
 3. Do not mark Ready for Review without explicit owner command.
 4. Do not merge without explicit owner command.
 5. Keep changes risk-bounded; avoid repair-on-repair churn.
 6. Full/nuclear CI is not the default tax on a small UI change.
 7. Visual acceptance for UI changes must happen before expensive unrelated gates where feasible.
-8. GitHub state, not chat memory or local patch markers, determines factual status.
+8. GitHub state, not chat memory/local patches, determines factual status.
 
 ## 4. Core architecture invariants
 
@@ -104,8 +108,6 @@ Do not introduce a shared abstraction until at least one real cross-module use c
 
 ## 6. Import and auto-layout invariants
 
-Required flow:
-
 ```text
 source CSV/XLSX
 → mapping profile
@@ -137,11 +139,11 @@ Never assume without evidence:
 - that NPT `nodes` are a complete electrical topology graph;
 - that every `scd*` value is KKS;
 - that reconstruction from a simplified XML model is lossless;
-- that an experimentally generated XSDE object is native-Modus-safe until native acceptance is proven.
+- that experimentally generated XSDE objects are native-Modus-safe before native acceptance is proven.
 
-NPT-specific IDs and storage rules belong in `Modules.Npt` / adapters.
+NPT-specific IDs/storage rules belong in `Modules.Npt` / adapters.
 
-Full NPT corpus and vendor binaries must not be committed to GitHub. Keep proprietary/reference material outside Git; repository tests use synthetic/cleared fixtures, while controlled VPS corpus tests may exercise the full reference set.
+Full NPT corpus/vendor binaries must not be committed to GitHub. Use controlled VPS corpus storage; Git contains only synthetic/cleared fixtures and project-authored tooling.
 
 ## 8. Normative/compliance discipline
 
@@ -162,9 +164,11 @@ Never claim full compliance to a whole ГОСТ, ПУЭ, ПОТЭЭ, ПТЭЭС,
 
 ПУЭ must not be treated as one monolithic modern version; track applicable chapters/sources/revisions.
 
-## 9. Non-weakening local policy rule
+Public normative acts/standards are acquired and re-verified online from authoritative sources when relevant work begins. Do not rely on the old TBP implementation or random internet copies as normative authority.
 
-Conceptual hierarchy:
+For ГОСТ, official catalogue/status metadata is mandatory; detailed extraction uses a lawful full-text source where required.
+
+## 9. Non-weakening local policy rule
 
 ```text
 Mandatory regulatory baseline
@@ -177,6 +181,12 @@ Mandatory regulatory baseline
 
 A lower/local layer may add requirements or choose a stricter alternative. An attempted weakening of a locked mandatory requirement is a configuration error, not an override.
 
+### Confidentiality boundary
+
+Internal enterprise/site instructions are **not shared development inputs** and must not be requested/uploaded as a normal prerequisite.
+
+Develop Local Policy Overlay mechanics using synthetic/cleared fixtures. Real internal instructions and source documents remain inside the authorized deployment environment; only formalized local policy packages/source metadata are consumed there as required.
+
 ## 10. Graphics and ГОСТ/ЕСКД
 
 Electrical-scheme graphics are semantic assets governed by versioned graphic-standard profiles.
@@ -187,15 +197,17 @@ NPT graphical assets may be used as compatibility/reference evidence; do not sil
 
 ## 11. Switching, state and interlocks
 
+`Modules.Switching` is a **clean-sheet module**. Do not migrate old TBP source/config/rules/tests unless the owner explicitly reopens one narrowly identified artifact.
+
 Safety boundaries:
 
 - software simulation is not physical equipment control;
 - logical/project interlock is not a substitute for relay/PLC/hardwired interlock;
-- TBP generation remains a draft/decision-support workflow with required human review until a separately accepted safety case says otherwise;
+- generated switching forms/sequences remain draft/decision-support output requiring qualified human review until separately accepted otherwise;
 - no operation is considered safe merely because the model lacks contradictory data;
 - denial/uncertainty must be explainable to the user.
 
-Do not add real SCADA command execution, IEC-104 server, historian, P/Q control or redundancy to product scope without a new explicit owner decision.
+Do not add real SCADA command execution, IEC-104 server, historian, P/Q control or redundancy without a new explicit owner decision.
 
 ## 12. UI Core and UX quality
 
@@ -220,7 +232,7 @@ Candidates:
 
 Historical Tauri/WebView work in `genrudko/electroscheme-studio` PR #4 is research evidence only.
 
-Do not select the stack by familiarity or preference. The Platform Stack Spike must compare equivalent scenarios and measure canvas, tables, multi-window, HiDPI, visual testing, packaging and development iteration cost.
+Do not select the stack by familiarity/preference. The Platform Stack Spike must compare equivalent canvas, tables, multi-window, HiDPI, visual testing, packaging and development-iteration scenarios.
 
 ## 14. Development Platform and CI
 
@@ -249,13 +261,20 @@ Risk-based lanes:
 
 EOD integration is feasibility-gated and optional. Prefer a thin EOD bridge module using the existing EOD module registry plus deep-link/context handoff into the standalone desktop product.
 
-Reject integration if it requires EOD-specific entities in Domain Core, mandatory runtime dependency on EOD, a separate product fork, duplicate UI shell implementation, pervasive conditionals or substantial independent release/deploy burden.
+Reject integration if it requires EOD-specific entities in Domain Core, mandatory runtime dependency on EOD, a separate product fork, duplicate UI shell, pervasive conditionals or substantial independent release/deploy burden.
 
 Standalone product tests must pass with EOD adapter absent.
 
-## 16. Historical/prototype preservation
+## 16. Legacy/prototype preservation
 
-Do not mechanically copy old products into this repository. Classify significant assets as retain-as-evidence, salvage-behind-new-contract, reimplement-from-behavior, archive/historical or retire-after-accepted-migration.
+Do not mechanically copy old products into this repository.
+
+Disposition examples:
+
+- ElectroScheme Studio: selective research reuse only;
+- NPT: preserve compatibility knowledge/corpus outside Git;
+- old TBP: `DO_NOT_MIGRATE`;
+- EOD: separate repository, bounded adapter only.
 
 ## 17. Documentation ownership
 
