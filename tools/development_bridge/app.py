@@ -138,9 +138,19 @@ def require_auth(
         )
 
 
+def git_prefix() -> list[str]:
+    return [
+        "git",
+        "-c",
+        f"safe.directory={REPOSITORY_ROOT}",
+        "-C",
+        str(REPOSITORY_ROOT),
+    ]
+
+
 def run_git(args: list[str], timeout: int = 15) -> str:
     completed = subprocess.run(
-        ["git", "-C", str(REPOSITORY_ROOT), *args],
+        [*git_prefix(), *args],
         check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -225,7 +235,7 @@ def prepare_snapshot(task_id: str, ref: str) -> tuple[Path, str]:
 
     with archive_path.open("wb") as archive_handle:
         completed = subprocess.run(
-            ["git", "-C", str(REPOSITORY_ROOT), "archive", "--format=tar", sha],
+            [*git_prefix(), "archive", "--format=tar", sha],
             check=False,
             stdout=archive_handle,
             stderr=subprocess.PIPE,
@@ -298,7 +308,7 @@ def execute_task(task_id: str) -> None:
             record.output_truncated = truncated
             record.finished_at = utc_now()
             record.process = None
-    except Exception as exc:  # task errors become task state, never arbitrary API traceback
+    except Exception as exc:
         text, truncated = truncate_log(f"{type(exc).__name__}: {exc}", MAX_LOG_BYTES)
         with TASK_LOCK:
             record.state = "failure"
