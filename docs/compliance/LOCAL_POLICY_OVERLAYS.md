@@ -1,16 +1,16 @@
 # Local Policy Overlays
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Purpose
+## 1. Назначение
 
-Different enterprises, sites and equipment fleets may have legitimate additional restrictions, instructions, naming conventions and approved workflows.
+Разные предприятия, объекты и equipment fleets могут иметь дополнительные ограничения, naming conventions и approved workflows.
 
-The product must support this **without allowing local configuration to weaken an applicable mandatory requirement**.
+Продукт должен поддерживать это **без возможности ослабить applicable mandatory requirement локальной configuration**.
 
-Important development-boundary decision:
+Важная development-boundary договорённость:
 
-> Internal enterprise/site instructions are not required shared development inputs and should not be uploaded into GitHub, ChatGPT project storage or the common VPS corpus. The capability is developed using synthetic/cleared examples and applied inside the authorized deployment environment.
+> Internal enterprise/site instructions не являются required shared development inputs и не должны загружаться в GitHub, ChatGPT Project storage или common VPS corpus. Capability разрабатывается на synthetic/cleared examples и применяется внутри authorized deployment environment.
 
 ## 2. Layer model
 
@@ -28,11 +28,11 @@ Site/object instruction
 Project-specific policy
 ```
 
-This is not simple `last write wins`.
+Это не `last write wins`.
 
 ## 3. Non-weakening invariant
 
-For a locked mandatory rule `R`:
+Для locked mandatory rule `R`:
 
 ```text
 local overlay may:
@@ -50,9 +50,9 @@ local overlay may NOT:
   suppress mandatory step solely by configuration
 ```
 
-Attempted weakening produces a configuration error and mandatory baseline remains effective.
+Attempted weakening создаёт configuration error, mandatory baseline остаётся effective.
 
-## 4. Policy package
+## 4. PolicyPackage
 
 ```text
 PolicyPackage
@@ -70,29 +70,38 @@ PolicyPackage
 └── provenance metadata
 ```
 
-Exact serialization is PENDING.
+Exact serialization остаётся PENDING.
 
-The package contains the formalized local policy needed by the software. It does not require the original internal instruction document to be copied into the shared development repository/corpus.
+Package содержит formalized local policy, необходимую software. Original internal instruction не требуется копировать в shared development repository/corpus.
 
 ## 5. Applicability
 
-A local package may target enterprise, branch/site/object, voltage level, equipment type, manufacturer/model, specific bay/installation class, switching operation category or document/scheme profile.
+Local package может target:
 
-Do not encode site-name checks throughout application code.
+- enterprise;
+- branch/site/object;
+- voltage level;
+- equipment type;
+- manufacturer/model;
+- specific bay/installation class;
+- switching operation category;
+- document/scheme profile.
+
+Site-name checks не должны размазываться по application code.
 
 ## 6. Manufacturer/equipment constraints
 
 Examples:
 
-- sequence restrictions from operating manual;
-- mechanical/electrical interlock dependencies known for the model;
+- sequence restrictions из operating manual;
+- mechanical/electrical interlock dependencies известные для model;
 - allowed operating states/ratings;
-- required delay/check before another action;
+- required delay/check перед другой action;
 - special maintenance/inspection prerequisites.
 
-Require source manual revision/model applicability and distinguish from government norms/company policy.
+Требуется source manual revision/model applicability и separation от government norms/company policy.
 
-Public manufacturer sources may be used during development where available. Restricted manuals stay in the authorized local/deployment environment unless redistribution is permitted.
+Public manufacturer sources могут использоваться during development. Restricted manuals остаются внутри authorized local/deployment environment, если redistribution не разрешена.
 
 ## 7. Enterprise/site rules
 
@@ -107,9 +116,9 @@ Examples:
 - requirement to use particular views/documents;
 - stricter scheme-release/approval process.
 
-Source layer must be shown to user.
+Source layer должен быть visible пользователю.
 
-Shared development verifies these mechanics with synthetic/cleared rules, not real confidential instructions.
+Shared development проверяет mechanics на synthetic/cleared rules, а не real confidential instructions.
 
 ## 8. Rule composition
 
@@ -121,9 +130,9 @@ enterprise: X <= 80
 resolved: X <= 80
 ```
 
-Attempted site `X <= 120` produces `POLICY_CONFLICT_WEAKENING`.
+Attempted site rule `X <= 120` создаёт `POLICY_CONFLICT_WEAKENING`.
 
-For boolean prerequisites:
+Для boolean prerequisites:
 
 ```text
 mandatory requires A
@@ -131,7 +140,7 @@ local requires B
 resolved requires A AND B
 ```
 
-Where rules are not mathematically comparable, require explicit composition semantics or human review rather than guessing.
+Если rules нельзя сравнить формально, требуется explicit composition semantics или human review, а не guess.
 
 ## 9. Conflict classes
 
@@ -145,13 +154,23 @@ EXPIRED_POLICY
 UNRESOLVED_APPLICABILITY
 ```
 
-Diagnostics identify both rules/sources.
+Diagnostics идентифицируют обе conflicting rules/sources.
 
 ## 10. Policy authoring UX
 
-Target editor should support source metadata, applicability selectors, typed parameters, explanation, comparison with inherited baseline, preview of resolved policy, conflict validation, test scenarios and revision history/diff.
+Target editor должен поддерживать:
 
-Early implementation may use structured local policy files plus validation before a full UI exists.
+- source metadata;
+- applicability selectors;
+- typed parameters;
+- explanation;
+- comparison с inherited baseline;
+- preview resolved policy;
+- conflict validation;
+- test scenarios;
+- revision history/diff.
+
+Early implementation может использовать structured local policy files + validation до появления full UI.
 
 ## 11. Policy lifecycle
 
@@ -166,26 +185,32 @@ SUPERSEDED
 EXPIRED
 ```
 
-Record which package versions were active for released schemes/switching forms/project baseline.
+Нужно фиксировать package versions, active для released schemes/switching forms/project baseline.
 
 ## 12. Project portability
 
-A project references required policy package identities/versions and reports available/resolved, missing, newer version, incompatible or superseded baseline.
+Project references required policy package identities/versions и показывает:
 
-If required safety/normative policy is missing, do not silently use defaults and show green validation.
+- available/resolved;
+- missing;
+- newer version;
+- incompatible;
+- superseded baseline.
+
+Если required safety/normative policy отсутствует, нельзя silently use defaults и показывать green validation.
 
 ## 13. Development vs deployment storage
 
 ### Shared development
 
-May contain:
+Может содержать:
 
 - policy schema;
 - synthetic/cleared example packages;
 - non-weakening tests;
 - public manufacturer examples where redistribution is clear.
 
-Must not require:
+Не должен требовать:
 
 - real enterprise instructions;
 - site operational instructions;
@@ -193,13 +218,13 @@ Must not require:
 
 ### Real deployment
 
-Authorized enterprise/site administrators may create/install policy packages from their internal documentation inside the controlled environment.
+Authorized enterprise/site administrators могут создавать/install policy packages из internal documentation внутри controlled environment.
 
-Original internal source documents remain governed by the enterprise and do not need to leave that environment.
+Original internal source documents остаются governed предприятием и не должны покидать его environment.
 
 ## 14. Deployment profiles
 
-Prefer:
+Предпочтительный pattern:
 
 ```text
 same executable
@@ -208,14 +233,28 @@ same executable
 + local symbol/template package if authorized
 ```
 
-Avoid per-site product forks.
+Избегать per-site product forks.
 
 ## 15. Tests
 
-Every operational local policy package should have schema validation, source metadata validation, non-weakening check, positive/negative scenarios for critical rules, compatibility with declared baseline, effective-date checks and resolution snapshot test.
+Каждый operational local policy package должен иметь:
 
-The product/framework tests use synthetic packages. Site-specific acceptance tests may run locally against the actual deployed policy package without publishing internal source material.
+- schema validation;
+- source metadata validation;
+- non-weakening check;
+- positive/negative scenarios для critical rules;
+- compatibility с declared baseline;
+- effective-date checks;
+- resolution snapshot test.
+
+Product/framework tests используют synthetic packages. Site-specific acceptance tests могут выполняться locally против actual deployed policy package без publishing internal source material.
 
 ## 16. Anti-goals
 
-Do not implement unrestricted scripting from policy files, `disableMandatoryRule=true`, arbitrary site-specific code branches where data suffices, opaque precedence based on file load order, or a development process that requires uploading confidential enterprise instructions to the project.
+Не реализовывать:
+
+- unrestricted scripting из policy files;
+- `disableMandatoryRule=true`;
+- arbitrary site-specific code branches where data suffices;
+- opaque precedence based on file load order;
+- development process, требующий загрузки confidential enterprise instructions в проект.
