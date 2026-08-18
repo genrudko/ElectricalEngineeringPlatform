@@ -1,12 +1,12 @@
-# CI and Acceptance Strategy
+# Стратегия CI и acceptance
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Principle
+## 1. Принцип
 
-Verification depth follows risk and changed ownership.
+Глубина verification определяется risk и changed ownership.
 
-A two-button UI repair must not wait for full NPT corpus, switching scenarios and release packaging before the owner can see it. Conversely, a topology/state/normative change must not be accepted because a screenshot looks good.
+Небольшой UI repair не должен ждать full NPT corpus, Switching scenarios и release packaging до первой owner visual review. И наоборот, topology/state/normative change не может быть accepted только потому, что screenshot выглядит хорошо.
 
 ## 2. Lane model
 
@@ -19,42 +19,57 @@ L4 CROSS-PLATFORM/PACKAGING
 L5 FULL/NIGHTLY/RELEASE
 ```
 
-Workflow selection is based on changed paths plus explicit work-item risk classification; path filters are assistance, not the sole safety mechanism.
+Workflow selection основывается на changed paths + explicit work-item risk classification. Path filters помогают, но не являются единственным safety mechanism.
 
 ## 3. UI-only lane
 
-Typical scope: design tokens, spacing/icons, shared-control layout and non-domain presentation.
+Typical scope: design tokens, spacing/icons, shared-control layout и non-domain presentation.
 
-Before visual acceptance:
+До visual acceptance:
 
 - compile/type/build affected UI;
 - targeted UI/component tests;
 - UI Gallery screenshot/headless render;
 - preview artifact.
 
-Then owner visual acceptance.
+Затем owner visual acceptance.
 
-Do not run private NPT corpus/switching rule suites merely because a button margin changed.
+Private NPT corpus/Sharp switching rule suites не запускаются только потому, что изменён button margin.
 
 ## 4. Domain lane
 
-Changes to neutral project/equipment/terminal/connection/state/persistence require core unit tests, affected module tests, invariants, serialization round-trip/migration and relevant import/switching integration where contracts changed.
+Changes neutral project/equipment/terminal/connection/state/persistence требуют:
 
-Add visual evidence if visible behavior changes.
+- core unit tests;
+- affected module tests;
+- invariants;
+- serialization round-trip/migration;
+- relevant import/switching integration, если изменился contract.
+
+Добавлять visual evidence, если меняется visible behavior.
 
 ## 5. Import lane
 
-Requires source parser/mapping tests, staging/ambiguity tests, reconciliation diff tests, destructive-change safety, provenance, atomic transaction/undo, auto-layout preservation of constraints and representative vertical-slice fixture.
+Требует:
+
+- source parser/mapping tests;
+- staging/ambiguity tests;
+- reconciliation diff tests;
+- destructive-change safety;
+- provenance;
+- atomic transaction/undo;
+- auto-layout preservation of constraints;
+- representative vertical-slice fixture.
 
 ## 6. Scheme/canvas lane
 
-Depending on change:
+В зависимости от change:
 
 - geometry/layout tests;
 - topology/view separation invariant;
 - selection/hit-test interaction tests;
 - deterministic render/visual snapshot;
-- performance budget checks for core canvas changes;
+- performance budget checks для core canvas changes;
 - print/export evidence;
 - owner visual review.
 
@@ -68,7 +83,7 @@ Public/normal lane:
 - typed property tests;
 - safe-save validation.
 
-Controlled private corpus lane when format handling changes:
+Controlled private corpus lane при format handling changes:
 
 - full XSDE parse/unchanged round-trip;
 - representative save/edit cases;
@@ -77,13 +92,13 @@ Controlled private corpus lane when format handling changes:
 - renderer comparison corpus when established;
 - no proprietary corpus upload as artifact.
 
-NPT lane is not required for unrelated UI Core fixes.
+NPT lane не required для unrelated UI Core fixes.
 
 ## 8. Switching/topology/compliance lane
 
-Highest logical risk short of real-equipment control.
+Это highest logical risk до real-equipment control.
 
-Requires:
+Требуется:
 
 - rule-ID indexed unit tests;
 - positive/negative/UNKNOWN scenarios;
@@ -91,18 +106,26 @@ Requires:
 - sequence revalidation tests;
 - local-policy non-weakening tests;
 - applicable source/profile version checks;
-- regression scenarios from accepted operational examples;
+- synthetic/cleared regression scenarios;
 - deterministic explanation/result tests where practical.
 
-Normative semantic change requires source/provenance review, not only green CI.
+Normative semantic change требует source/provenance review, а не только green CI.
 
 ## 9. Project format/migration lane
 
-Changing native schema requires old-version load fixtures, migration, semantic comparison, extension preservation, save/reopen, recovery behavior and representative real-project migration before release.
+Change native schema требует:
+
+- old-version load fixtures;
+- migration;
+- semantic comparison;
+- extension preservation;
+- save/reopen;
+- recovery behavior;
+- representative real-project migration before release.
 
 ## 10. Cross-platform lane
 
-Run when framework/platform/native integration is touched or before release:
+Запускается при changes framework/platform/native integration или перед release:
 
 - Windows build/test/package;
 - Linux build/test/package;
@@ -110,17 +133,23 @@ Run when framework/platform/native integration is touched or before release:
 - artifact restore/start;
 - platform-specific manual gates as defined.
 
-Not every platform-neutral domain commit needs full installer matrix before code review.
+Не каждый platform-neutral domain commit требует full installer matrix до code review.
 
 ## 11. Performance lane
 
-Run on canvas/spatial-index/layout architecture changes, large table/tree infrastructure, topology algorithms, large import reconciliation and release/nightly.
+Запускается для:
 
-Store raw measurements/environment metadata and use regression thresholds with tolerance rather than flaky exact milliseconds.
+- canvas/spatial-index/layout architecture changes;
+- large table/tree infrastructure;
+- topology algorithms;
+- large import reconciliation;
+- release/nightly.
+
+Сохранять raw measurements/environment metadata и использовать regression thresholds с tolerance вместо flaky exact milliseconds.
 
 ## 12. Visual-first acceptance
 
-For user-visible UI repairs/features:
+Для user-visible UI repair/feature:
 
 ```text
 implement
@@ -131,23 +160,55 @@ implement
 → only then expensive relevant gates
 ```
 
-Automated visual tests complement, not replace, owner acceptance for major UX changes.
+Automated visual tests дополняют, а не заменяют owner acceptance для major UX changes.
 
-## 13. Failure retention
+## 13. Interactive Bridge vs formal CI
 
-For important platform/compatibility defects retain concise evidence of observed failure, root cause, repair head, regression test and accepted retest.
+EEP Development Bridge предназначен для fast interactive tasks и не является formal acceptance evidence сам по себе.
 
-## 14. Full suite
+```text
+Bridge
+→ быстрый inspect/build/test/preview loop
 
-Appropriate for release candidate, nightly/periodic health check, broad architecture refactor, dependency/toolchain update, native schema migration and cross-cutting Domain Core contract change.
+GitHub self-hosted runner
+→ exact-head check/status/artifact evidence
+```
 
-## 15. Preview artifacts
+Если результат должен участвовать в formal PR gate, он воспроизводится через repository-defined command на exact PR head и фиксируется GitHub check/artifact.
 
-UI work should produce Gallery screenshots/archive, portable app preview, targeted recording only when needed or PDF/export artifact for output changes.
+## 14. Failure retention
 
-The owner should not need SSH/build tools to inspect normal UI work.
+Для важных platform/compatibility defects сохраняется concise evidence:
 
-## 16. Acceptance evidence by class
+- observed failure;
+- root cause;
+- repair head;
+- regression test;
+- accepted retest.
+
+## 15. Full suite
+
+Уместен для:
+
+- release candidate;
+- nightly/periodic health check;
+- broad architecture refactor;
+- dependency/toolchain update;
+- native schema migration;
+- cross-cutting Domain Core contract change.
+
+## 16. Preview artifacts
+
+UI work должен produce:
+
+- Gallery screenshots/archive;
+- portable app preview;
+- targeted recording only when needed;
+- PDF/export artifact для output changes.
+
+Owner не должен нуждаться в SSH/build tools для normal UI inspection.
+
+## 17. Acceptance evidence by class
 
 | Change | Minimum evidence before acceptance |
 |---|---|
@@ -161,18 +222,20 @@ The owner should not need SSH/build tools to inspect normal UI work.
 | packaging/platform | Windows/Linux package/start + manual native evidence |
 | normative rule | source review + rule tests + coverage update |
 
-## 17. Flakiness policy
+## 18. Flakiness policy
 
-Do not normalize flaky tests by blind reruns. Isolate cause, reduce nondeterminism, define tolerance where measurement varies and quarantine only with explicit issue/expiry condition.
+Не нормализовать flaky tests blind reruns.
 
-## 18. CI budget
+Нужно isolate cause, reduce nondeterminism, define tolerance where measurement varies и quarantine только с explicit issue/expiry condition.
 
-Track runner wall-clock and feedback latency.
+## 19. CI budget
+
+Track runner wall-clock и feedback latency.
 
 Target principles:
 
-- fast UI preview lane: minutes, not tens of minutes/hours;
-- targeted core/module lane: bounded to changed subsystem;
-- full private corpus/release lane: heavier but not on every trivial commit.
+- fast UI preview lane: минуты, не десятки минут/часы;
+- targeted core/module lane: bounded к changed subsystem;
+- full private corpus/release lane: heavier, но не на каждый trivial commit.
 
-Exact thresholds are set after Infrastructure/Platform spikes provide measurements.
+Exact thresholds задаются после Infrastructure/Platform spikes.
