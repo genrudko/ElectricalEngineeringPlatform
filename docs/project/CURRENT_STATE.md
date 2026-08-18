@@ -5,14 +5,14 @@
 
 ## 1. Фактическое состояние GitHub
 
-- Канонический репозиторий: `genrudko/ElectricalEngineeringPlatform`.
+- Канонический repository: `genrudko/ElectricalEngineeringPlatform`.
 - Default branch: `main`.
 - Bootstrap commit: `5aa73328917447fb410489e8f67685ee4907ae66`.
 - Активный issue: #1 `UNIFIED-FOUNDATION-001`.
-- Активная ветка: `architecture/unified-foundation-001`.
+- Активная branch: `architecture/unified-foundation-001`.
 - Foundation Draft PR: #2 `UNIFIED-FOUNDATION-001 — establish canonical platform foundation`.
 - PR #2 остаётся **OPEN / DRAFT / NOT MERGED** до отдельной owner acceptance и явной команды на Ready/Merge.
-- Предыдущий Foundation source в `genrudko/electroscheme-studio` issue #5 / Draft PR #6 закрыт как superseded и остаётся historical migration evidence.
+- Previous Foundation source в `genrudko/electroscheme-studio` issue #5 / Draft PR #6 закрыт как superseded и остаётся historical migration evidence.
 - Tauri desktop spike в `genrudko/electroscheme-studio` issue #3 / Draft PR #4 остаётся research evidence only.
 
 Exact head, compare state, changed files и workflow/check state являются volatile и перед implementation/acceptance всегда читаются напрямую из GitHub.
@@ -46,8 +46,8 @@ Exact head, compare state, changed files и workflow/check state являютс�
 - existing VPS — development execution plane;
 - risk-based CI и visual-first UI acceptance;
 - final platform stack — только после equivalent Avalonia-vs-Qt executable spike;
-- русский — язык продукта/UI/документации;
-- английский — язык internal technical/domain части с профессиональной power-engineering terminology.
+- русский — язык продукта/UI/canonical documentation;
+- английский — язык internal technical/domain layer с professional power-engineering terminology.
 
 ## 4. Решения владельца, уточнённые во время Foundation
 
@@ -60,12 +60,14 @@ Internal technical/domain implementation                → английский
 
 Точные internal entities используют engineering English: `CircuitBreaker`, `Disconnector`, `EarthingSwitch`, `Busbar`, `TopologyGraph`, `SwitchingOperation`, `InterlockRule` и т. п.
 
-Транслит в identifiers запрещён.
+Transliteration в identifiers запрещена.
 
 Канонические owners:
 
 - `docs/project/LANGUAGE_POLICY.md`;
 - `docs/project/RU_EN_ENGINEERING_GLOSSARY.md`.
+
+Foundation canonical docs приведены к этой policy. English сохраняется для exact technical identifiers, established engineering terms и machine-readable values, но не для explanatory narrative.
 
 ### 4.2. Старый TBP
 
@@ -73,14 +75,14 @@ Internal technical/domain implementation                → английский
 
 - no code migration;
 - no YAML/rule migration;
-- нет требования загружать/архивировать его для этого проекта;
+- нет requirement загружать/архивировать его для этого project;
 - он не используется как normative authority/test oracle.
 
 Новый Switching module реализуется с нуля на Domain Core + Compliance Core + current verified normative sources.
 
-### 4.3. Внутренние инструкции enterprise/site
+### 4.3. Внутренние enterprise/site instructions
 
-Внутренние enterprise/site instructions **не являются normal shared development inputs** и не должны загружаться в GitHub/ChatGPT/shared VPS corpus.
+Internal enterprise/site instructions **не являются normal shared development inputs** и не должны загружаться в GitHub/ChatGPT/shared VPS corpus.
 
 Продукт поддерживает fine-grained Local Policy Overlays на deployment, но shared development использует synthetic/cleared policy examples.
 
@@ -88,15 +90,15 @@ Internal technical/domain implementation                → английский
 
 Government/sector acts и ГОСТ/ЕСКД source metadata получаются и повторно проверяются онлайн по authoritative sources при начале соответствующей compliance/profile работы.
 
-Вручную собранный большой normative document pack сейчас не требуется.
+Manually assembled large normative document pack сейчас не требуется.
 
-Для ГОСТ authoritative catalogue/status обязателен; detailed full-text extraction использует lawful source и не считает random internet copies нормативным authority.
+Для ГОСТ authoritative catalogue/status обязателен; detailed full-text extraction использует lawful source и не считает random internet copies normative authority.
 
-## 5. Доказанный ChatGPT → VPS development bridge
+## 5. Доказанный ChatGPT → VPS Development Bridge
 
-2026-08-18 выполнен практический feasibility test прямого интерактивного доступа из ChatGPT Plus к existing VPS.
+2026-08-18 выполнен practical feasibility test прямого interactive access из ChatGPT Plus к existing VPS.
 
-Фактически доказана цепочка:
+Фактически доказана chain:
 
 ```text
 ChatGPT Plus Project chat
@@ -113,35 +115,35 @@ ChatGPT Plus Project chat
 На VPS:
 
 - Ubuntu 24.04.4 LTS;
-- bridge service user `eepbridge` — непривилегированный;
+- bridge service user `eepbridge` — unprivileged;
 - FastAPI/Uvicorn слушает только `127.0.0.1:8788`;
 - Caddy публикует HTTPS endpoint;
-- сертификат Let's Encrypt успешно получен;
-- UFW открывает только необходимые HTTP/HTTPS порты для bridge поверх уже существующих правил;
-- запрос без Bearer получает `401 Unauthorized`;
-- запрос с корректным Bearer получает `200 OK`.
+- Let's Encrypt certificate получен успешно;
+- UFW открывает required HTTP/HTTPS ports поверх already existing rules;
+- request без Bearer получает `401 Unauthorized`;
+- request с correct Bearer получает `200 OK`.
 
 ### ChatGPT-side evidence
 
 Доказано:
 
-1. Custom GPT Action работает на текущем ChatGPT Plus;
-2. Action реально вызывает внешний bridge — VPS log зафиксировал `GET /health ... 200 OK`;
-3. Custom GPT Action работает внутри существующего Project-чата `Electrical Engineering Platform`;
-4. в том же Project-чате сохраняется рабочий доступ к GitHub connector;
-5. после GitHub query bridge снова успешно вызывается в том же разговоре.
+1. Custom GPT Action работает на current ChatGPT Plus;
+2. Action реально вызывает external bridge — VPS log зафиксировал `GET /health ... 200 OK`;
+3. Custom GPT Action работает внутри existing Project chat `Electrical Engineering Platform`;
+4. в том же Project chat сохраняется working GitHub connector;
+5. после GitHub query bridge снова успешно вызывается в том же conversation.
 
 ### Архитектурное следствие
 
-Целевая Development Platform использует два контура:
+Target Development Platform использует два contours:
 
 ```text
-Интерактивный development loop:
+Interactive development loop:
 ChatGPT Project
 → EEP Development Bridge
 → VPS
 
-Формальный verification loop:
+Formal verification loop:
 GitHub
 → self-hosted runner on VPS
 → exact-head build/test/benchmark/package
@@ -149,9 +151,9 @@ GitHub
 → owner acceptance
 ```
 
-Bridge не является универсальным remote shell. Следующая версия должна использовать typed/allowlisted operations, fixed workspace, timeout, task IDs, audit log и ограниченный набор execution profiles.
+Bridge не является universal remote shell. Следующая version должна использовать typed/allowlisted operations, fixed workspace, timeout, task IDs, audit log и bounded execution profiles.
 
-Таким образом, Business/MCP/OpenAI API не являются обязательными dependencies для текущего development workflow.
+Business/MCP/OpenAI API не являются required dependencies current development baseline.
 
 ## 6. Что ещё не доказано / не выбрано
 
@@ -166,7 +168,7 @@ Bridge не является универсальным remote shell. Следу
 - installer/update channel;
 - final branding beyond repository/product working name;
 - hardened production-quality Development Bridge API;
-- self-hosted GitHub runner exact-head workflow в новом репозитории.
+- self-hosted GitHub runner exact-head workflow в новом repository.
 
 ## 7. Важное inherited evidence
 
@@ -194,8 +196,8 @@ Research baseline включает:
 - large ASU/TECH/KKS signal catalog research;
 - lossless XTABL v6.0 core для seven production tables / 1461 records;
 - unknown/preserve-only XTABL fields;
-- evidence, что NPT `nodes` topology-related, но нет доказательства complete neutral electrical graph;
-- current Mnemo renderer fidelity остаётся недостаточной.
+- evidence, что NPT `nodes` topology-related, но нет proof complete neutral electrical graph;
+- current Mnemo renderer fidelity остаётся insufficient.
 
 Full vendor/reference corpus остаётся вне GitHub.
 
@@ -205,7 +207,7 @@ Historical only. Не является migration source для нового Swit
 
 ## 8. Normative baseline state
 
-Foundation устанавливает registry mechanism, а не утверждает, что все требования уже encoded.
+Foundation устанавливает registry mechanism, а не утверждает, что все requirements уже encoded.
 
 Initial high-priority source set включает:
 
@@ -242,7 +244,7 @@ CSV/XLSX → topology → auto-layout → manual correction → save → reimpor
 module expansion: Scheme / NPT / clean-sheet Switching
 ```
 
-## 10. Явно вне текущего scope
+## 10. Явно вне current scope
 
 Без нового owner decision не строить:
 
@@ -258,11 +260,11 @@ module expansion: Scheme / NPT / clean-sheet Switching
 
 ## 11. Acceptance posture
 
-Foundation должен защитить проект как минимум от шести известных failure modes:
+Foundation должен защитить project как минимум от шести known failure modes:
 
 1. competing domain models;
 2. legacy-looking/unusable UI despite correct backend;
 3. untraceable normative folklore embedded in code;
-4. development pipeline, где маленький visible repair превращается в дни unrelated CI;
+4. development pipeline, где small visible repair превращается в дни unrelated CI;
 5. хаотичный mixed-language product;
 6. unrestricted remote shell/agent access к VPS вместо bounded development control API.
