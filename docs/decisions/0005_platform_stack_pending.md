@@ -5,18 +5,18 @@
 
 ## Контекст
 
-Unified scope требует heavy professional desktop application: large engineering canvas, 100k-row data views, multi-window/multi-monitor workspace, rich properties/tables и strong visual testing.
+Unified scope требует тяжёлого профессионального desktop application: large engineering canvas, data views на 100k rows, multi-window/multi-monitor workspace, rich properties/tables и strong visual testing.
 
 Historical Tauri/Vue/TypeScript/SVG work остаётся research evidence only.
 
-## Candidates для final spike
+## Кандидаты для final spike
 
 1. C#/.NET + Avalonia.
 2. C++ + Qt 6/QML.
 
-## Decision rule
+## Правило выбора
 
-Ни один candidate не принимается до выполнения equivalent executable contract из `docs/development/PLATFORM_STACK_SPIKE.md` и появления owner manual evidence.
+Ни один кандидат не принимается до выполнения equivalent executable contract из `docs/development/PLATFORM_STACK_SPIKE.md` и появления owner manual evidence.
 
 Selected stack должен балансировать:
 
