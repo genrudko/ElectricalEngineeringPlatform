@@ -1,0 +1,185 @@
+openapi: 3.1.0
+info:
+  title: EEP Development Bridge
+  version: 0.2.0
+  description: Bounded development API for the Electrical Engineering Platform VPS.
+servers:
+  - url: https://eep-dev-5-181-177-72.nip.io
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: getBridgeHealth
+      summary: Check Bridge health and version
+      responses:
+        '200':
+          description: Bridge is healthy
+  /status:
+    get:
+      operationId: getServerStatus
+      summary: Get bounded Bridge/server status
+      responses:
+        '200':
+          description: Server status
+  /workspace/status:
+    get:
+      operationId: getWorkspaceStatus
+      summary: Get fixed repository workspace state
+      responses:
+        '200':
+          description: Workspace status
+  /repository/status:
+    get:
+      operationId: getRepositoryStatus
+      summary: Get repository HEAD, origin/main and origin identity
+      responses:
+        '200':
+          description: Repository status
+  /git/status:
+    get:
+      operationId: getGitStatus
+      summary: Get bounded git status output
+      responses:
+        '200':
+          description: Git status
+  /git/diff:
+    get:
+      operationId: getGitDiff
+      summary: Get bounded working-tree git diff
+      responses:
+        '200':
+          description: Git diff
+  /files:
+    get:
+      operationId: readWorkspaceFile
+      summary: Read one UTF-8 file under the fixed repository root
+      parameters:
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 500
+      responses:
+        '200':
+          description: File content
+        '400':
+          description: Invalid or escaped path
+        '415':
+          description: File is not UTF-8 text
+  /search:
+    get:
+      operationId: searchWorkspace
+      summary: Search UTF-8 repository files with bounded results
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 100
+        - name: suffix
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 20
+            example: .md
+      responses:
+        '200':
+          description: Bounded search results
+  /tasks/run:
+    post:
+      operationId: runBridgeTask
+      x-openai-isConsequential: false
+      summary: Run one allowlisted development task against a validated repository ref
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - profile
+                - ref
+              properties:
+                profile:
+                  type: string
+                  enum:
+                    - bridge_compile
+                    - bridge_selftest
+                ref:
+                  type: string
+                  description: Full commit SHA or origin/<branch>
+                  minLength: 1
+                  maxLength: 220
+      responses:
+        '202':
+          description: Task queued
+        '400':
+          description: Invalid ref/profile
+        '429':
+          description: Concurrency limit reached
+  /tasks/{task_id}:
+    get:
+      operationId: getTaskStatus
+      summary: Get task state and resolved commit
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
+      responses:
+        '200':
+          description: Task status
+        '404':
+          description: Task not found
+  /tasks/{task_id}/log:
+    get:
+      operationId: getTaskLog
+      summary: Get bounded task output
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
+      responses:
+        '200':
+          description: Task log
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: Task not found
+  /tasks/{task_id}/cancel:
+    post:
+      operationId: cancelTask
+      x-openai-isConsequential: false
+      summary: Request cancellation of one queued/running task
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
+      responses:
+        '200':
+          description: Current task state after cancellation request
+        '404':
+          description: Task not found
+components:
+  schemas: {}
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

@@ -1,0 +1,305 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ ${EUID} -ne 0 ]]; then
+  echo "ERROR: run as root (sudo bash scripts/install_development_bridge.sh)" >&2
+  exit 2
+fi
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE_DIR="$REPO_ROOT/tools/development_bridge"
+DEPLOY_DIR="/opt/eep-dev-bridge"
+STATE_DIR="/var/lib/eep-dev-bridge"
+READONLY_REPO="/home/eep-workspace/workspace/ElectricalEngineeringPlatform"
+BRIDGE_SERVICE="eep-dev-bridge.service"
+BRIDGE_DROPIN_DIR="/etc/systemd/system/eep-dev-bridge.service.d"
+BRIDGE_STATE_DROPIN="$BRIDGE_DROPIN_DIR/20-state-directory.conf"
+BRIDGE_REPO_DROPIN="$BRIDGE_DROPIN_DIR/25-repository-readonly.conf"
+SYNC_SERVICE="eep-workspace-sync.service"
+SYNC_TIMER="eep-workspace-sync.timer"
+BACKUP_DIR="/var/backups/eep-dev-bridge/$(date -u +%Y%m%dT%H%M%SZ)"
+
+for user in eepbridge eep-workspace; do
+  if ! id "$user" >/dev/null 2>&1; then
+    echo "ERROR: required user '$user' does not exist" >&2
+    exit 3
+  fi
+done
+
+for file in "$SOURCE_DIR/app.py" "$SOURCE_DIR/bridge_core.py"; do
+  if [[ ! -f "$file" ]]; then
+    echo "ERROR: source file missing: $file" >&2
+    exit 4
+  fi
+done
+
+if [[ ! -d "$READONLY_REPO/.git" ]]; then
+  echo "ERROR: read-only repository workspace missing: $READONLY_REPO" >&2
+  exit 5
+fi
+
+mkdir -p "$BACKUP_DIR"
+if [[ -f "$DEPLOY_DIR/app.py" ]]; then
+  cp -a "$DEPLOY_DIR/app.py" "$BACKUP_DIR/app.py"
+fi
+if [[ -f "$DEPLOY_DIR/bridge_core.py" ]]; then
+  cp -a "$DEPLOY_DIR/bridge_core.py" "$BACKUP_DIR/bridge_core.py"
+fi
+if [[ -f "$BRIDGE_STATE_DROPIN" ]]; then
+  cp -a "$BRIDGE_STATE_DROPIN" "$BACKUP_DIR/20-state-directory.conf"
+fi
+if [[ -f "$BRIDGE_REPO_DROPIN" ]]; then
+  cp -a "$BRIDGE_REPO_DROPIN" "$BACKUP_DIR/25-repository-readonly.conf"
+fi
+
+rollback() {
+  rc=$?
+  echo "ERROR: deployment failed; restoring previous Bridge source/configuration" >&2
+  if [[ -f "$BACKUP_DIR/app.py" ]]; then
+    install -o eepbridge -g eepbridge -m 0640 "$BACKUP_DIR/app.py" "$DEPLOY_DIR/app.py"
+  fi
+  if [[ -f "$BACKUP_DIR/bridge_core.py" ]]; then
+    install -o eepbridge -g eepbridge -m 0640 "$BACKUP_DIR/bridge_core.py" "$DEPLOY_DIR/bridge_core.py"
+  else
+    rm -f "$DEPLOY_DIR/bridge_core.py"
+  fi
+  if [[ -f "$BACKUP_DIR/20-state-directory.conf" ]]; then
+    install -o root -g root -m 0644 \
+      "$BACKUP_DIR/20-state-directory.conf" "$BRIDGE_STATE_DROPIN"
+  else
+    rm -f "$BRIDGE_STATE_DROPIN"
+  fi
+  if [[ -f "$BACKUP_DIR/25-repository-readonly.conf" ]]; then
+    install -o root -g root -m 0644 \
+      "$BACKUP_DIR/25-repository-readonly.conf" "$BRIDGE_REPO_DROPIN"
+  else
+    rm -f "$BRIDGE_REPO_DROPIN"
+  fi
+  systemctl daemon-reload >/dev/null 2>&1 || true
+  systemctl restart "$BRIDGE_SERVICE" >/dev/null 2>&1 || true
+  exit "$rc"
+}
+trap rollback ERR
+
+printf '%s\n' "=== 1. Prepare identities and host-side read-only repository access ==="
+usermod -aG eep-workspace eepbridge
+chmod g+rx /home/eep-workspace /home/eep-workspace/workspace
+chmod -R g+rX "$READONLY_REPO"
+chmod -R g-w "$READONLY_REPO"
+
+printf '%s\n' "=== 2. Prepare Bridge state and repository view under systemd hardening ==="
+install -d -o eepbridge -g eepbridge -m 0750 "$STATE_DIR" "$STATE_DIR/tasks"
+install -d -o root -g root -m 0755 "$BRIDGE_DROPIN_DIR"
+
+cat > "$BRIDGE_STATE_DROPIN" <<'UNIT'
+[Service]
+StateDirectory=eep-dev-bridge
+StateDirectoryMode=0750
+ReadWritePaths=/var/lib/eep-dev-bridge
+UNIT
+
+cat > "$BRIDGE_REPO_DROPIN" <<'UNIT'
+[Service]
+SupplementaryGroups=eep-workspace
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/eep-workspace/workspace/ElectricalEngineeringPlatform
+UNIT
+
+chmod 0644 "$BRIDGE_STATE_DROPIN" "$BRIDGE_REPO_DROPIN"
+systemctl daemon-reload
+
+configured_rw_paths="$(systemctl show "$BRIDGE_SERVICE" --property=ReadWritePaths --value)"
+case " $configured_rw_paths " in
+  *" /var/lib/eep-dev-bridge "*) ;;
+  *)
+    echo "ERROR: systemd did not apply writable Bridge state path" >&2
+    false
+    ;;
+esac
+
+configured_protect_home="$(systemctl show "$BRIDGE_SERVICE" --property=ProtectHome --value)"
+[[ "$configured_protect_home" == "tmpfs" ]]
+
+configured_bind_ro="$(systemctl show "$BRIDGE_SERVICE" --property=BindReadOnlyPaths --value)"
+case " $configured_bind_ro " in
+  *"$READONLY_REPO"*) ;;
+  *)
+    echo "ERROR: systemd did not apply read-only repository bind" >&2
+    false
+    ;;
+esac
+
+configured_supplementary_groups="$(systemctl show "$BRIDGE_SERVICE" --property=SupplementaryGroups --value)"
+case " $configured_supplementary_groups " in
+  *"eep-workspace"*) ;;
+  *)
+    echo "ERROR: systemd did not apply eep-workspace supplementary group" >&2
+    false
+    ;;
+esac
+
+sudo -u eepbridge -H test -w "$STATE_DIR"
+sudo -u eepbridge -H test -w "$STATE_DIR/tasks"
+echo "Bridge state directory: writable for eepbridge"
+echo "Bridge home isolation: tmpfs with one explicit read-only repository bind"
+
+printf '%s\n' "=== 3. Preflight candidate source before replacing runtime ==="
+/opt/eep-dev-bridge/.venv/bin/python3 -m py_compile \
+  "$SOURCE_DIR/app.py" \
+  "$SOURCE_DIR/bridge_core.py"
+echo "Candidate Python source: compile OK"
+
+printf '%s\n' "=== 4. Install Bridge v0.2 source ==="
+install -d -o eepbridge -g eepbridge -m 0750 "$DEPLOY_DIR"
+install -o eepbridge -g eepbridge -m 0640 "$SOURCE_DIR/app.py" "$DEPLOY_DIR/app.py"
+install -o eepbridge -g eepbridge -m 0640 "$SOURCE_DIR/bridge_core.py" "$DEPLOY_DIR/bridge_core.py"
+
+printf '%s\n' "=== 5. Install read-only repository sync service ==="
+cat > "/etc/systemd/system/$SYNC_SERVICE" <<'UNIT'
+[Unit]
+Description=EEP read-only GitHub workspace fetch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=eep-workspace
+Group=eep-workspace
+Environment=HOME=/home/eep-workspace
+WorkingDirectory=/home/eep-workspace/workspace/ElectricalEngineeringPlatform
+ExecStart=/usr/bin/git fetch --prune --no-tags origin
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/eep-workspace/workspace/ElectricalEngineeringPlatform/.git
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+cat > "/etc/systemd/system/$SYNC_TIMER" <<'UNIT'
+[Unit]
+Description=Periodic EEP read-only GitHub workspace fetch
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+RandomizedDelaySec=10s
+Persistent=true
+Unit=eep-workspace-sync.service
+
+[Install]
+WantedBy=timers.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now "$SYNC_TIMER"
+systemctl start "$SYNC_SERVICE"
+
+printf '%s\n' "=== 6. Verify host-side eepbridge repository access and credential isolation ==="
+sudo -u eepbridge -H \
+  git -c "safe.directory=$READONLY_REPO" -C "$READONLY_REPO" rev-parse HEAD >/dev/null
+if sudo -u eepbridge -H test -w "$READONLY_REPO"; then
+  echo "ERROR: eepbridge can write repository root" >&2
+  false
+fi
+if sudo -u eepbridge -H test -w "$READONLY_REPO/.git"; then
+  echo "ERROR: eepbridge can write repository metadata" >&2
+  false
+fi
+if sudo -u eepbridge -H test -r /home/eep-workspace/.ssh/eep_github_ed25519; then
+  echo "ERROR: eepbridge can read eep-workspace deploy key" >&2
+  false
+fi
+
+printf '%s\n' "=== 7. Restart Bridge ==="
+systemctl restart "$BRIDGE_SERVICE"
+sleep 2
+systemctl is-active --quiet "$BRIDGE_SERVICE"
+
+printf '%s\n' "=== 8. Verify hardened unauthenticated surface ==="
+health_code="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8788/health)"
+openapi_code="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8788/openapi.json)"
+[[ "$health_code" == "401" ]]
+[[ "$openapi_code" == "404" ]]
+
+printf '%s\n' "=== 9. Verify authenticated runtime, including repository access inside service namespace ==="
+TOKEN="$(python3 - <<'PY'
+from pathlib import Path
+
+path = Path('/etc/eep-dev-bridge.env')
+pairs = {}
+for raw in path.read_text(encoding='utf-8').splitlines():
+    line = raw.strip()
+    if not line or line.startswith('#'):
+        continue
+    if line.startswith('export '):
+        line = line[7:].strip()
+    if '=' not in line:
+        continue
+    key, value = line.split('=', 1)
+    pairs[key.strip()] = value.strip().strip('"').strip("'")
+
+preferred = ('EEP_BRIDGE_TOKEN', 'EEP_DEV_BRIDGE_TOKEN', 'BRIDGE_TOKEN', 'EEP_BRIDGE_API_KEY')
+for key in preferred:
+    if pairs.get(key):
+        print(pairs[key], end='')
+        raise SystemExit(0)
+
+candidates = [
+    value for key, value in pairs.items()
+    if value and ('BRIDGE' in key.upper() or key.upper().startswith('EEP_'))
+    and ('TOKEN' in key.upper() or 'KEY' in key.upper())
+]
+if len(candidates) != 1:
+    raise SystemExit('unable to identify bridge credential in env file')
+print(candidates[0], end='')
+PY
+)"
+
+health_body="$(curl --fail --silent --show-error -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8788/health)"
+workspace_body="$(curl --fail --silent --show-error -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8788/workspace/status)"
+repository_body="$(curl --fail --silent --show-error -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8788/repository/status)"
+unset TOKEN
+
+python3 - "$health_body" "$workspace_body" "$repository_body" "$READONLY_REPO" <<'PY'
+import json
+import sys
+
+health = json.loads(sys.argv[1])
+workspace = json.loads(sys.argv[2])
+repository = json.loads(sys.argv[3])
+expected_root = sys.argv[4]
+
+assert health['ok'] is True
+assert health['service'] == 'eep-dev-bridge'
+assert health['version'] == '0.2.0'
+assert workspace['repository_root'] == expected_root
+assert isinstance(workspace['head'], str) and len(workspace['head']) == 40
+assert isinstance(workspace['clean'], bool)
+assert isinstance(repository['head'], str) and len(repository['head']) == 40
+assert isinstance(repository['origin_main'], str) and len(repository['origin_main']) == 40
+PY
+
+echo "Authenticated Bridge repository access inside service namespace: OK"
+
+printf '%s\n' "=== 10. Verify state write happened in hardened service namespace ==="
+test -s "$STATE_DIR/audit.jsonl"
+tail -n 1 "$STATE_DIR/audit.jsonl" | python3 -c 'import json,sys; row=json.load(sys.stdin); assert row.get("event") == "service_start"'
+echo "Bridge audit state write: OK"
+
+printf '%s\n' "=== 11. Service and timer state ==="
+systemctl --no-pager --full is-active "$BRIDGE_SERVICE"
+systemctl --no-pager --full is-active "$SYNC_TIMER"
+systemctl --no-pager --full is-active "$SYNC_SERVICE" || [[ "$(systemctl is-active "$SYNC_SERVICE")" == "inactive" ]]
+
+trap - ERR
+printf '%s\n' "======================================================"
+printf '%s\n' "PASS: EEP Development Bridge v0.2 deployed"
+printf '%s\n' "Backup: $BACKUP_DIR"
+printf '%s\n' "Bridge: active, authenticated, OpenAPI/docs hidden"
+printf '%s\n' "Bridge state: writable only at /var/lib/eep-dev-bridge"
+printf '%s\n' "Bridge repo view: explicit read-only bind inside ProtectHome=tmpfs"
+printf '%s\n' "Repo sync: timer enabled, read-only deploy key remains isolated"
+printf '%s\n' "======================================================"
