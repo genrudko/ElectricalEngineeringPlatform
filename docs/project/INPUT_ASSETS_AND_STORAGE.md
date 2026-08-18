@@ -1,38 +1,52 @@
-# Input Assets and Storage Map
+# Входные материалы и правила хранения
 
-Статус: canonical Foundation guidance
+Статус: каноническое Foundation-guidance
 
-## 1. Principle
+## 1. Принцип
 
-Not every useful source file belongs in GitHub, and not every legacy/internal source needs to be collected at all.
+Не каждый полезный исходный файл должен попадать в GitHub, и не каждый legacy/internal source вообще нужно собирать.
 
-The product repository stores project-owned source, documentation, tests and cleared fixtures. Vendor distributions, full industrial corpora, secrets and internal enterprise documentation stay outside Git.
+Product repository хранит project-owned source, documentation, tests и cleared fixtures.
 
-## 2. Already available — no manual upload needed
+Вне Git остаются:
 
-### ElectroScheme Studio
+- vendor distributions;
+- full industrial corpora;
+- secrets/credentials;
+- internal enterprise documentation;
+- restricted source materials без права redistribution.
+
+## 2. Уже доступно — ручная загрузка не нужна
+
+### 2.1. ElectroScheme Studio
 
 Source: `genrudko/electroscheme-studio`.
 
-Do not copy the whole repository here. Migration work reads historical research directly and moves/reimplements only accepted assets behind new contracts.
+Не копировать repository целиком. Historical research читается напрямую; в новый продукт переносится или реализуется заново только конкретный accepted asset за новым contract.
 
-### EOD
+### 2.2. EOD
 
 Source: `genrudko/electronic-operational-docs`.
 
-Do not copy EOD code. Future integration uses a bounded bridge work item.
+Не копировать EOD code. Future integration использует отдельный bounded bridge work item.
 
-## 3. Old TBP project — NOT NEEDED
+## 3. Old TBP project — не нужен
 
-Owner decision: **do not use the old TBP project as a migration source**.
+Owner decision: **не использовать старый TBP project как migration source**.
 
-Therefore there is no immediate handoff requirement for `TBP_project_py`, its Git history, YAML profiles, old rules or tests.
+Не требуется передавать:
 
-The new Switching/TBP module is written from scratch against the new Domain Core + Compliance Core + current normative sources.
+- `TBP_project_py`;
+- его Git history;
+- YAML profiles;
+- old rules;
+- tests/configuration.
 
-If one day a narrowly identified historical artifact becomes useful, it can be reviewed separately without changing this clean-sheet baseline.
+Новый Switching/TBP module пишется с нуля против Domain Core + Compliance Core + current normative sources.
 
-## 4. NPT / Modus raw corpus — private reference only
+Если позже конкретный historical artifact окажется полезен, он рассматривается отдельно без изменения clean-sheet baseline.
+
+## 4. NPT / Modus raw corpus — только private reference
 
 Known inputs:
 
@@ -41,9 +55,9 @@ scada-npt-expert.zip
 LW.zip / 000. LW.zip
 ```
 
-These contain vendor/deployed-system binaries, libraries, project corpora and database dumps.
+Они содержат vendor/deployed-system binaries, libraries, project corpora и database dumps.
 
-Preferred controlled VPS location:
+Предпочтительное controlled VPS location:
 
 ```text
 /opt/electrical-engineering-platform/corpus/npt-reference/
@@ -56,11 +70,17 @@ Preferred controlled VPS location:
 └── derived/
 ```
 
-Do not commit raw archives, vendor EXE/DLL/OCX libraries, full station project tree, raw SQL/database dumps or large generated SQLite catalogues.
+Не commit:
 
-## 5. NPT-derived assets that MAY enter Git after review
+- raw archives;
+- vendor EXE/DLL/OCX libraries;
+- full station project tree;
+- raw SQL/database dumps;
+- large generated SQLite catalogues.
 
-Project-created/sanitized assets may be committed to:
+## 5. NPT-derived assets, которые могут попасть в Git после review
+
+Project-created/sanitized assets могут размещаться в:
 
 ```text
 tests/fixtures/npt/xsde/
@@ -70,52 +90,52 @@ migration/evidence/npt/
 tools/npt/
 ```
 
-Examples:
+Примеры:
 
 - minimal XSDE regression fixture;
-- minimal XTABL fixture without sensitive plant data;
+- minimal XTABL fixture без sensitive plant data;
 - sanitized/cropped renderer reference;
-- derived inventory with counts/types but no proprietary payload;
+- derived inventory с counts/types без proprietary payload;
 - project-authored parser/analyzer/generator code.
 
 ## 6. NPT signal catalogue
 
-Large generated catalogue databases belong on controlled VPS/local storage, not Git.
+Large generated catalogue databases хранятся на controlled VPS/local storage, а не в Git.
 
-Project-authored catalogue/search code may later live under:
+Project-authored catalogue/search code может позже жить в:
 
 ```text
 tools/npt/catalog/
 ```
 
-Synthetic/tiny sanitized fixtures may live under:
+Synthetic/tiny sanitized fixtures:
 
 ```text
 tests/fixtures/npt/catalog/
 ```
 
-## 7. Public normative sources — fetch online, do not pre-upload a corpus
+## 7. Public normative sources — получать онлайн, а не загружать заранее
 
-Government/sector normative acts and ГОСТ/ЕСКД metadata should be obtained from current online authoritative sources as the relevant compliance/profile work begins.
+Government/sector normative acts и ГОСТ/ЕСКД metadata получаются из current online authoritative sources по мере начала соответствующей compliance/profile работы.
 
-Preferred source order:
+Приоритет источников:
 
 ```text
 official publication / official issuer
 → official Rosstandart standards catalogue
-→ authoritative consolidated legal/reference cross-check where needed
+→ authoritative consolidated legal/reference cross-check when needed
 ```
 
-There is no need to manually upload a large government-normative document pack into this project now.
+Не требуется вручную загружать большой government-normative document pack.
 
-For ГОСТ:
+Для ГОСТ:
 
-- official status/edition/change metadata must be verified through authoritative catalogue sources;
-- use a lawful full-text source when detailed rule extraction requires the text;
-- do not rely on random unofficial internet copies as normative authority;
-- do not commit full standards texts to Git unless redistribution rights are clear and there is a concrete need.
+- official status/edition/change metadata проверяется по authoritative catalogue sources;
+- detailed rule extraction при необходимости использует lawful full-text source;
+- random unofficial internet copies не являются normative authority;
+- полные texts стандартов не commit в Git без clear redistribution rights и практической необходимости.
 
-Git stores the project-authored outputs:
+Git хранит project-authored outputs:
 
 ```text
 docs/compliance/NORMATIVE_REGISTRY.md
@@ -123,23 +143,25 @@ compliance/rules/...
 compliance/tests/...
 ```
 
-## 8. Enterprise/site instructions — DO NOT UPLOAD for normal development
+## 8. Enterprise/site instructions — не загружать для normal development
 
-Internal enterprise/site instructions are not required as development inputs and should not be uploaded to GitHub, ChatGPT project storage or the shared VPS corpus by default.
+Внутренние enterprise/site instructions не являются development inputs и не должны загружаться в GitHub, ChatGPT Project storage или shared VPS corpus по умолчанию.
 
-The product still supports fine-grained local policy at deployment time through `Local Policy Overlays`, but development uses synthetic/cleared examples.
+Продукт поддерживает fine-grained local policy на deployment через `LocalPolicy`/`PolicyPackage`, но разработка механизма использует synthetic/cleared examples.
 
-At an actual enterprise/site, internal source documents remain inside the authorized local environment. Only the resulting configured policy package/source metadata need to be consumed by that deployment as required by its governance.
+На реальном предприятии internal source documents остаются внутри authorized local environment.
 
 ## 9. Manufacturer documentation
 
-Use public manufacturer manuals/technical sources when available. Restricted/proprietary manuals stay outside Git.
+Использовать public manufacturer manuals/technical sources, когда они доступны.
 
-Manufacturer-specific rules require exact model/revision/applicability provenance.
+Restricted/proprietary manuals остаются вне Git.
 
-## 10. First import/auto-layout fixtures — SHOULD enter Git
+Manufacturer-specific rules требуют exact model/revision/applicability provenance.
 
-For the first vertical slice prepare one small **synthetic or sanitized** CSV/XLSX equipment/connectivity dataset.
+## 10. First Import/Auto Layout fixtures — должны попасть в Git
+
+Для первого vertical slice требуется небольшой **synthetic или sanitized** CSV/XLSX dataset оборудования и связей.
 
 Target location:
 
@@ -151,11 +173,11 @@ tests/fixtures/import/
 └── README.md
 ```
 
-The fixture should contain enough real electrical semantics to exercise the selected breaker/disconnector/earthing-switch/bus/line/transformer scenario, but no confidential station data unless explicitly cleared.
+Fixture должен содержать достаточно electrical semantics для выбранного scenario с circuit breaker/disconnector/earthing switch/busbar/line/transformer, но не confidential station data без явного clearance.
 
-## 11. Native ГОСТ/ЕСКД symbol assets — SHOULD enter Git when authored
+## 11. Native ГОСТ/ЕСКД symbol assets — должны попадать в Git после authoring
 
-Project-authored native symbols with independent provenance belong in:
+Project-authored native symbols с independent provenance размещаются в:
 
 ```text
 assets/symbols/
@@ -165,35 +187,39 @@ assets/symbols/
 └── ui/
 ```
 
-Do not populate this with copied NPT/vendor assets.
+Не заполнять эту библиотеку copied NPT/vendor assets.
 
 ## 12. Visual NPT reference media
 
-Raw native NPT/Modus screenshots/videos from a real object stay in private reference storage by default:
+Raw native NPT/Modus screenshots/videos реального объекта по умолчанию хранятся в private reference storage:
 
 ```text
 /opt/electrical-engineering-platform/corpus/npt-reference/visual/
 ```
 
-Only sanitized regression images enter Git.
+В Git попадают только sanitized regression images.
 
-## 13. Secrets and certificates
+## 13. Development Bridge secrets
 
-Never commit `.env`, passwords, SCADA credentials, certificates/private keys or API tokens. Development/VPS secrets use GitHub secrets or controlled local secret storage.
+Bearer token, `.env`, passwords, SCADA credentials, certificates/private keys и API tokens никогда не commit в Git.
 
-## 14. Immediate input list
+Development Bridge secrets хранятся в controlled server secret files / GitHub secrets по назначению.
 
-For the next project stages the only externally supplied/reference materials we actually need are:
+Bridge endpoint может быть публично routable по HTTPS, но authentication secret и execution permissions остаются закрытыми.
+
+## 14. Что реально требуется от владельца на ближайших этапах
+
+Внешние/reference материалы, которые действительно нужны:
 
 1. `scada-npt-expert.zip` — private NPT corpus only;
 2. `LW.zip` / `000. LW.zip` — private NPT/LW corpus only;
-3. selected native NPT/Modus screenshots for renderer fidelity work when that module is resumed;
-4. one synthetic/sanitized representative equipment-connectivity CSV/XLSX for the first import vertical slice.
+3. selected native NPT/Modus screenshots для renderer fidelity work, когда NPT module будет возобновлён;
+4. один synthetic/sanitized representative equipment-connectivity CSV/XLSX для первого import vertical slice.
 
-Not required:
+Не требуется:
 
 - old TBP project;
 - enterprise/site internal instructions;
-- a manually assembled package of public Russian regulations/ГОСТs.
+- manually assembled package российских нормативных документов/ГОСТов.
 
-Public normative sources are acquired and re-verified online when the relevant compliance work item begins.
+Public normative sources приобретаются и re-verify online при начале соответствующего compliance work item.
