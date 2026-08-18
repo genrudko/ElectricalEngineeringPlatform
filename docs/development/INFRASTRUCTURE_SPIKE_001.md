@@ -383,7 +383,7 @@ Additional Bridge-hardening acceptance:
 
 ## 14. Final acceptance state
 
-`INFRASTRUCTURE-SPIKE-001` technical acceptance criteria выполнены.
+`INFRASTRUCTURE-SPIKE-001` technical acceptance criteria выполнены. Финальный merge остаётся отдельным owner-controlled действием.
 
 Формальный contour доказан:
 
