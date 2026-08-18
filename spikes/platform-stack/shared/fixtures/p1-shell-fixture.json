@@ -1,0 +1,69 @@
+{
+  "schema": "eep.p1-shell-fixture/v1",
+  "applicationTitle": "Electrical Engineering Platform",
+  "documents": [
+    { "id": "doc-single-line-35kv", "title": "Однолинейная схема КРУ 35 кВ", "kind": "scheme" },
+    { "id": "doc-aux-04kv", "title": "Схема собственных нужд 0,4 кВ", "kind": "scheme" },
+    { "id": "doc-import-preview", "title": "Импорт оборудования — предварительный просмотр", "kind": "import-preview" },
+    { "id": "doc-ui-gallery", "title": "UI Gallery", "kind": "ui-gallery" }
+  ],
+  "equipmentTree": {
+    "id": "ss-110-35-10",
+    "label": "ПС 110/35/10 кВ",
+    "expanded": true,
+    "children": [
+      { "id": "oru-110", "label": "ОРУ 110 кВ", "expanded": false, "children": [] },
+      {
+        "id": "kru-35", "label": "КРУ 35 кВ", "expanded": true,
+        "children": [
+          {
+            "id": "section-35-1", "label": "Секция 1", "expanded": true,
+            "children": [
+              { "id": "QF-35-01", "label": "QF-35-01", "expanded": false, "children": [] },
+              { "id": "QS-35-01", "label": "QS-35-01", "expanded": false, "children": [] },
+              { "id": "QSG-35-01", "label": "QSG-35-01", "expanded": false, "children": [] }
+            ]
+          },
+          { "id": "section-35-2", "label": "Секция 2", "expanded": false, "children": [] }
+        ]
+      },
+      { "id": "kru-10", "label": "КРУ 10 кВ", "expanded": false, "children": [] }
+    ]
+  },
+  "selectedEquipmentId": "QF-35-01",
+  "equipment": {
+    "QF-35-01": {
+      "designation": "QF-35-01",
+      "name": "Выключатель 35 кВ",
+      "properties": [
+        { "key": "designation", "label": "Обозначение", "value": "QF-35-01", "state": "normal", "editable": true },
+        { "key": "equipmentType", "label": "Тип оборудования", "value": "Выключатель", "state": "normal", "editable": false },
+        { "key": "voltageClass", "label": "Класс напряжения", "value": "35 кВ", "state": "normal", "editable": true },
+        { "key": "ratedCurrent", "label": "Номинальный ток", "value": "2500 А", "state": "warning", "editable": true, "message": "Проверьте соответствие паспортным данным оборудования." },
+        { "key": "state", "label": "Состояние", "value": "UNKNOWN", "displayValue": "Состояние неизвестно", "state": "unknown", "editable": true },
+        { "key": "dispatcherName", "label": "Диспетчерское наименование", "value": "Выключатель ввода секции 1 КРУ 35 кВ", "state": "error", "editable": true, "message": "Диспетчерское наименование должно быть подтверждено перед публикацией.\nИсправьте значение или отметьте источник данных." }
+      ]
+    }
+  },
+  "gallery": {
+    "textInput": "QF-35-01",
+    "numericInput": 2500,
+    "comboOptions": ["Выключатель", "Разъединитель", "Заземляющий нож"],
+    "comboSelected": "Выключатель",
+    "checkbox": true,
+    "radioOptions": ["В работе", "Резерв", "Ремонт"],
+    "radioSelected": "В работе",
+    "longLabel": "Диспетчерское наименование оборудования распределительного устройства 35 кВ",
+    "multilineError": "Не удалось однозначно сопоставить оборудование с импортируемой записью.\nПроверьте обозначение, класс напряжения и диспетчерское наименование.",
+    "notifications": [
+      { "severity": "info", "text": "Демонстрационные данные загружены." },
+      { "severity": "warning", "text": "Есть параметры, требующие проверки." },
+      { "severity": "error", "text": "Есть ошибки валидации." }
+    ]
+  },
+  "status": {
+    "project": "Демонстрационный проект",
+    "diagnostics": "2 замечания · 1 ошибка",
+    "connection": "Локальный режим"
+  }
+}
