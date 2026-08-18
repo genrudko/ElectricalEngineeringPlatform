@@ -1,0 +1,72 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Build / runtime
+bin/
+obj/
+build/
+dist/
+out/
+artifacts/
+.cache/
+.nuget/
+packages/
+
+# Python tooling used by migration/research scripts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Logs/temp
+*.log
+*.tmp
+*.bak
+*.orig
+
+# Secrets / credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+secrets/
+credentials/
+
+# Private/proprietary corpora — NEVER COMMIT
+corpus/
+private-corpus/
+reference-corpus/
+vendor/
+third_party_vendor/
+
+# NPT / Modus raw distributions and database dumps
+scada-npt-expert.zip
+LW.zip
+000. LW.zip
+*.bak.sql
+*.dump
+*.dmp
+*.mdf
+*.ldf
+
+# Large local migration archives
+migration_sources/**/*.zip
+migration_sources/**/*.7z
+migration_sources/**/*.rar
+migration_sources/**/*.tar
+migration_sources/**/*.tar.gz
+
+# Local policy/normative source documents; repository stores metadata/rules only
+private-policies/
+private-normative-sources/
