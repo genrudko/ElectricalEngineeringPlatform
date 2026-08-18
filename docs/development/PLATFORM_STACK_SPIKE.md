@@ -1,11 +1,11 @@
 # Platform Stack Spike — Avalonia vs Qt 6
 
-Статус: canonical decision contract  
-Decision: **PENDING — DO NOT SELECT BY PREFERENCE**
+Статус: канонический decision contract  
+Decision: **PENDING — НЕ ВЫБИРАТЬ ПО ПРЕДПОЧТЕНИЮ**
 
-## 1. Objective
+## 1. Цель
 
-Choose the desktop/UI/runtime stack using equivalent executable evidence on realistic electrical-engineering workloads.
+Выбрать desktop/UI/runtime stack на основе equivalent executable evidence для representative electrical-engineering workloads.
 
 Final candidates:
 
@@ -14,11 +14,11 @@ A) C# / .NET + Avalonia
 B) C++ + Qt 6 / QML
 ```
 
-Historical Tauri/Vue/TypeScript/SVG work in `genrudko/electroscheme-studio` remains research evidence, not a final candidate under the new unified scope.
+Historical Tauri/Vue/TypeScript/SVG work из `genrudko/electroscheme-studio` остаётся research evidence и не является final candidate по новой unified scope.
 
 ## 2. Decision dimensions
 
-The winning stack minimizes **total project risk and iteration cost**, not only raw FPS.
+Winning stack минимизирует **total project risk и iteration cost**, а не только raw FPS.
 
 Weighted areas:
 
@@ -32,14 +32,14 @@ Weighted areas:
 8. Windows/Linux packaging;
 9. debugging/profiling/tooling;
 10. dependency/licensing/maintenance burden;
-11. build time and feedback-loop duration;
-12. agent/code-maintenance complexity for a small team.
+11. build time и feedback-loop duration;
+12. agent/code-maintenance complexity для small team.
 
-Weights/thresholds are written before final results are reviewed.
+Weights/thresholds фиксируются до final result review.
 
 ## 3. Equivalent architecture
 
-Both candidates implement the same conceptual layers:
+Оба candidates реализуют одну conceptual structure:
 
 ```text
 App Shell
@@ -52,11 +52,11 @@ Command/Undo path
 Project persistence fixture
 ```
 
-Use idiomatic but comparable approaches; do not intentionally sabotage one candidate.
+Использовать idiomatic, но comparable approaches; нельзя намеренно sabotage одного candidate.
 
 ## 4. Required executable scenarios
 
-### A — Application shell
+### A — Application Shell
 
 - launch native desktop app;
 - open/create sample project;
@@ -64,18 +64,18 @@ Use idiomatic but comparable approaches; do not intentionally sabotage one candi
 - properties panel;
 - equipment tree/table;
 - status/diagnostics;
-- design-system sample.
+- design-system sample с русскими user-facing labels.
 
 ### B — Multi-window/workspace
 
-- detach one document into second top-level window;
+- detach document во second top-level window;
 - persist/restore positions;
 - manual mixed-monitor/scale test;
-- simulate missing second monitor and recover layout.
+- simulate missing second monitor и recover layout.
 
-### C — Heavy scheme canvas
+### C — Heavy Scheme Canvas
 
-Render semantic electrical symbols/connections, not arbitrary rectangles only.
+Render semantic electrical symbols/connections, а не только arbitrary rectangles.
 
 Datasets:
 
@@ -86,23 +86,32 @@ L:  25,000 visible objects
 XL: 50,000 visible objects or platform limit with documented reason
 ```
 
-Include symbols, labels, buses/lines/routes, state variation, selection overlays, hit-test spatial index and zoom/pan.
+Включить symbols, labels, buses/lines/routes, state variation, selection overlays, hit-test spatial index и zoom/pan.
 
-Measure startup/load, first render, zoom/pan frame timing, hit-test latency, drag latency, memory/CPU, update cost and screenshot/export time.
+Measure:
 
-If item-per-object fails, candidate may use custom scene/drawing layer, but implementation complexity is part of score.
+- startup/load;
+- first render;
+- zoom/pan frame timing;
+- hit-test latency;
+- drag latency;
+- memory/CPU;
+- update cost;
+- screenshot/export time.
+
+Если item-per-object architecture fail, candidate может использовать custom scene/drawing layer; implementation complexity учитывается в score.
 
 ### D — Electrical edit path
 
-- select breaker/disconnector;
-- move representation without changing topology;
-- reconnect semantic terminal as explicit command;
+- select `CircuitBreaker`/`Disconnector`;
+- move representation без topology change;
+- reconnect semantic `Terminal` как explicit command;
 - undo/redo;
 - edit typed property;
 - state change updates representation;
 - validation error locates item.
 
-### E — 100k equipment table
+### E — 100k Equipment Table
 
 - 100,000 rows;
 - text/numeric/enum/status columns;
@@ -112,7 +121,7 @@ If item-per-object fails, candidate may use custom scene/drawing layer, but impl
 - edit through command path;
 - copy selected rows.
 
-### F — Import review
+### F — Import Review
 
 Representative staging diff table:
 
@@ -120,27 +129,27 @@ Representative staging diff table:
 - resolved/new/changed/conflict states;
 - conflict filter;
 - inline resolution editor;
-- apply small ImportPlan.
+- apply small `ImportPlan`.
 
 ### G — UI Gallery / visual testing
 
-- render shared controls/states without full product;
-- capture reproducible screenshot headlessly or in virtual display;
+- render shared controls/states без full product;
+- capture reproducible screenshot headlessly или в virtual display;
 - compare baseline/tolerance;
 - produce CI artifact.
 
-If true headless rendering is impossible, document nearest reliable strategy/cost.
+Если true headless rendering недоступен, document nearest reliable strategy/cost.
 
-### H — print/vector output
+### H — Print/vector output
 
 - render representative single-line page;
-- export PDF/vector or equivalent deterministic print representation;
+- export PDF/vector или equivalent deterministic print representation;
 - verify text/line geometry;
-- open output in independent viewer during owner acceptance.
+- открыть output в independent viewer при owner acceptance.
 
-### I — packaging
+### I — Packaging
 
-For Windows and Linux:
+Для Windows и Linux:
 
 - clean build from pinned environment;
 - package runnable preview;
@@ -150,19 +159,27 @@ For Windows and Linux:
 
 ## 5. Development-loop benchmark
 
-For each candidate measure wall-clock/developer steps for:
+Для каждого candidate измерить wall-clock/developer steps для:
 
-1. UI-only: adjust Inspector spacing/icon alignment → targeted compile/test → Gallery screenshot → preview.
+1. UI-only change: Inspector spacing/icon alignment → targeted compile/test → Gallery screenshot → preview.
 2. Domain rule: add one equipment validation rule + tests.
 3. Canvas behavior: change selection handle behavior + interaction test.
 
-Record changed files/LOC, cold/warm compile time, runner time, artifact time, framework boilerplate and debugging effort.
+Record:
 
-This metric has explicit decision weight.
+- changed files/LOC;
+- cold/warm compile time;
+- runner time;
+- Bridge interactive task time where useful;
+- artifact time;
+- framework boilerplate;
+- debugging effort.
 
-## 6. Domain core comparison
+Этот metric имеет explicit decision weight.
 
-Implement the same tiny model/tests:
+## 6. Domain Core comparison
+
+Оба candidates реализуют same tiny model/tests:
 
 ```text
 ElectricalProject
@@ -175,15 +192,22 @@ Command transaction
 serialization round-trip
 ```
 
-Compare type safety, test ergonomics, serialization/versioning options, graph/domain complexity, property/fuzz testing and debugging/profiling.
+Compare:
 
-Do not build full Domain Core during spike.
+- type safety;
+- test ergonomics;
+- serialization/versioning options;
+- graph/domain complexity;
+- property/fuzz testing;
+- debugging/profiling.
+
+Full Domain Core в spike не строится.
 
 ## 7. Native integration
 
-Prove file open/save, clipboard structured data, drag/drop file, print/export, top-level window management, safe paths and HiDPI reporting through adapters.
+Доказать file open/save, clipboard structured data, drag/drop file, print/export, top-level window management, safe paths и HiDPI reporting через adapters.
 
-No framework object becomes canonical project serialization.
+Framework object не становится canonical project serialization.
 
 ## 8. Test matrix
 
@@ -206,13 +230,13 @@ Manual owner evidence:
 
 ## 9. Licensing/dependency gate
 
-Before selection, record exact framework/version licenses/distribution obligations, linking implications, commercial-license dependencies if any, third-party components, support policy and security/update strategy.
+До selection записать exact framework/version licenses/distribution obligations, linking implications, commercial-license dependencies if any, third-party components, support policy и security/update strategy.
 
-Do not rely on remembered license summaries.
+Не использовать remembered license summaries как authority.
 
 ## 10. Scoring
 
-Show raw measurements first, then scoring.
+Сначала показать raw measurements, затем scoring.
 
 | Dimension | Weight | Avalonia | Qt | Evidence |
 |---|---:|---:|---:|---|
@@ -228,19 +252,21 @@ Show raw measurements first, then scoring.
 
 ## 11. Selection rule
 
-Qt wins if measured performance/desktop capabilities provide a **material advantage** large enough to justify higher implementation/toolchain complexity.
+Qt wins, если measured performance/desktop capabilities дают **material advantage**, достаточное для justification более высокой implementation/toolchain complexity.
 
-Avalonia wins if it meets representative performance/desktop thresholds with simpler/faster maintainable C#/.NET development.
+Avalonia wins, если проходит representative performance/desktop thresholds с более простым/быстрым maintainable C#/.NET development.
 
-If neither meets mandatory thresholds, stop and revisit architecture.
+Если ни один candidate не проходит mandatory thresholds, stop и revisit architecture.
 
 ## 12. Relationship to old Tauri spike
 
-Historical Tauri evidence remains useful for packaging baseline, native-dialog/clipboard/drop lessons, deterministic artifact methodology and Visio tooling boundary. It is not an automatic winner.
+Historical Tauri evidence остаётся полезным для packaging baseline, native-dialog/clipboard/drop lessons, deterministic artifact methodology и Visio tooling boundary.
+
+Он не является automatic winner.
 
 ## 13. Outputs
 
-- both candidate implementations;
+- оба candidate implementations;
 - benchmark datasets/generator;
 - raw measurements;
 - screenshots/videos as needed;
@@ -249,8 +275,16 @@ Historical Tauri evidence remains useful for packaging baseline, native-dialog/c
 - comparative matrix;
 - owner manual acceptance record;
 - final ADR selecting stack;
-- target repository layout and immediate UI/Domain work item.
+- target repository layout;
+- immediate UI/Domain next work item.
 
 ## 14. Prohibited scope
 
-No full product migration, full symbol library, full NPT renderer, full switching engine, design-system perfection or stack selection before equivalent measurements.
+В spike не входят:
+
+- full product migration;
+- full symbol library;
+- full NPT renderer;
+- full Switching engine;
+- design-system perfection;
+- stack selection до equivalent measurements.
