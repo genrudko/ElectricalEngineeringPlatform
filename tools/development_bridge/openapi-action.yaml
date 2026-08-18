@@ -94,6 +94,7 @@ paths:
   /tasks/run:
     post:
       operationId: runBridgeTask
+      x-openai-isConsequential: false
       summary: Run one allowlisted development task against a validated repository ref
       requestBody:
         required: true
@@ -162,6 +163,7 @@ paths:
   /tasks/{task_id}/cancel:
     post:
       operationId: cancelTask
+      x-openai-isConsequential: false
       summary: Request cancellation of one queued/running task
       parameters:
         - name: task_id
