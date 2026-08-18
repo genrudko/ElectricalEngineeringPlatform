@@ -1,21 +1,21 @@
-# Graphics / ГОСТ-ЕСКД Profile Architecture
+# Архитектура графических ГОСТ/ЕСКД profiles
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Goal
+## 1. Цель
 
-Native electrical schemes must be generated and edited through **versioned graphic-standard profiles** so that ГОСТ/ЕСКД claims are traceable and testable.
+Native electrical schemes создаются и редактируются через **versioned graphic-standard profiles**, чтобы claims по ГОСТ/ЕСКД были traceable и testable.
 
-The product must not equate `looks like an electrical scheme` with standards compliance.
+Продукт не приравнивает `looks like an electrical scheme` к standards compliance.
 
 ## 2. Foundation baseline
 
-Verified primary baseline includes:
+Verified primary baseline:
 
-- ГОСТ 2.701-2008 — scheme kinds/types and general execution requirements;
-- ГОСТ 2.702-2011 — rules for presentation/execution of electrical schemes.
+- ГОСТ 2.701-2008 — виды/типы схем и общие требования к выполнению;
+- ГОСТ 2.702-2011 — правила выполнения электрических схем.
 
-Applicable UGO/line/lettering/document standards for each implemented equipment/document family are added explicitly after official-catalogue verification.
+Applicable УГО/line/lettering/document standards для каждой implemented equipment/document family добавляются только после official-catalogue verification.
 
 ## 3. Profile composition
 
@@ -34,11 +34,11 @@ GraphicProfile
 └── coverage matrix
 ```
 
-A profile version is immutable once used for an accepted/released document; future changes create a new profile version/migration choice.
+Profile version становится immutable после использования в accepted/released document. Future change создаёт new profile version/migration choice.
 
 ## 4. Semantic symbol library
 
-Native symbol is not just geometry.
+Native symbol — не просто geometry.
 
 ```text
 GraphicSymbolDefinition
@@ -55,20 +55,26 @@ GraphicSymbolDefinition
 └── validation evidence
 ```
 
-Semantic equipment identity remains in Domain Core; symbol is one representation.
+Semantic equipment identity остаётся в Domain Core; symbol является одним representation.
 
 ## 5. Multiple graphic representations
 
-One equipment type may have multiple valid representations depending on scheme/document type, detail level, normative profile, operational/normal view and compatibility format.
+Один equipment type может иметь несколько valid representations в зависимости от:
 
-NPT representation is not automatically promoted into native ГОСТ profile.
+- scheme/document type;
+- detail level;
+- normative profile;
+- operational/normal view;
+- compatibility format.
+
+NPT representation не становится автоматически native ГОСТ profile.
 
 ## 6. Required validation dimensions
 
-Where applicable, validate:
+Where applicable проверяются:
 
-- symbol type/profile permitted for semantic object;
-- terminal/connection points correspond to semantic terminals;
+- symbol type/profile permitted для semantic object;
+- terminal/connection points соответствуют semantic terminals;
 - required line types/weights/classes;
 - crossings/junction indications;
 - labels/designations/content;
@@ -76,13 +82,13 @@ Where applicable, validate:
 - document/sheet annotations;
 - consistency across related views/documents;
 - print/export readability;
-- profile-specific spacing/placement rules only where traceable to source/profile.
+- profile-specific spacing/placement rules только при traceable source/profile.
 
-Do not invent numerical rules and label them ГОСТ without source support.
+Нельзя придумывать numerical rules и называть их ГОСТ requirement без source support.
 
 ## 7. Layout vs compliance
 
-Distinguish:
+Различать:
 
 ```text
 NORMATIVE_VIOLATION
@@ -90,19 +96,28 @@ PROFILE_VIOLATION
 LAYOUT_QUALITY_WARNING
 ```
 
-A product layout heuristic is not automatically a normative requirement.
+Product layout heuristic не является автоматически нормативным требованием.
 
 ## 8. Symbol provenance
 
-Each promoted native symbol records normative sources, independent authoring/import source, any VSDX/VSSX master used as reference, any NPT material used only for comparison, licensing/usage status and validation evidence.
+Каждый promoted native symbol фиксирует:
 
-Never silently copy proprietary NPT/third-party assets into native library.
+- normative sources;
+- independent authoring/import source;
+- VSDX/VSSX master used as reference, если применимо;
+- NPT material used only for comparison, если применимо;
+- licensing/usage status;
+- validation evidence.
 
-## 9. VSDX/VSSX role
+Нельзя молча копировать proprietary NPT/third-party assets в native library.
 
-Visio masters may be engineering sources for geometry/connection points/historical corporate libraries, but they are not normative authority.
+## 9. Роль VSDX/VSSX
 
-Imported masters require source/profile mapping. Unsupported ShapeSheet behavior is diagnosed. A non-compliant legacy shape remains compatibility/legacy representation or requires correction.
+Visio masters могут быть engineering sources для geometry/connection points/historical corporate libraries, но не являются normative authority.
+
+Imported masters требуют source/profile mapping. Unsupported ShapeSheet behavior диагностируется.
+
+Non-compliant legacy shape остаётся compatibility/legacy representation или требует correction.
 
 ## 10. Operational state rendering
 
@@ -114,47 +129,57 @@ RepresentationStateResolver
 geometry/style/text variant
 ```
 
-Colors/styles do not change canonical state. Unknown state needs explicit representation and must not look identical to known OPEN/CLOSED where misleading.
+Colors/styles не меняют canonical state.
+
+Unknown state должен иметь explicit representation и не выглядеть идентично known OPEN/CLOSED, если это вводит пользователя в заблуждение.
 
 ## 11. Print/export
 
-Profile acceptance includes deterministic high-quality output. Initial targets after stack selection:
+Profile acceptance включает deterministic high-quality output.
+
+Initial targets после stack selection:
 
 - vector PDF where practical;
 - high-resolution print;
 - controlled SVG/export where appropriate;
-- VSDX compatibility only according to a separately supported subset.
+- VSDX compatibility только в отдельно supported subset.
 
 ## 12. Coverage matrix
 
-Each profile release maintains a matrix:
+Каждый profile release содержит matrix:
 
 | Area | Source | Rules identified | Implemented | Tested | Limitations |
 |---|---|---:|---:|---:|---|
 | scheme type/general | ГОСТ 2.701-2008 | TBD | TBD | TBD | extraction pending |
 | electrical execution | ГОСТ 2.702-2011 | TBD | TBD | TBD | extraction pending |
-| breaker UGO | exact verified UGO standard | TBD | TBD | TBD | source pending |
-| transformer UGO | exact verified UGO standard | TBD | TBD | TBD | source pending |
+| breaker УГО | exact verified УГО standard | TBD | TBD | TBD | source pending |
+| transformer УГО | exact verified УГО standard | TBD | TBD | TBD | source pending |
 
-A profile is never labelled `full GOST compliant` while rows remain undefined.
+Profile не получает label `full GOST compliant`, пока строки coverage остаются undefined.
 
 ## 13. First implementation slice
 
-For the first representative single-line fragment:
+Для первого representative single-line fragment:
 
-1. verify applicable Rosstandart standards for chosen equipment families;
-2. create semantic type/terminal schema;
-3. create independent native symbol;
-4. add state variants;
-5. add automated/profile validation;
+1. verify applicable Rosstandart standards для chosen equipment families;
+2. создать semantic type/terminal schema;
+3. создать independent native symbol;
+4. добавить state variants;
+5. добавить automated/profile validation;
 6. render Gallery samples;
-7. print/export comparison;
+7. выполнить print/export comparison;
 8. owner visual acceptance.
 
 ## 14. Enterprise graphical rules
 
-Enterprise/site standards may add stricter conventions as explicit profile overlays. Diagnostics identify the actual source layer rather than calling enterprise convention a ГОСТ requirement.
+Enterprise/site standards могут добавлять stricter conventions как explicit profile overlays.
+
+Diagnostics обязаны показывать actual source layer, а не называть enterprise convention ГОСТ requirement.
 
 ## 15. Non-goals
 
-Foundation does not attempt to ingest every ESKD standard, freeze a complete symbol library or infer norms from legacy NPT/Visio drawings.
+Foundation не пытается:
+
+- ingest every ESKD standard;
+- freeze complete symbol library;
+- infer norms из legacy NPT/Visio drawings.
