@@ -1,10 +1,10 @@
-# Next Work Items after Unified Foundation
+# Следующие work items после Unified Foundation
 
-Статус: canonical sequencing contract
+Статус: канонический sequencing contract
 
-## Rule
+## 1. Правило последовательности
 
-Do not jump directly from Foundation into feature breadth.
+Не переходить от Foundation сразу к широкому feature development.
 
 ```text
 Infrastructure
@@ -13,20 +13,85 @@ Infrastructure
 → Import-to-Scheme vertical slice
 ```
 
-Each work item gets its own issue/branch/Draft PR after required dependency is accepted.
+Каждый work item получает собственные issue/branch/Draft PR после принятия required dependency.
 
 ---
 
-# INFRASTRUCTURE-SPIKE-001
+# `INFRASTRUCTURE-SPIKE-001`
 
-## Objective
+## Цель
 
-Prove that GitHub controls normal development while existing VPS executes builds/tests and returns artifacts without routine owner SSH.
+Превратить уже доказанный ChatGPT→VPS feasibility в нормальный production-quality development contour и доказать formal GitHub exact-head CI на existing VPS.
+
+Сам факт прямого ChatGPT Plus → Custom GPT Action → VPS **уже доказан 2026-08-18** и не является открытым вопросом этого spike.
+
+## Доказанный baseline
+
+Уже подтверждено:
+
+```text
+ChatGPT Plus Project chat
+→ @Custom GPT
+→ GPT Action
+→ HTTPS + Bearer
+→ Caddy
+→ EEP Development Bridge
+→ FastAPI localhost
+→ existing VPS
+```
+
+Дополнительно подтверждено, что GitHub connector работает в том же Project-чате.
 
 ## Scope
 
-- dedicated unprivileged self-hosted runner account/service;
-- exact PR-head checkout;
+### A. Hardened Development Bridge
+
+- dedicated unprivileged `eepbridge` service;
+- fixed repository/workspace boundary;
+- typed/allowlisted API operations;
+- **no arbitrary `runCommand(string)` shell endpoint**;
+- read-only operations для status/files/search/diff/logs/artifacts;
+- bounded execution operations для build/test/benchmark/preview;
+- task IDs и asynchronous long-task status;
+- timeout/cancellation policy;
+- concurrency limit;
+- audit log;
+- output size/truncation policy;
+- secret/token rotation procedure;
+- service restart/health/recovery documentation.
+
+Минимальный целевой API contract:
+
+```text
+READ
+getBridgeHealth
+getServerStatus
+getWorkspaceStatus
+getRepositoryStatus
+readWorkspaceFile
+searchWorkspace
+getGitStatus
+getGitDiff
+getTaskStatus
+getTaskLog
+listArtifacts
+
+EXECUTE
+prepareWorkspace(ref)
+runBuild(profile)
+runTests(suite)
+runBenchmark(profile)
+buildPreview(profile)
+renderUiGallery()
+```
+
+Фактические operation names уточняются реализацией, но arbitrary shell запрещён.
+
+### B. Self-hosted GitHub runner
+
+- dedicated unprivileged runner account/service;
+- repository-scoped runner where practical;
+- exact PR-head checkout/verification;
 - minimal `./dev`-style command contract;
 - success/failure test job;
 - publish logs/result artifact;
@@ -36,27 +101,30 @@ Prove that GitHub controls normal development while existing VPS executes builds
 
 ## Acceptance
 
-1. push tiny branch change;
-2. workflow dispatches to self-hosted VPS runner;
-3. exact head is verified;
-4. deterministic test/build succeeds;
-5. small artifact published;
-6. coordinator reads state/results through GitHub;
-7. owner obtains artifact without SSH;
-8. deliberately failing job reports useful error;
-9. runner returns to clean/usable state.
+1. ChatGPT Project вызывает bridge read-only status operation без SSH.
+2. ChatGPT Project запускает bounded test/build task и получает task result/log.
+3. Bridge не позволяет arbitrary shell/path escape.
+4. push tiny branch change запускает self-hosted workflow.
+5. runner проверяет exact head.
+6. deterministic test/build успешно выполняется.
+7. small artifact публикуется в GitHub.
+8. coordinator читает state/results через GitHub.
+9. owner получает artifact без SSH.
+10. deliberately failing job выдаёт полезную диагностическую информацию.
+11. runner возвращается в clean/usable state.
+12. private corpus/secrets не публикуются как artifacts.
 
 ---
 
-# PLATFORM-STACK-SPIKE-001
+# `PLATFORM-STACK-SPIKE-001`
 
 ## Dependency
 
 `INFRASTRUCTURE-SPIKE-001` accepted.
 
-## Objective
+## Цель
 
-Select Avalonia/C#/.NET or Qt 6/C++/QML using `docs/development/PLATFORM_STACK_SPIKE.md`.
+Выбрать Avalonia/C#/.NET или Qt 6/C++/QML через executable contract из `docs/development/PLATFORM_STACK_SPIKE.md`.
 
 ## Required outputs
 
@@ -73,7 +141,7 @@ Select Avalonia/C#/.NET or Qt 6/C++/QML using `docs/development/PLATFORM_STACK_S
 
 ---
 
-# UI-CORE-FOUNDATION-001
+# `UI-CORE-FOUNDATION-001`
 
 ## Dependency
 
@@ -93,19 +161,20 @@ Platform Stack ADR accepted.
 - dialogs/notifications/status;
 - shared canvas viewport/selection primitives;
 - HiDPI/mixed-DPI baseline;
+- centralized Russian user-facing strings;
 - targeted screenshot/interaction tests.
 
 ## Acceptance
 
-Owner manually accepts visual/interaction direction before broad module work.
+Owner вручную принимает visual/interaction direction до broad module work.
 
 ---
 
-# DOMAIN-CORE-FOUNDATION-001
+# `DOMAIN-CORE-FOUNDATION-001`
 
 ## Dependency
 
-Platform Stack ADR accepted. May run partly parallel with UI Core once project layout is stable.
+Platform Stack ADR accepted. Может частично идти параллельно с UI Core после стабилизации project layout.
 
 ## Scope
 
@@ -114,24 +183,24 @@ Platform Stack ADR accepted. May run partly parallel with UI Core once project l
 - terminals;
 - connections;
 - topology graph;
-- semantic state with UNKNOWN;
+- semantic state с `UNKNOWN`;
 - transactions/commands;
 - validation result model;
 - provenance skeleton;
 - compliance profile refs;
-- versioned persistence and round-trip/migration tests.
+- versioned persistence и round-trip/migration tests.
 
 ## Prohibited
 
 - full CIM;
 - full equipment catalogue;
-- NPT vendor fields in Core;
+- NPT vendor fields в Core;
 - full switching engine;
-- UI-framework object serialization as native project model.
+- UI-framework object serialization как native project model.
 
 ---
 
-# IMPORT-TO-SCHEME-VERTICAL-SLICE-001
+# `IMPORT-TO-SCHEME-VERTICAL-SLICE-001`
 
 ## Dependencies
 
@@ -156,23 +225,23 @@ CSV/XLSX
 → manual layout preserved
 ```
 
-Use a small but real/representative electrical structure, not arbitrary graph nodes/rectangles.
+Использовать небольшой, но representative electrical structure, а не произвольные graph nodes/rectangles.
 
 ## Acceptance
 
 - electrical identity/topology survives save/reopen;
-- ambiguity is never silently guessed;
-- layout proposal is understandable;
-- user can correct it with low interaction cost;
-- re-import preserves manual corrections;
-- diagnostics distinguish topology/import/layout/profile issues;
-- owner accepts workflow/UI value.
+- ambiguity никогда не угадывается молча;
+- layout proposal понятен;
+- пользователь исправляет результат с низкой interaction cost;
+- re-import сохраняет manual corrections;
+- diagnostics различают topology/import/layout/profile issues;
+- owner принимает workflow/UI value.
 
 ---
 
-# NPT-TOPOLOGY-MAPPING-EXPERIMENT-001
+# `NPT-TOPOLOGY-MAPPING-EXPERIMENT-001`
 
-May run after minimal Domain Core contracts exist; does not block first CSV/XLSX vertical slice.
+Может идти после minimal Domain Core contracts; не блокирует первый CSV/XLSX vertical slice.
 
 Required evidence:
 
@@ -182,45 +251,55 @@ Required evidence:
 - unresolved mapping report;
 - comparison with visible one-line scheme;
 - state-dependent continuity/energization test;
-- conclusion: sufficient / partial / unsuitable.
+- conclusion: `SUFFICIENT / PARTIAL / UNSUITABLE`.
 
 ---
 
-# COMPLIANCE-RULES-SLICE-001
+# `COMPLIANCE-RULES-SLICE-001`
 
-Prove current-source → rule → test → diagnostic lifecycle with a very small set of requirements.
+## Цель
 
-Inputs are acquired/re-verified online from authoritative public sources at execution time; no manually uploaded normative pack is required.
+Доказать lifecycle:
+
+```text
+current authoritative source
+→ semantic rule
+→ implementation class
+→ tests
+→ diagnostic/explanation
+```
+
+Inputs re-verify online from authoritative public sources at execution time; manually uploaded normative pack не требуется.
 
 Minimum slice:
 
-- one switching rule from the current applicable Order 757 text;
-- one supporting PTEES/PTEEP/POTEE applicability example;
-- one **synthetic stricter local-policy overlay** demonstrating the enterprise/site mechanism without using confidential instructions;
+- one switching rule из current applicable Order 757 text;
+- one supporting ПТЭЭС/ПТЭЭП/ПОТЭЭ applicability example;
+- one **synthetic stricter local-policy overlay** без confidential instructions;
 - one attempted weakening conflict;
-- one UNKNOWN prerequisite scenario.
+- one `UNKNOWN` prerequisite scenario.
 
-No old TBP rule/config reuse and no claim of complete document coverage.
+No old TBP rule/config reuse и no claim of complete document coverage.
 
 ---
 
-# SWITCHING-FOUNDATION-001
+# `SWITCHING-FOUNDATION-001`
 
 ## Dependency
 
 Minimal Domain Core + Compliance Core contracts accepted.
 
-## Objective
+## Цель
 
-Implement the Switching/TBP module **from scratch**, without migration of the old TBP codebase/YAML/rules.
+Реализовать Switching/TBP module **с нуля**, без migration old TBP codebase/YAML/rules.
 
 ## Initial scope
 
 - semantic `SwitchingOperation`;
 - ordered `SwitchingSequence`;
-- simulated state distinct from observed/imported state;
+- simulated state отдельно от observed/imported state;
 - rule/interlock evaluation result;
-- topology recalculation after each simulatable step;
+- topology recalculation после каждого simulatable step;
 - explainable `ALLOW / BLOCK / UNKNOWN / REQUIRES_CONFIRMATION` results;
 - draft document projection;
 - mandatory human-review boundary;
@@ -228,26 +307,26 @@ Implement the Switching/TBP module **from scratch**, without migration of the ol
 
 ## Source policy
 
-- current government/sector normative acts are re-verified online from authoritative sources;
+- current government/sector normative acts re-verify online from authoritative sources;
 - ГОСТ/ПУЭ/source metadata follow Compliance Core provenance rules;
-- internal enterprise/site instructions are not required for shared development;
-- old TBP implementation is not a test oracle or normative authority.
+- internal enterprise/site instructions не являются required shared-development inputs;
+- old TBP implementation не является test oracle или normative authority.
 
 ---
 
-# EOD-INTEGRATION-FEASIBILITY-001
+# `EOD-INTEGRATION-FEASIBILITY-001`
 
-Optional; prefer after standalone app/API/module boundaries exist.
+Optional; предпочтительно после появления standalone app/API/module boundaries.
 
 Scenario:
 
-- EOD first-party `ELECTRICAL-BRIDGE` module using existing registry;
+- EOD first-party `ELECTRICAL-BRIDGE` module через existing registry;
 - typed site/project/equipment context;
 - launch/focus standalone app;
 - direct navigation;
 - callback/deep link to EOD;
 - inactive bridge blocked by EOD registry;
-- standalone run with adapter removed;
+- standalone run с удалённым adapter;
 - measure dependencies/release impact.
 
 Required decision:
@@ -259,6 +338,6 @@ DEFER
 REJECT_TOO_EXPENSIVE
 ```
 
-## First product milestone
+## Первый meaningful product milestone
 
-The first meaningful product milestone is the accepted `IMPORT-TO-SCHEME-VERTICAL-SLICE-001`, not merely successful infrastructure/platform spikes.
+Первый meaningful product milestone — accepted `IMPORT-TO-SCHEME-VERTICAL-SLICE-001`, а не сам факт успешных infrastructure/platform spikes.
