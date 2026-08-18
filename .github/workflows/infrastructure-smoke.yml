@@ -105,6 +105,22 @@ jobs:
           systemctl is-active --quiet eep-dev-bridge.service
           echo "eep-dev-bridge.service=active"
 
+      - name: Capture recent Bridge restart diagnostics
+        shell: bash
+        run: |
+          set -u
+          echo "--- current service state ---"
+          systemctl show eep-dev-bridge.service \
+            --property=ActiveState \
+            --property=SubState \
+            --property=MainPID \
+            --property=ExecMainCode \
+            --property=ExecMainStatus \
+            --property=NRestarts \
+            --no-pager
+          echo "--- recent journal (credential-free service stderr/stdout only) ---"
+          journalctl -u eep-dev-bridge.service -n 120 --no-pager -o short-iso 2>&1 || true
+
       - name: Inspect Development Bridge runtime surface
         shell: bash
         run: |
