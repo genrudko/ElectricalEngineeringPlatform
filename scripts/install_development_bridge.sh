@@ -114,8 +114,9 @@ systemctl daemon-reload
 systemctl enable --now "$SYNC_TIMER"
 systemctl start "$SYNC_SERVICE"
 
-printf '%s\n' "=== 4. Verify eepbridge can read repository but cannot write it or read workspace SSH key ==="
-sudo -u eepbridge -H git -C "$READONLY_REPO" rev-parse HEAD >/dev/null
+printf '%s\n' "=== 4. Verify eepbridge read-only repository access and credential isolation ==="
+sudo -u eepbridge -H \
+  git -c "safe.directory=$READONLY_REPO" -C "$READONLY_REPO" rev-parse HEAD >/dev/null
 if sudo -u eepbridge -H test -w "$READONLY_REPO"; then
   echo "ERROR: eepbridge can write repository root" >&2
   false
