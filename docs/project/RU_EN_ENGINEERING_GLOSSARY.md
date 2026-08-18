@@ -1,83 +1,84 @@
-# Русско-английский инженерный glossary
+# Русско-английский инженерный глоссарий
 
-Статус: canonical terminology baseline  
-Назначение: связать русский пользовательский язык продукта с английской внутренней domain terminology.
+Статус: канонический terminology baseline  
+Назначение: связать русский user-facing язык продукта с английской internal domain terminology.
 
-> Это не универсальный электротехнический словарь. Здесь фиксируются именно термины, значимые для модели и интерфейса проекта.
+> Это не универсальный электротехнический словарь. Здесь фиксируются terms, значимые именно для model, UI и public/internal contracts проекта.
 
 ## 1. Общие правила
 
-- Русский столбец определяет пользовательский/UI термин по умолчанию.
-- Английский столбец определяет предпочтительное внутреннее technical name.
-- Если термин зависит от контекста, это явно указывается.
-- Не создавать транслитерированные identifiers.
-- Не заменять устоявшийся engineering English буквальной калькой без необходимости.
+- Русский столбец определяет предпочтительный user-facing/UI term.
+- Английский столбец определяет preferred internal technical term.
+- Context-dependent terms сопровождаются explicit notes.
+- Transliteration identifiers запрещены.
+- Устоявшийся engineering English не заменяется буквальной калькой без необходимости.
+- Если один русский term имеет несколько корректных English mappings, выбор фиксируется на уровне конкретного domain context.
 
 ## 2. Базовая domain terminology
 
 | Русский термин | Внутренний английский термин | Комментарий |
 |---|---|---|
-| Электроэнергетическая система / сеть | `PowerGrid`, `Grid`, `ElectricalNetwork` | Выбор зависит от уровня модели; не считать эти термины полностью взаимозаменяемыми |
-| Электрическая сеть | `ElectricalNetwork` | Предпочтительно для абстрактной network topology |
-| Электроустановка | `ElectricalInstallation` | Использовать, когда речь именно об installation scope |
-| Электрический проект | `ElectricalProject` | Корневая canonical project entity |
-| Объект / площадка | `Site` | Для физического объекта/площадки; при иной семантике уточнять |
+| Электроэнергетическая система / сеть | `PowerGrid`, `Grid`, `ElectricalNetwork` | Выбор зависит от abstraction level; terms не полностью взаимозаменяемы |
+| Электрическая сеть | `ElectricalNetwork` | Предпочтительно для abstract network topology |
+| Электроустановка | `ElectricalInstallation` | Использовать при installation scope |
+| Электрический проект | `ElectricalProject` | Root canonical project entity |
+| Объект / площадка | `Site` | Для physical site; при иной semantics уточнять |
 | Уровень напряжения | `VoltageLevel` | Canonical domain term |
 | Оборудование | `Equipment` | Общая domain entity |
-| Устройство | `Device` | Не использовать автоматически как синоним `Equipment`; зависит от контекста |
+| Устройство | `Device` | Не использовать автоматически как synonym `Equipment` |
 | Выключатель | `CircuitBreaker` | Не `Switch` |
-| Разъединитель | `Disconnector` | Предпочтительный IEC/industry term |
-| Заземляющий разъединитель / заземляющий нож | `EarthingSwitch` | Русская пользовательская подпись зависит от фактического типа/профиля оборудования |
-| Шина | `Busbar` | Физическая шина |
-| Секция шин | `BusSection` | Отдельная секция busbar |
-| Присоединение | `Bay` / `Feeder` | Контекст обязателен: `bay` и `feeder` не являются полными синонимами |
-| Фидер | `Feeder` | Использовать там, где это действительно feeder |
-| Ячейка | `Bay`, `Panel`, `Cubicle` | Нельзя выбрать единый перевод без оборудования/контекста |
-| Трансформатор | `Transformer` | Общий тип |
+| Разъединитель | `Disconnector` | Preferred IEC/industry term |
+| Заземляющий разъединитель / заземляющий нож | `EarthingSwitch` | Russian UI label зависит от actual equipment/profile |
+| Шина | `Busbar` | Physical busbar |
+| Секция шин | `BusSection` | Отдельная busbar section |
+| Присоединение | `Bay` / `Feeder` | Context обязателен; terms не полные synonyms |
+| Фидер | `Feeder` | Использовать только для actual feeder semantics |
+| Ячейка | `Bay`, `Panel`, `Cubicle` | Universal mapping нет; зависит от equipment/context |
+| Трансформатор | `Transformer` | Общий type |
 | Силовой трансформатор | `PowerTransformer` | Конкретизация |
 | Автотрансформатор | `Autotransformer` | Canonical term |
-| Трансформатор тока | `CurrentTransformer` | Допустимо сокращение `CT` во внутренних technical contexts |
-| Трансформатор напряжения | `VoltageTransformer` | `VT`; не смешивать без причины с `PotentialTransformer` |
-| Линия электропередачи | `TransmissionLine` / `PowerLine` | Выбор зависит от voltage/system scope |
-| Кабельная линия | `CableLine` / `PowerCableCircuit` | Уточнять по модели |
+| Трансформатор тока | `CurrentTransformer` | `CT` допустимо во внутренних technical contexts |
+| Трансформатор напряжения | `VoltageTransformer` | `VT`; `PotentialTransformer` не использовать без context reason |
+| Линия электропередачи | `TransmissionLine` / `PowerLine` | Выбор зависит от system/voltage context |
+| Кабельная линия | `CableLine` / `PowerCableCircuit` | Exact model term уточняется реализацией |
 | Нагрузка | `Load` | Canonical term |
 | Генератор | `Generator` | Canonical term |
-| Терминал / вывод | `Terminal` | Семантическая точка соединения |
+| Терминал / вывод | `Terminal` | Semantic connection point |
 | Соединение | `Connection` | Canonical electrical/domain relation |
-| Электрическая топология | `ElectricalTopology` / `TopologyGraph` | `TopologyGraph` — конкретная внутренняя структура |
+| Электрическая топология | `ElectricalTopology` / `TopologyGraph` | `TopologyGraph` — internal data structure |
 | Граф топологии | `TopologyGraph` | Internal data structure |
-| Узел сети | `NetworkNode` | Не путать автоматически с NPT `nodes` |
-| Состояние | `State` | Общий термин |
+| Узел сети | `NetworkNode` | Не смешивать автоматически с NPT `nodes` |
+| Состояние | `State` | Общий term |
 | Положение коммутационного аппарата | `SwitchingDevicePosition` | Typed state concept |
-| Открыт / отключён | `OPEN` | Для internal enum; пользовательская формулировка зависит от аппарата |
-| Закрыт / включён | `CLOSED` | Аналогично |
+| Открыт / отключён | `OPEN` | Internal enum; Russian UI wording зависит от apparatus |
+| Закрыт / включён | `CLOSED` | Internal enum; UI wording context-dependent |
 | Промежуточное положение | `INTERMEDIATE` | Internal enum |
 | Неизвестно | `UNKNOWN` | First-class state |
 | Качество сигнала | `SignalQuality` | Typed quality concept |
 | Под напряжением | `ENERGIZED` / `Energized` | Semantic energization state |
-| Подтверждённо без напряжения | `DEENERGIZED_PROVEN` | Не сокращать до простого boolean `false` |
+| Подтверждённо без напряжения | `DEENERGIZED_PROVEN` | Не сокращать до boolean `false` |
 | Неизвестное состояние напряжения | `UNKNOWN` / `UnknownEnergization` | Зависит от exact type |
 
 ## 3. Схемы и графика
 
 | Русский термин | Внутренний английский термин | Комментарий |
 |---|---|---|
-| Электрическая схема | `ElectricalDiagram` | Общий термин |
-| Однолинейная схема | `SingleLineDiagram` | Предпочтительно `SLD` только как общепринятое сокращение |
-| Вид / представление | `View` | Не источник истины |
+| Электрическая схема | `ElectricalDiagram` | Общий term |
+| Однолинейная схема | `SingleLineDiagram` | `SLD` допустимо как established abbreviation |
+| Вид / представление | `View` | Не source of truth |
 | Представление схемы | `DiagramView` | View over domain model |
 | Графическое представление | `GraphicRepresentation` | Binding equipment → symbol/profile |
-| Условное графическое обозначение | `GraphicSymbol`, `SymbolDefinition` | Exact internal type определяется архитектурой |
-| Точка присоединения символа | `TerminalAnchor` | Visual anchor mapped to semantic `Terminal` |
+| Условное графическое обозначение | `GraphicSymbol`, `SymbolDefinition` | Exact internal type определяется architecture |
+| Точка присоединения symbol | `TerminalAnchor` | Visual anchor mapped to semantic `Terminal` |
 | Маршрут линии | `ConnectionRoute` | Geometry only, not topology |
 | Излом / точка маршрута | `RouteBend`, `BendPoint` | View geometry |
-| Автокомпоновка | `AutoLayout` | User-facing term may be «Автокомпоновка» |
+| Автокомпоновка | `AutoLayout` | Preferred Russian UI term: «Автокомпоновка» |
 | Предложение компоновки | `LayoutProposal` | Result before apply |
 | Ограничение компоновки | `LayoutConstraint` | Preserves manual intent |
 | Закреплённая позиция | `PinnedPosition` | Example constraint |
 | Выравнивание | `Alignment` | UI/layout term |
-| Масштабирование | `Zoom` | UI command may be «Масштаб» |
-| Панорамирование | `Pan` | В UI лучше русская формулировка «Перемещение области просмотра»/мышью |
+| Масштабирование | `Zoom` | UI label обычно «Масштаб»/«Масштабирование» |
+| Панорамирование | `Pan` | UI wording может быть «Перемещение области просмотра» |
 | Область просмотра | `Viewport` | Internal/UI architecture term |
 
 ## 4. Импорт и данные
@@ -89,22 +90,22 @@
 | Сопоставление полей | `FieldMapping` | |
 | Нормализация | `Normalization` | |
 | Предварительная модель импорта | `ImportCandidate` | Staging object |
-| Предварительный просмотр | `Preview` | UI term |
+| Предварительный просмотр | `Preview` | User-facing UI term |
 | План импорта | `ImportPlan` | Approved mutation plan |
-| Сверка изменений | `Reconciliation` | Для repeat import/update |
+| Сверка изменений | `Reconciliation` | Repeat import/update |
 | Неоднозначность | `Ambiguity` | |
 | Конфликт | `Conflict` | |
-| Требует подтверждения | `REQUIRES_CONFIRMATION` | Internal status, Russian UI text |
-| Источник данных / происхождение | `Provenance` | В UI обычно «Источник»/«Происхождение данных» |
+| Требует подтверждения | `REQUIRES_CONFIRMATION` | Internal status; UI text Russian |
+| Источник / происхождение данных | `Provenance` | UI обычно показывает «Источник»/«Происхождение данных» |
 
 ## 5. Переключения и блокировки
 
 | Русский термин | Внутренний английский термин | Комментарий |
 |---|---|---|
-| Переключение | `Switching` | Domain/module name |
+| Переключение | `Switching` | Domain/module term |
 | Операция переключения | `SwitchingOperation` | Semantic operation |
 | Последовательность переключений | `SwitchingSequence` | Ordered operations |
-| Бланк переключений | `SwitchingForm` | Document projection; exact English naming may be refined for export/domain context |
+| Бланк переключений | `SwitchingForm` | Document projection; exact export naming may later be refined |
 | Программа переключений | `SwitchingProgram` | Не смешивать автоматически с `SwitchingForm` |
 | Блокировка | `Interlock` | General internal term |
 | Правило блокировки | `InterlockRule` | |
@@ -113,9 +114,10 @@
 | Запрещено | `BLOCK` | Internal result |
 | Требуется подтверждение | `REQUIRES_CONFIRMATION` | Internal result |
 | Моделируемое состояние | `SimulatedState` | Distinct from observed state |
-| Исходное/наблюдаемое состояние | `ObservedState`, `BaselineState` | Exact distinction defined by State model |
+| Наблюдаемое состояние | `ObservedState` | Реально observed/imported fact where applicable |
+| Исходное состояние моделирования | `BaselineState` | Initial state for simulation/context |
 
-## 6. Нормативность и локальные правила
+## 6. Нормативность и local policy
 
 | Русский термин | Внутренний английский термин | Комментарий |
 |---|---|---|
@@ -128,7 +130,7 @@
 | Локальная политика | `LocalPolicy` | |
 | Пакет локальных правил | `PolicyPackage` | |
 | Ужесточение требования | `StricterConstraint` / `Tightening` | Prefer semantic names in code |
-| Попытка ослабления | `WeakeningAttempt` | Conflict class |
+| Попытка ослабления | `WeakeningAttempt` | Conflict concept |
 | Конфликт политик | `PolicyConflict` | |
 
 ## 7. UI Core
@@ -137,7 +139,7 @@
 |---|---|---|
 | Рабочее пространство | `Workspace` | |
 | Документ | `Document` | UI document concept, not necessarily file |
-| Панель свойств | `PropertyInspector` | User-facing label may be «Свойства» |
+| Панель свойств | `PropertyInspector` | Preferred user-facing label: «Свойства» |
 | Дерево проекта | `ProjectTree` | |
 | Палитра оборудования | `EquipmentPalette` | |
 | Галерея компонентов | `UIGallery` | Internal developer surface |
@@ -147,16 +149,27 @@
 | Уведомление | `Notification` | |
 | Диагностика | `Diagnostics` | |
 
-## 8. Требования к развитию glossary
+## 8. Development Platform
 
-Новый термин добавляется сюда, если он:
+| Русский термин | Внутренний английский термин | Комментарий |
+|---|---|---|
+| Мост разработки | `DevelopmentBridge` / `EEPDevelopmentBridge` | Bounded API between ChatGPT Project and VPS |
+| Задача разработки | `DevelopmentTask` | Bounded build/test/preview task |
+| Рабочая копия | `Workspace` / `RepositoryWorkspace` | Не source of truth; GitHub canonical |
+| Артефакт | `Artifact` | Build/test/preview result |
+| Формальная проверка | `VerificationGate` / `CIGate` | Exact naming зависит от CI model |
 
-- является shared Domain/Core concept;
-- появляется в нескольких модулях;
-- имеет риск неоднозначного перевода;
-- используется одновременно в UI и code/API;
-- относится к safety/compliance semantics.
+## 9. Правила развития glossary
 
-Не нужно раздувать glossary каждой кнопкой или локальной переменной.
+Новый term добавляется, если он:
 
-Если существующий английский термин оказывается неверным с точки зрения отраслевой практики, исправление проводится как controlled terminology migration: код, serialization compatibility и UI mappings обновляются осознанно, а не частично.
+- shared Domain/Core concept;
+- используется в нескольких modules;
+- имеет риск ambiguous translation;
+- одновременно появляется в UI и code/API;
+- относится к safety/compliance semantics;
+- является stable Development Platform contract.
+
+Не нужно добавлять каждую кнопку или local variable.
+
+Если accepted English term позже оказывается неверным с точки зрения industry practice, проводится controlled terminology migration: code, serialization compatibility, docs и UI mappings меняются осознанно и целостно.
