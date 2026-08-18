@@ -1,21 +1,21 @@
-# Unified System Architecture
+# Единая системная архитектура
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Architectural style
+## 1. Архитектурный стиль
 
-Target architecture is a **modular monolith desktop application**.
+Целевая архитектура — **modular monolith desktop application**.
 
-Rationale:
+Причины выбора:
 
-- one primary user workstation/local project;
-- shared in-memory/project domain model;
-- strong transactional and undo/redo requirements;
-- low value from network boundaries between modules;
-- low operational complexity for a small team;
-- modules still need explicit ownership and test isolation.
+- один основной user workstation/local project;
+- общая in-memory/project domain model;
+- сильные требования к transactions и undo/redo;
+- низкая ценность network boundaries между локальными модулями;
+- минимальная operational complexity для небольшой команды;
+- при этом modules сохраняют явный ownership и test isolation.
 
-Microservices, separate web backend and plugin marketplace are not architectural goals.
+Microservices, отдельный обязательный web backend и plugin marketplace не являются архитектурными целями.
 
 ## 2. High-level structure
 
@@ -54,9 +54,9 @@ Microservices, separate web backend and plugin marketplace are not architectural
                  └── future exchange
 ```
 
-## 3. Ownership rule
+## 3. Правило ownership
 
-Every concept has one authoritative owner.
+Каждый инженерный concept имеет одного authoritative owner.
 
 | Concept | Owner |
 |---|---|
@@ -73,9 +73,9 @@ Every concept has one authoritative owner.
 | app shell/workspace | UI Core |
 | EOD module registration/deep links | optional EOD adapter/bridge |
 
-If two modules both persist authoritative copies of the same engineering fact, architecture is wrong unless an explicit synchronization contract exists.
+Если два модуля сохраняют authoritative copies одного инженерного факта, architecture считается ошибочной, пока не существует explicit synchronization contract с отдельным обоснованием.
 
-## 4. Dependency direction
+## 4. Направление зависимостей
 
 ```text
 App
@@ -89,19 +89,19 @@ Domain Core + Compliance Core
 Infrastructure/platform/storage adapters
 ```
 
-NPT, EOD, Excel, Visio or other external formats must not be dependencies of neutral domain types.
+NPT, EOD, Excel, Visio и другие external formats не должны становиться dependencies neutral domain types.
 
-Forbidden examples:
+Запрещённые примеры:
 
-- `Domain.Device` containing required `SdeTag` or `EodJournalId`;
-- topology service calling NPT XML parser directly;
-- UI Core depending on switching-form templates;
-- native project storage requiring Excel workbook presence;
-- Scheme renderer using NPT `CustElem` as the only native symbol model.
+- `Domain.Device` с обязательным `SdeTag` или `EodJournalId`;
+- topology service, напрямую вызывающий NPT XML parser;
+- UI Core, зависящий от switching-form templates;
+- native project storage, требующий наличия Excel workbook;
+- Scheme renderer, использующий NPT `CustElem` как единственный native symbol model.
 
 ## 5. Module contracts
 
-Modules communicate through typed in-process contracts and domain IDs, not direct mutation of each other's private storage.
+Modules взаимодействуют через typed in-process contracts и domain IDs, а не через direct mutation private storage друг друга.
 
 ```text
 Import Module
@@ -111,12 +111,12 @@ Domain Core
   updates Equipment/Connections
        ↓ domain change set
 Scheme Module
-  computes incremental layout proposal
+  computes incremental LayoutProposal
 ```
 
 ```text
 Switching Module
-  proposes Operation
+  proposes SwitchingOperation
        ↓
 Compliance/Interlock evaluator
        ↓
@@ -124,7 +124,7 @@ Domain state transition simulation
        ↓
 Topology recalculation
        ↓
-Switching sequence result
+SwitchingSequence result
 ```
 
 ## 6. Project persistence layers
@@ -139,7 +139,9 @@ Project Package
 └── attachments/metadata as needed
 ```
 
-Exact physical format is PENDING. Requirements:
+Exact physical format остаётся PENDING.
+
+Обязательные свойства:
 
 - explicit schema version;
 - deterministic IDs;
@@ -147,15 +149,15 @@ Exact physical format is PENDING. Requirements:
 - atomic save/backup/recovery;
 - module extension policy;
 - diagnostics/diffability where reasonable;
-- no dependency on GUI-framework object serialization.
+- отсутствие зависимости от GUI-framework object serialization.
 
-## 7. Transactions and commands
+## 7. Transactions и commands
 
-Engineering mutations must support validation, explicit undo/redo or non-undoable classification, atomic persistence boundary, change-set generation, dependent-view notification and provenance for imported/generated changes where relevant.
+Engineering mutations должны поддерживать validation, explicit undo/redo или явную non-undoable classification, atomic persistence boundary, change-set generation, dependent-view notification и provenance для imported/generated changes, когда это требуется.
 
-UI components must not directly patch arbitrary project dictionaries/JSON.
+UI components не должны напрямую patch arbitrary project dictionaries/JSON.
 
-## 8. Topology vs view separation
+## 8. Разделение topology и view geometry
 
 Electrical topology:
 
@@ -169,54 +171,64 @@ Visual route:
 screen polyline / bends / layers / labels
 ```
 
-The same connection may have different routes in different views. Moving a symbol must not silently change electrical topology. Reconnecting a terminal is an explicit engineering mutation.
+Одна `Connection` может иметь разные routes в разных `View`.
+
+Перемещение symbol не должно менять electrical topology. Reconnect terminal — отдельная explicit engineering mutation.
 
 ## 9. State model
 
-State is semantic and separate from rendered colors/shapes.
+State является semantic и отделён от rendered colors/shapes.
 
 ```text
-CircuitBreakerState = OPEN | CLOSED | INTERMEDIATE | UNKNOWN
-Quality = GOOD | BAD | UNCERTAIN | UNKNOWN
+CircuitBreakerPosition = OPEN | CLOSED | INTERMEDIATE | UNKNOWN
+SignalQuality = GOOD | BAD | UNCERTAIN | UNKNOWN
 ```
 
-Renderer maps state/profile to appearance. `UNKNOWN` cannot be collapsed into a safe/disabled state.
+Renderer переводит state/profile в appearance. `UNKNOWN` нельзя collapse в safe/disabled state.
 
 ## 10. Compliance integration
 
-Compliance Core provides source registry, rule registry, applicability resolution, profile composition, local overlays, conflict/non-weakening checks and explainable validation results.
+Compliance Core предоставляет source registry, rule registry, applicability resolution, profile composition, local overlays, conflict/non-weakening checks и explainable validation results.
 
 ## 11. UI architecture boundary
 
-UI Core owns interaction infrastructure, not engineering meaning. Shared Property Inspector infrastructure may host module-provided typed editors/validators without knowing their domain rules.
+UI Core владеет interaction infrastructure, но не engineering meaning.
+
+Shared Property Inspector может принимать module-provided typed editors/validators, не зная domain rules конкретного оборудования.
 
 ## 12. Module activation
 
-Early implementation may compile all first-party modules into one application. Module enablement is configuration/composition, not a dynamic plugin requirement.
+На раннем этапе все first-party modules могут компилироваться в одно приложение.
 
-A module declares module ID/version, dependencies, contributed capabilities/views/commands, project-extension ownership and migration requirements.
+Module enablement — configuration/composition, а не требование dynamic plugin mechanism.
+
+Module объявляет module ID/version, dependencies, contributed capabilities/views/commands, project-extension ownership и migration requirements.
 
 ## 13. External adapters
 
 - **Platform adapter** — filesystem/dialogs/clipboard/print/windowing/OS integration.
 - **NPT adapter** — vendor file semantics/identifiers/resources.
-- **EOD adapter** — optional, independently removable, no reverse Core dependency.
-- **Future adapters** — CIM/other ECAD/CAD/data sources only when justified.
+- **EOD adapter** — optional, independently removable, без reverse Core dependency.
+- **Future adapters** — CIM/other ECAD/CAD/data sources только при доказанной необходимости.
 
 ## 14. Performance strategy
 
-Performance is part of architecture for tens of thousands of rendered objects, large tables, hit-testing, topology recalculation, import reconciliation and multi-window workspaces.
+Performance является частью architecture для tens of thousands rendered objects, large tables, hit-testing, topology recalculation, import reconciliation и multi-window workspaces.
 
-Do not model every visual primitive as a heavyweight desktop control if benchmark evidence shows it does not scale.
+Не моделировать каждый visual primitive как heavyweight desktop control, если benchmark evidence показывает плохую scalability.
 
-## 15. Security and trust boundary
+## 15. Security и trust boundary
 
-- imported/vendor files are untrusted data;
-- no arbitrary code execution from project/import files;
-- file/path operations are validated;
-- EOD/NPT integration gets only required privileges;
-- development runners contain no production SCADA credentials.
+- imported/vendor files — untrusted data;
+- project/import files не исполняют код;
+- file/path operations валидируются;
+- EOD/NPT integrations получают minimum required privileges;
+- development runners не содержат production SCADA credentials.
 
-## 16. Architectural review triggers
+## 16. Development Platform boundary
 
-ADR/update required before changing source-of-truth ownership, adding required separate runtime services, adding a second authoritative topology store, incompatible native-format change, allowing local policy to weaken mandatory baseline, adding real-equipment command execution, making EOD/NPT required, or switching platform after accepted Platform Stack ADR.
+Development Platform не является частью product runtime. Канонический state остаётся в GitHub, existing VPS используется как execution plane, а быстрый interactive loop и formal CI остаются разными контурами.
+
+## 17. Триггеры архитектурного review
+
+ADR/update требуется перед изменением source-of-truth ownership, добавлением required separate runtime service, появлением второго authoritative topology store, incompatible native-format change, разрешением local policy ослабить mandatory baseline, добавлением real-equipment command execution, превращением EOD/NPT в required dependency или сменой platform после accepted Platform Stack ADR.
