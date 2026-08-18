@@ -1,51 +1,51 @@
 # Инструкции агентам — Electrical Engineering Platform
 
-## 1. Идентичность продукта
+## 1. Назначение продукта
 
-Репозиторий `genrudko/ElectricalEngineeringPlatform` является каноническим umbrella для одного **standalone, desktop-first, local-first, modular electrical-engineering software complex**.
+Репозиторий `genrudko/ElectricalEngineeringPlatform` является каноническим репозиторием одного standalone, desktop-first, local-first модульного электротехнического инженерного комплекса.
 
-Продукт содержит три крупных функциональных направления:
+Крупные функциональные направления:
 
 - Scheme Studio;
-- NPT Engineering Toolkit / compatibility;
-- Switching / TBP.
+- NPT Compatibility;
+- новый Switching / TBP module;
+- общие Domain Core, UI Core, Compliance Core, Import/Reconciliation и Development Platform.
 
-Disposition legacy-источников различается:
+Статус legacy-источников:
 
-- `genrudko/electroscheme-studio` — исторический research/migration source;
+- `genrudko/electroscheme-studio` — historical research/migration source;
 - NPT/Modus materials — compatibility/reference corpus;
-- **старый TBP project имеет disposition `DO_NOT_MIGRATE`**. Новый Switching module реализуется с нуля на текущих Domain/Compliance contracts и проверенных нормативных источниках.
+- старый TBP project — `DO_NOT_MIGRATE`; новый Switching module реализуется с нуля;
+- EOD — отдельный продукт/repository; допускается только bounded optional integration.
 
-## 2. Языковой contract
+## 2. Языковой контракт
 
-Обязательная схема проекта:
+Обязательное разделение:
 
 ```text
-Пользовательский интерфейс и документация → русский язык
-Внутренняя technical/domain часть       → английский язык
+Пользовательский интерфейс и каноническая документация → русский
+Внутренняя technical/domain часть                     → английский
 ```
 
 Правила:
 
-1. Весь основной UI, user-facing diagnostics, help и generated user documents по умолчанию русскоязычные.
-2. Вся новая canonical документация пишется на русском языке.
-3. Точные имена technical entities в документации остаются английскими: `ElectricalProject`, `CircuitBreaker`, `TopologyGraph`, `SwitchingOperation` и т. п.
+1. Основной UI, user-facing diagnostics, help и generated user documents по умолчанию русскоязычные.
+2. Вся новая каноническая документация пишется на русском языке.
+3. Точные имена technical entities сохраняются английскими: `ElectricalProject`, `CircuitBreaker`, `TopologyGraph`, `SwitchingOperation` и т. п.
 4. Classes, methods, variables, enums, API/schema keys, module IDs, internal event/error codes, tests и source-code terminology — английские.
-5. Внутренняя терминология должна использовать профессиональный engineering English электроэнергетики: `grid`, `circuit breaker`, `disconnector`, `earthing switch`, `busbar`, `feeder`, `interlock` и т. п.
-6. Транслит в identifiers (`Vykluchatel`, `Razedinitel` и т. п.) запрещён.
-7. Machine-readable error/rule code может быть английским, но пользовательское explanation — русское.
+5. Использовать профессиональный engineering English электроэнергетики: `grid`, `circuit breaker`, `disconnector`, `earthing switch`, `busbar`, `feeder`, `interlock` и т. п.
+6. Транслит в identifiers запрещён.
+7. Machine-readable code может быть английским, но пользовательское объяснение должно быть русским.
 8. Российские нормативные названия/требования в UI/docs сохраняются на русском; internal `rule_id` — английский/machine-readable.
 
-Canonical owners:
+Канонические документы:
 
 - `docs/project/LANGUAGE_POLICY.md`;
 - `docs/project/RU_EN_ENGINEERING_GLOSSARY.md`.
 
-При добавлении shared domain entity проверять glossary и не создавать случайный новый перевод/синоним.
+## 3. Канонический источник и приоритеты
 
-## 3. Канонический источник и порядок приоритетов
-
-GitHub является каноническим источником code, architecture, plans, issues, branches, PRs, tests и accepted evidence.
+GitHub является источником истины для code, architecture, plans, issues, branches, PRs, tests и accepted evidence.
 
 Перед началом работы самостоятельно восстановить из GitHub:
 
@@ -57,18 +57,20 @@ GitHub является каноническим источником code, arch
 6. applicable workflow state;
 7. canonical documents из `docs/INDEX.md`.
 
-Не просить владельца сообщать handoff/SHA/state, которые можно получить из GitHub.
+Не просить владельца сообщать handoff/SHA/state, которые доступны в GitHub.
 
-Для product/architecture meaning действует приоритет:
+При конфликте содержания действует приоритет:
 
 ```text
-explicit owner instruction
+явная инструкция владельца
 → accepted ADR
-→ canonical architecture/compliance docs from docs/INDEX.md
+→ canonical architecture/compliance docs из docs/INDEX.md
 → CURRENT_STATE / roadmap
-→ research and migration evidence
-→ historical prototype documents
+→ current research evidence
+→ historical/prototype documents
 ```
+
+`AGENTS.md` имеет приоритет по operating process, но не переопределяет accepted engineering decisions.
 
 ## 4. Work-item workflow
 
@@ -91,11 +93,11 @@ issue
 3. Не переводить PR в Ready for Review без явной команды владельца.
 4. Не merge без явной команды владельца.
 5. Держать изменения risk-bounded; избегать repair-on-repair churn.
-6. Full/nuclear CI не является обязательным налогом на маленькое UI change.
+6. Full/nuclear CI не является обязательным налогом на небольшое UI change.
 7. Visual acceptance UI changes по возможности происходит до дорогих unrelated gates.
-8. Фактический status определяется GitHub, а не chat memory/local patches.
+8. Фактический status определяется GitHub, а не памятью чата или local workspace.
 
-## 5. Core architecture invariants
+## 5. Основные архитектурные инварианты
 
 1. `ElectricalProject` / neutral domain model — engineering source of truth.
 2. Diagram geometry — view/projection, а не electrical topology.
@@ -104,13 +106,13 @@ issue
 5. Connections ссылаются на semantic terminals/ports, а не screen coordinates.
 6. Mutations проходят через explicit command/transaction paths, совместимые с undo/redo и validation.
 7. Project storage versioned и migratable.
-8. `UNKNOWN` — first-class. Unknown position/quality/energization никогда не интерпретируется молча как open/off/de-energized.
+8. `UNKNOWN` — first-class; неизвестные position/quality/energization не интерпретируются молча как safe/open/off/de-energized.
 9. Domain Core не содержит NPT identifiers вроде `sTag`, `RTID`, `TechData`, `CustElem`, `scd*`.
 10. UI Core не содержит product-specific business rules, принадлежащих modules/domain services.
 11. Domain modules тестируются без запуска полного UI.
 12. Standalone operation сохраняется при отсутствии EOD integration.
 
-## 6. Target modular-monolith boundary
+## 6. Целевая modular-monolith граница
 
 ```text
 Core.Domain
@@ -131,9 +133,9 @@ App
 
 Separate assemblies/libraries ожидаемы; distributed microservices и dynamic plugin marketplace не являются ранними требованиями.
 
-Не вводить shared abstraction, пока хотя бы один реальный cross-module use case не докажет необходимость.
+Не вводить shared abstraction, пока реальный cross-module use case не докажет необходимость.
 
-## 7. Import and auto-layout invariants
+## 7. Инварианты Import и Auto Layout
 
 ```text
 source CSV/XLSX
@@ -150,14 +152,14 @@ source CSV/XLSX
 
 Правила:
 
-- CSV/XLSX не является native project storage.
-- Не угадывать неоднозначный terminal/connection молча.
-- Imported entities сохраняют source/provenance identifiers.
-- Re-import показывает diff/reconciliation plan до destructive change.
-- Manual layout corrections хранятся как layout constraints и не уничтожаются routine re-import/auto-layout.
-- Electrical correctness и layout confidence — разные diagnostics.
+- CSV/XLSX не является native project storage;
+- неоднозначный terminal/connection не угадывается молча;
+- imported entities сохраняют source/provenance identifiers;
+- re-import показывает diff/reconciliation plan до destructive change;
+- manual layout corrections хранятся как layout constraints и не уничтожаются routine re-import/auto-layout;
+- electrical correctness и layout confidence — разные diagnostics.
 
-## 8. NPT compatibility boundary
+## 8. Граница NPT compatibility
 
 NPT/Modus material — ценное industrial evidence и compatibility input, но не архитектура нового продукта.
 
@@ -172,7 +174,7 @@ NPT-specific IDs/storage rules принадлежат `Modules.Npt` / adapters.
 
 Полный NPT corpus/vendor binaries не коммитить в GitHub. Использовать controlled VPS corpus storage; Git содержит только synthetic/cleared fixtures и project-authored tooling.
 
-## 9. Normative/compliance discipline
+## 9. Нормативная дисциплина
 
 Каждое encoded normative rule должно иметь минимум:
 
@@ -187,15 +189,13 @@ NPT-specific IDs/storage rules принадлежат `Modules.Npt` / adapters.
 - source/provenance reference;
 - test/evidence status.
 
-Не заявлять full compliance целому ГОСТ, ПУЭ, ПОТЭЭ, ПТЭЭС, ПТЭЭП/ПТЭЭПЭЭ или switching-rule set, пока claimed scope не определён, не traced и не accepted.
+Не заявлять full compliance целому ГОСТ, ПУЭ, ПОТЭЭ, ПТЭЭС, ПТЭЭП/ПТЭЭПЭЭ или switching-rule set без явно определённого, traced и accepted scope.
 
 ПУЭ не моделировать как одну монолитную современную версию; учитывать applicable chapters/sources/revisions.
 
-Public normative acts/standards получать и re-verify online по authoritative sources при начале соответствующей работы. Старый TBP implementation и случайные internet copies не являются normative authority.
+Государственные нормативные акты и ГОСТ/ЕСКД metadata повторно проверять онлайн по authoritative sources при начале соответствующей работы. Старый TBP и случайные internet copies не являются normative authority.
 
-Для ГОСТ official catalogue/status metadata обязательно; detailed extraction использует lawful full-text source при необходимости.
-
-## 10. Non-weakening local policy rule
+## 10. Local Policy и правило non-weakening
 
 ```text
 Mandatory regulatory baseline
@@ -208,35 +208,33 @@ Mandatory regulatory baseline
 
 Lower/local layer может добавлять требования или выбирать stricter alternative. Попытка ослабить locked mandatory requirement — configuration error, а не override.
 
-### Confidentiality boundary
+Внутренние enterprise/site instructions не являются shared development inputs и не должны запрашиваться/загружаться как normal prerequisite.
 
-Внутренние enterprise/site instructions **не являются shared development inputs** и не должны запрашиваться/загружаться как normal prerequisite.
+Local Policy mechanics разрабатываются на synthetic/cleared fixtures. Реальные внутренние документы остаются внутри authorized deployment environment.
 
-Local Policy Overlay mechanics разрабатываются на synthetic/cleared fixtures. Реальные внутренние инструкции/source documents остаются внутри authorized deployment environment; там потребляется только formalized local policy package/source metadata по правилам конкретного внедрения.
-
-## 11. Graphics and ГОСТ/ЕСКД
+## 11. Graphics и ГОСТ/ЕСКД
 
 Electrical-scheme graphics — semantic assets под versioned graphic-standard profiles.
 
-Не принимать symbol только потому, что он визуально знаком. Native symbols требуют domain/type mapping, terminal semantics, state variants, normative source/profile, geometry evidence, connection points, labels/designations, output evidence и provenance clarity.
+Native symbols требуют domain/type mapping, terminal semantics, state variants, normative source/profile, geometry evidence, connection points, labels/designations, output evidence и provenance clarity.
 
-NPT graphical assets допускаются как compatibility/reference evidence; proprietary assets не копировать молча в native symbol library.
+NPT graphical assets допускаются как compatibility/reference evidence; proprietary assets не копировать в native symbol library без прав и отдельного решения.
 
-## 12. Switching, state and interlocks
+## 12. Switching, state и interlocks
 
-`Modules.Switching` — **clean-sheet module**. Не мигрировать старый TBP source/config/rules/tests, если владелец явно не переоткроет один конкретный artifact.
+`Modules.Switching` — clean-sheet module. Не мигрировать старый TBP source/config/rules/tests, если владелец явно не переоткроет конкретный artifact.
 
 Safety boundaries:
 
 - software simulation не является physical equipment control;
 - logical/project interlock не заменяет relay/PLC/hardwired interlock;
-- generated switching forms/sequences остаются draft/decision-support output с qualified human review, пока отдельное решение не установит иное;
+- generated switching forms/sequences остаются draft/decision-support output с qualified human review;
 - operation не считается safe только из-за отсутствия contradictory data;
 - denial/uncertainty должно быть explainable пользователю.
 
 Не добавлять real SCADA command execution, IEC-104 server, historian, P/Q control или redundancy без нового explicit owner decision.
 
-## 13. UI Core and UX quality
+## 13. UI Core и UX
 
 UI Core — first-class architecture, а не cosmetic styling.
 
@@ -244,39 +242,57 @@ UI Core — first-class architecture, а не cosmetic styling.
 
 Обязательный foundation включает application shell/workspace, document tabs/splits/detachable windows, design system/UI Gallery, Property Inspector, trees/virtualized tables, command system, dialogs/notifications/status, shared canvas infrastructure, HiDPI/mixed-DPI и keyboard/focus behavior.
 
-Reject MS-DOS/legacy-looking UI и sparse/mobile-first desktop composition.
+Reject legacy/MS-DOS-looking UI и sparse/mobile-first desktop composition.
 
-Все user-facing labels/commands/messages — русские согласно языковому contract. Английские internal identifiers не должны протекать в основной UI без реальной технической причины.
+Все user-facing labels/commands/messages — русские согласно языковому контракту.
 
 UI changes требуют visible evidence.
 
-## 14. Platform stack rule
+## 14. Platform stack
 
-Final stack PENDING.
+Final stack остаётся PENDING.
 
-Candidates:
+Кандидаты:
 
 - Avalonia + C#/.NET;
 - Qt 6 + C++/QML.
 
 Historical Tauri/WebView work в `genrudko/electroscheme-studio` PR #4 — research evidence only.
 
-Не выбирать stack по familiarity/preference. Platform Stack Spike сравнивает equivalent canvas, tables, multi-window, HiDPI, visual testing, packaging и development-iteration scenarios.
+Не выбирать stack по familiarity/preference. `PLATFORM-STACK-SPIKE-001` сравнивает equivalent canvas, tables, multi-window, HiDPI, visual testing, packaging и development-iteration scenarios.
 
-## 15. Development Platform and CI
+## 15. Development Platform
+
+Два контура разработки:
 
 ```text
-ChatGPT/owner
-→ GitHub
+Интерактивный контур:
+ChatGPT Plus Project chat
+→ @EEP Development Bridge
+→ HTTPS/Bearer
+→ existing VPS
+
+Формальный контур:
+GitHub
 → self-hosted runner on existing VPS
 → targeted build/test/benchmark/package
-→ GitHub logs/artifacts
+→ GitHub checks/artifacts
 → owner acceptance
 ```
 
+Прямой ChatGPT→VPS feasibility **доказан 2026-08-18**:
+
+- Custom GPT Action работает на текущем ChatGPT Plus;
+- Action работает внутри существующего Project-чата;
+- в том же чате доступен GitHub connector;
+- внешний `GET /health` дошёл до VPS и вернул `200 OK`;
+- bridge работает за Caddy/HTTPS/Let's Encrypt, FastAPI слушает localhost, service account непривилегированный.
+
+Bridge не должен предоставлять универсальный `runCommand(string)`/remote shell. Execution API строится как typed/allowlisted operations с fixed workspace, timeout, audit и ограниченным набором параметров.
+
 Mandatory Business/MCP/new paid service не предполагается.
 
-Local PC — acceptance endpoint, не required build environment.
+Local PC — acceptance endpoint, не required build environment. SSH остаётся инфраструктурным escape hatch.
 
 Risk-based lanes:
 
@@ -294,11 +310,7 @@ Reject integration, если она требует EOD-specific entities в Doma
 
 Standalone product tests проходят при отсутствии EOD adapter.
 
-## 17. Legacy/prototype preservation
-
-Не копировать старые продукты механически.
-
-Disposition examples:
+## 17. Legacy/prototype disposition
 
 - ElectroScheme Studio: selective research reuse only;
 - NPT: preserve compatibility knowledge/corpus outside Git;
@@ -309,9 +321,9 @@ Disposition examples:
 
 Начинать с `docs/INDEX.md` и обновлять canonical owner document в том же PR, если меняется его решение.
 
-Canonical docs должны соответствовать `LANGUAGE_POLICY.md`: narrative — русский, точные technical identifiers — английские.
+Каноническая документация должна соответствовать `LANGUAGE_POLICY.md`: narrative — русский, точные technical identifiers — английские.
 
-## 19. Current work item
+## 19. Текущий work item
 
 Для `UNIFIED-FOUNDATION-001`:
 
@@ -324,11 +336,13 @@ Canonical docs должны соответствовать `LANGUAGE_POLICY.md`:
 - no final platform-stack selection;
 - no Ready/Merge без explicit owner command.
 
-Immediate sequence после accepted Foundation:
+После accepted Foundation:
 
 ```text
-Infrastructure Spike
-→ Avalonia vs Qt Platform Stack Spike
-→ UI Core + minimal Domain Core
-→ structured import / topology / auto-layout vertical slice
+INFRASTRUCTURE-SPIKE-001
+→ PLATFORM-STACK-SPIKE-001
+→ UI-CORE-FOUNDATION-001 + DOMAIN-CORE-FOUNDATION-001
+→ IMPORT-TO-SCHEME-VERTICAL-SLICE-001
 ```
+
+`INFRASTRUCTURE-SPIKE-001` должен hardened-оформить proven Development Bridge, развернуть self-hosted GitHub runner и доказать exact-head build/test/artifact workflow.
