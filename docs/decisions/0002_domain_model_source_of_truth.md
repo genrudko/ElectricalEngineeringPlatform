@@ -1,6 +1,6 @@
 # ADR 0002 — Neutral Domain Model как Source of Truth
 
-Статус: **ACCEPTED по owner direction / зафиксирован в `UNIFIED-FOUNDATION-001`**  
+Статус: **ACCEPTED по решению владельца / зафиксирован в `UNIFIED-FOUNDATION-001`**  
 Дата: 2026-08-18
 
 ## Контекст
@@ -35,13 +35,13 @@ Topology отделена от diagram geometry.
 
 - CSV/XLSX import использует staging/reconciliation до Domain mutation;
 - Scheme module хранит layout/views отдельно от electrical connections;
-- NPT module переводит/preserves vendor data за adapter boundary;
+- NPT module переводит и preserves vendor data за adapter boundary;
 - Switching module потребляет shared topology/state;
 - project persistence versioned/migratable и framework-neutral.
 
 ## Отклонённые альтернативы
 
-- **Diagram canvas as source of truth** — rejected: moving geometry не должна redefine topology.
-- **XSDE/NPT as source of truth** — rejected из-за vendor lock и pollution native semantics.
-- **Excel/CSV as native project format** — rejected из-за недостаточной topology/state/view/versioning semantics.
-- **Switching/TBP own equipment database** — rejected из-за duplicate identity/topology.
+- **Diagram canvas как source of truth** — отклонено: moving geometry не должна redefine topology.
+- **XSDE/NPT как source of truth** — отклонено из-за vendor lock и pollution native semantics.
+- **Excel/CSV как native project format** — отклонено из-за недостаточной topology/state/view/versioning semantics.
+- **Отдельная equipment database для Switching/TBP** — отклонено из-за duplicate identity/topology.
