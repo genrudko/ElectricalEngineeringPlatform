@@ -7,7 +7,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../src/EEP.P1.Avalonia.csproj" />
+    <Compile Include="../src/FixtureModels.cs" Link="FixtureModels.cs" />
+    <Compile Include="../src/P1Commands.cs" Link="P1Commands.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="../../shared/fixtures/p1-shell-fixture.json" Link="Fixtures/p1-shell-fixture.json" CopyToOutputDirectory="PreserveNewest" />
