@@ -4,7 +4,7 @@
 
 ## 1. Purpose
 
-This repository is the new product authority, but several existing repositories/local corpora contain valuable engineering evidence. This document records where that evidence lives and whether it belongs in Git.
+This repository is the new product authority. Existing repositories/corpora are used only where they provide concrete validated evidence that is cheaper and safer to reuse than rebuilding from the new contracts.
 
 ## 2. ElectroScheme Studio
 
@@ -26,7 +26,7 @@ Important areas to retain as reference/migration evidence:
 
 Do **not** copy the whole repository tree into this repo during Foundation.
 
-When a component is migrated, copy/reimplement only the accepted asset behind the new module contract and record the original commit/path in the migration PR.
+When a component is considered for reuse, copy/reimplement only the accepted asset behind the new module contract and record the original commit/path in the migration PR.
 
 ## 3. NPT / Modus reference corpus
 
@@ -46,7 +46,6 @@ These contain vendor/deployed-system materials including NPT/Modus binaries, pro
 Preferred controlled location:
 
 ```text
-VPS private corpus root
 /opt/electrical-engineering-platform/corpus/npt-reference/
 ```
 
@@ -67,17 +66,21 @@ npt-reference/
 
 Only project-created sanitized/minimal fixtures and derived non-proprietary test data may be promoted into this Git repository after explicit review.
 
-## 4. TBP / switching source
+## 4. Old TBP project
 
-Current authoritative source was historically maintained locally (for example under a local `TBP_project_py` working tree in prior work). Do not invent a GitHub source-of-truth if it is not actually established.
+Owner disposition: **DO_NOT_MIGRATE**.
 
-Recommended migration approach:
+The old TBP codebase/configuration/rule implementation is not an input dependency for the new `Modules.Switching` and does not need to be uploaded, archived into this repository or inventoried before development.
 
-1. archive the local source exactly once with commit/history metadata if Git history exists;
-2. inventory code/config/tests/rule sources;
-3. copy only project-owned material needed for migration into controlled staging;
-4. move accepted rule/domain behavior into `Modules.Switching` only after provenance classification;
-5. keep source normative documents/instructions outside public Git unless redistribution rights are clear.
+The new Switching module is written clean-sheet against:
+
+- Domain Core;
+- Compliance Core;
+- current verified normative sources;
+- synthetic/cleared switching scenarios;
+- future local-policy configuration through the new overlay mechanism.
+
+The old TBP project may remain in its existing local archive only as historical context. It is not a normative source or test oracle.
 
 ## 5. EOD reference
 
@@ -95,29 +98,45 @@ Relevant accepted implementation evidence:
 - optional integration semantics;
 - lifecycle/audit/access-decision patterns.
 
-Do not copy EOD code wholesale. A future electrical bridge module should be developed through a separate bounded EOD integration work item.
+Do not copy EOD code wholesale. A future electrical bridge module is developed through a separate bounded EOD integration work item.
 
-## 6. Normative source corpus
+## 6. Public normative sources
 
-Production rule extraction may require controlled copies/links of:
+Government/sector rules and applicable standards should be discovered and re-verified from current online authoritative sources when the relevant compliance slice is implemented.
 
-- official legal/normative acts;
-- official ГОСТ/ЕСКД texts available under permitted access;
-- enterprise/site instructions;
-- manufacturer manuals;
-- approved operating/switching instructions.
+Preferred authority:
 
-Keep confidential/licensed source documents outside this Git repository unless redistribution is clearly allowed.
+```text
+official publication / official issuer
+→ official Rosstandart standards catalogue
+→ authoritative consolidated legal/reference cross-check where needed
+```
 
 Repository stores:
 
 - source metadata;
+- effective/amendment information;
 - rule IDs/provenance references;
-- paraphrased machine requirements;
-- tests/coverage matrices;
-- synthetic/cleared examples.
+- project-authored machine requirements;
+- tests/coverage matrices.
 
-## 7. What may be committed to this repository
+Full source texts are stored/copied only when access and redistribution are permitted and when doing so provides practical value. A random internet copy is never promoted to normative authority merely because it is downloadable.
+
+## 7. Enterprise/site internal instructions
+
+Internal enterprise/site instructions are **not part of the shared development corpus and should not be uploaded to this repository or normal project staging**.
+
+The product supports them as an optional deployment-time Local Policy Overlay capability. Development of that capability uses synthetic/cleared examples.
+
+At a real deployment, internal instructions remain within the authorized enterprise environment. The project needs only the formalized local policy package and source metadata required by that deployment's governance; the shared GitHub development process does not need the original internal documents.
+
+## 8. Manufacturer documentation
+
+Manufacturer manuals/technical requirements are handled case-by-case. Use public manufacturer sources where available; copyrighted/restricted manuals stay outside Git unless redistribution is clearly allowed.
+
+Machine constraints need explicit model/revision/applicability provenance.
+
+## 9. What may be committed to this repository
 
 Allowed/expected:
 
@@ -128,15 +147,17 @@ Allowed/expected:
 - project-authored native symbol assets with provenance;
 - derived inventories/catalog schemas without proprietary payload;
 - benchmark generators/datasets created by the project;
-- rule metadata and machine tests, not unauthorized full source documents.
+- rule metadata and machine tests;
+- synthetic local-policy fixtures.
 
-## 8. What must stay out of Git by default
+## 10. What must stay out of Git by default
 
 - complete NPT installation/deployed backup;
 - Modus/NPT executables/DLLs/vendor libraries unless explicit redistribution right exists;
 - full station project corpus;
 - raw LW SQL dumps/databases containing operational/proprietary data;
-- confidential enterprise/site instructions;
+- internal enterprise/site instructions;
 - manufacturer manuals with redistribution restrictions;
 - secrets/certificates/credentials;
-- private production/exported EOD data.
+- private production/exported EOD data;
+- old TBP source tree unless the owner later reopens a specific narrow migration need.
