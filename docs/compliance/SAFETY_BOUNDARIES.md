@@ -1,14 +1,14 @@
-# Safety Boundaries
+# Границы безопасности
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Why this document exists
+## 1. Зачем нужен этот документ
 
-The product will reason about electrical topology, equipment state and switching operations. That can create dangerous overconfidence if software capability is described more strongly than evidence supports.
+Продукт будет работать с electrical topology, equipment state и switching operations. Это создаёт риск dangerous overconfidence, если software capability описана сильнее, чем позволяет evidence.
 
-## 2. Product role
+## 2. Роль продукта
 
-Current role:
+Текущая роль:
 
 ```text
 engineering model
@@ -19,27 +19,27 @@ engineering model
 + draft switching-form generation/checking
 ```
 
-Current scope does **not** include autonomous real-equipment control.
+Текущий scope **не включает autonomous real-equipment control**.
 
-## 3. UNKNOWN is first-class
+## 3. `UNKNOWN` — first-class state
 
-Invariant:
+Инвариант:
 
-> Lack of evidence that equipment/section is energized is not proof that it is de-energized.
+> Отсутствие доказательства наличия напряжения не является доказательством его отсутствия.
 
-Examples:
+Примеры:
 
-- unknown breaker position ≠ OPEN;
-- missing signal ≠ OFF;
+- unknown breaker position ≠ `OPEN`;
+- missing signal ≠ `OFF`;
 - bad signal quality ≠ safe state;
 - missing topology edge ≠ open circuit;
-- no modeled voltage-source path under incomplete model ≠ absence of voltage.
+- no modeled voltage-source path при incomplete model ≠ absence of voltage.
 
-Safety-sensitive rules propagate uncertainty.
+Safety-sensitive rules должны propagate uncertainty.
 
 ## 4. Energization semantics
 
-Prefer explicit semantic states such as:
+Предпочтительны explicit semantic states:
 
 ```text
 ENERGIZED
@@ -47,11 +47,11 @@ DEENERGIZED_PROVEN
 UNKNOWN
 ```
 
-instead of a simple boolean when evidence cannot justify it.
+а не simple boolean там, где evidence недостаточно.
 
 ## 5. Simulation vs observation
 
-Clearly separate:
+Явно разделяются:
 
 ```text
 OBSERVED/IMPORTED BASELINE STATE
@@ -59,76 +59,105 @@ SIMULATED STATE
 PLANNED/TARGET STATE
 ```
 
-A simulated operation never silently becomes a claimed real-world state.
+Simulated operation никогда не превращается молча в claimed real-world state.
 
 ## 6. Logical interlock vs physical interlock
 
-The system may implement generic logical/domain interlocks, project/site restrictions and knowledge about manufacturer/device constraints.
+System может реализовать generic logical/domain interlocks, project/site restrictions и knowledge о manufacturer/device constraints.
 
-It does not thereby verify physical locks, PLC/relay/controller logic, hardwired circuits, mechanical interlock health or actual absence/presence of voltage in the field.
+Это не означает verification physical locks, PLC/relay/controller logic, hardwired circuits, mechanical interlock health или фактического absence/presence of voltage на объекте.
 
 ## 7. Switching-form generation
 
-Until a separately accepted safety case changes it:
+Пока отдельный accepted safety case не изменит границу:
 
-> Any generated or assisted switching form/sequence is a draft requiring qualified human review and approval under applicable organizational procedure.
+> Любая generated/assisted switching form или sequence является draft и требует qualified human review/approval по applicable organizational procedure.
 
-No UI label should imply automatic approval merely because software validation passes.
+Никакой UI label не должен намекать на automatic approval только потому, что software validation passed.
 
 ## 8. Normative coverage boundary
 
-A passing machine validation means only:
+Passing machine validation означает только:
 
 ```text
-all implemented/applicable rules in selected profile passed or were resolved
+все implemented/applicable rules выбранного profile прошли или были resolved
 ```
 
-It does not mean all possible requirements of Russian law/standards/site instructions are satisfied unless a formally defined coverage scope supports that claim.
+Это не означает выполнение всех возможных требований Russian law/standards/site instructions без formally defined coverage scope.
 
 ## 9. Incomplete project model
 
-When project data has unresolved equipment identity, connections/topology, state, applicable policy or source version, safety-sensitive functions degrade explicitly to `BLOCKED`, `UNKNOWN` or `REQUIRES_CONFIRMATION` rather than silently proceeding.
+Если project data содержит unresolved equipment identity, connections/topology, state, applicable policy или source version, safety-sensitive functions должны явно переходить в:
+
+```text
+BLOCKED
+UNKNOWN
+REQUIRES_CONFIRMATION
+```
+
+а не продолжать молча.
 
 ## 10. Imported data trust
 
-CSV/XLSX, NPT, Visio and other imported information is not trusted merely because parsing succeeded. Safety-relevant import requires semantic validation and explicit ambiguity review.
+CSV/XLSX, NPT, Visio и other imported information не становятся trusted только потому, что parsing succeeded.
+
+Safety-relevant import требует semantic validation и explicit ambiguity review.
 
 ## 11. Automated topology inference
 
-Auto-detected/inferred topology is not equivalent to verified topology. Critical logic may require confirmed connections according to profile.
+Auto-detected/inferred topology не равна verified topology.
 
-NPT `nodes` extraction remains research until systematically verified against known schemes.
+Critical logic может требовать confirmed connections according to profile.
+
+NPT `nodes` extraction остаётся research до systematic verification against known schemes.
 
 ## 12. AI/LLM boundary
 
-AI may assist discovery, mapping suggestions, explanation, draft rule extraction, layout suggestions and documentation.
+AI может помогать:
 
-AI output is not normative authority and must not bypass deterministic safety validation/human review.
+- discovery;
+- mapping suggestions;
+- explanations;
+- draft rule extraction;
+- layout suggestions;
+- documentation.
+
+AI output не является normative authority и не bypass deterministic safety validation/human review.
 
 ## 13. Real-time / SCADA integration
 
-NPT signal semantics may be imported for engineering/compatibility. Current scope does not authorize online control.
+NPT signal semantics могут импортироваться для engineering/compatibility.
 
-Adding real-equipment commands requires a separate work item covering threat/safety model, authorization, command confirmation, communication quality, fail-safe behavior, audit, commissioning and applicable requirements.
+Current scope не authorizes online control.
+
+Добавление real-equipment commands требует отдельного work item с threat/safety model, authorization, command confirmation, communication quality, fail-safe behavior, audit, commissioning и applicable requirements.
 
 ## 14. Fail-safe defaults
 
-- unknown rule source/version → do not claim validated baseline;
-- missing critical policy → do not silently pass;
-- parse failure → preserve original and avoid partial destructive write;
-- failed save validation → retain/restore backup and show error;
-- unknown switching prerequisite → do not auto-allow;
-- mandatory/local policy conflict → report conflict and keep mandatory baseline effective.
+- unknown rule source/version → не claim validated baseline;
+- missing critical policy → не pass silently;
+- parse failure → preserve original и avoid partial destructive write;
+- failed save validation → retain/restore backup и показать error;
+- unknown switching prerequisite → не auto-allow;
+- mandatory/local policy conflict → report conflict и keep mandatory baseline effective.
 
 ## 15. Auditability
 
-For critical validation/simulation outcomes retain enough to explain project/model revision, state baseline, sequence revision, rule/profile versions, relevant facts, result and permitted user confirmations.
+Для critical validation/simulation outcomes сохраняется достаточно data, чтобы объяснить:
 
-## 16. Prohibited claims/features without separate acceptance
+- project/model revision;
+- state baseline;
+- sequence revision;
+- rule/profile versions;
+- relevant facts;
+- result;
+- permitted user confirmations.
+
+## 16. Prohibited claims/features без separate acceptance
 
 - `100% safe switching guaranteed`;
-- `fully compliant with all ПУЭ/ПОТЭЭ/ПТЭЭС` without coverage evidence;
-- automatic bypass of blocked mandatory rules;
+- `fully compliant with all ПУЭ/ПОТЭЭ/ПТЭЭС` без coverage evidence;
+- automatic bypass blocked mandatory rules;
 - treating unknown state as safe;
-- executing real switching based solely on model result;
-- implying software replaces field verification, protective devices or physical interlocks.
+- executing real switching solely by model result;
+- implication, что software заменяет field verification, protective devices или physical interlocks.
