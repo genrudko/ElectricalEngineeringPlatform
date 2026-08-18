@@ -74,6 +74,22 @@ jobs:
           test "${LOCAL_HEAD}" = "${EXPECTED_HEAD}"
           test -z "$(git status --porcelain)"
 
+      - name: Test bounded Development Bridge source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q tools/development_bridge
+          python3 -m unittest discover -s tools/development_bridge/tests -v
+          python3 - <<'PY'
+          from pathlib import Path
+          source = Path('tools/development_bridge/app.py').read_text(encoding='utf-8')
+          forbidden = ('shell=True', 'os.system(', 'subprocess.getoutput(', 'subprocess.getstatusoutput(')
+          found = [token for token in forbidden if token in source]
+          if found:
+              raise SystemExit(f'forbidden arbitrary-command primitive(s): {found}')
+          print('bridge_static_command_policy=pass')
+          PY
+
       - name: Verify runner credential isolation
         shell: bash
         run: |
@@ -159,6 +175,7 @@ jobs:
             if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
               echo "pr_head=${{ github.event.pull_request.head.sha }}"
             fi
+            echo "bridge_source_policy=pass"
             echo "persistent_deploy_key=absent"
             echo "development_bridge=active"
             echo "deliberate_failure_path=observed"
@@ -193,6 +210,7 @@ jobs:
             if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
               echo "- PR head: \`${{ github.event.pull_request.head.sha }}\`"
             fi
+            echo "- Bridge source compile/unit/static policy: checked"
             echo "- Persistent deploy key under runner account: absent"
             echo "- Development Bridge service: checked"
             echo "- Deliberate failure path: exercised with continue-on-error"
