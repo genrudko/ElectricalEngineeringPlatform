@@ -1,22 +1,24 @@
-# Scheme Module and Equipment Library
+# Scheme Module и Equipment Library
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Purpose
+## 1. Назначение
 
-The Scheme module turns the neutral electrical model into editable engineering representations. The Equipment Library defines reusable semantic equipment types and their permitted graphical/state representations.
+Scheme module превращает neutral electrical model в editable engineering representations.
+
+Equipment Library определяет reusable semantic equipment types и допустимые graphical/state representations.
 
 ```text
-Equipment Library = what the equipment is
-Scheme Module     = how project entities are represented/arranged in a view
+Equipment Library = что представляет собой оборудование
+Scheme Module     = как project entities отображаются и размещаются в конкретном View
 ```
 
-## 2. Equipment Library responsibilities
+## 2. Ответственность Equipment Library
 
-A type definition may provide:
+Type definition может предоставлять:
 
 - semantic category/type ID;
-- terminal schema and roles;
+- terminal schema и roles;
 - typed properties/units/constraints;
 - supported states;
 - domain validation hooks/data;
@@ -24,23 +26,23 @@ A type definition may provide:
 - graphic representation bindings per profile/view;
 - naming/designation metadata where appropriate.
 
-Project instances such as `QF-17` do not belong in the type library.
+Project instances вроде `QF-17` не принадлежат type library.
 
-## 3. Native vs compatibility representations
+## 3. Native и compatibility representations
 
-One semantic type can bind to several representations:
+Один semantic type может иметь несколько representations:
 
 ```text
-circuit-breaker
+CircuitBreaker
 ├── native ГОСТ-oriented single-line symbol
 ├── operational-state native symbol
 ├── imported Visio/legacy representation
 └── NPT CustElem compatibility representation
 ```
 
-Compatibility representation is not automatically normative/native authority.
+Compatibility representation не становится автоматически normative/native authority.
 
-## 4. Scheme View
+## 4. SchemeView
 
 ```text
 SchemeView
@@ -56,60 +58,66 @@ SchemeView
 └── validation/output state
 ```
 
-Electrical connections remain in Domain Core. A route is not the connection itself.
+Electrical connections остаются в Domain Core. `ConnectionRoute` не является самой `Connection`.
 
-## 5. Core editing operations
+## 5. Основные editing operations
 
-Expected foundation operations:
+Foundation-level operations:
 
 - add existing project entity to view;
-- create equipment through domain command then place representation;
+- create equipment через domain command и затем place representation;
 - select/multi-select;
 - move/align/distribute;
 - rotate/orient where permitted;
-- reconnect semantic terminal through explicit domain command;
-- edit visual route without changing semantic endpoints;
-- edit typed properties through Inspector;
-- copy/paste with controlled identity semantics;
-- clearly distinguish delete-from-view from delete-from-project;
+- reconnect semantic terminal через explicit domain command;
+- edit visual route без изменения semantic endpoints;
+- edit typed properties через Inspector;
+- copy/paste с controlled identity semantics;
+- явно различать remove-from-view и delete-from-project;
 - undo/redo;
-- search/navigate by equipment identity/name/KKS/source.
+- search/navigation по equipment identity/name/KKS/source.
 
 ## 6. Create/delete semantics
 
-Dangerous ambiguity must be eliminated:
+Dangerous ambiguity должна быть исключена:
 
 ```text
-Remove from this scheme view
+Удалить из текущего вида
 ≠
-Delete equipment from project
+Удалить оборудование из проекта
 ```
 
 ```text
-Move line bend
+Изменить изгиб линии
 ≠
-Reconnect terminal
+Переподключить Terminal
 ```
 
 ## 7. Auto-layout integration
 
-Scheme module consumes `LayoutProposal` from Import/Auto-layout services and owns accepted geometry/constraints.
+Scheme module получает `LayoutProposal` от Import/Auto-layout services и владеет accepted geometry/constraints.
 
-Manual corrections become constraints/user-owned routes, enabling incremental future updates.
+Manual corrections превращаются в constraints/user-owned routes, что позволяет выполнять incremental updates.
 
-The layout engine cannot invent/change topology to improve appearance.
+Layout engine не может придумывать или менять topology ради красивого рисунка.
 
 ## 8. View families
 
-Long-term architecture may support normal single-line, temporary/repair variants, detailed bay/switchgear, operational and other controlled electrical representations.
+Долгосрочно могут поддерживаться:
 
-Do not implement all families in the first MVP.
+- normal single-line;
+- temporary/repair variants;
+- detailed bay/switchgear;
+- operational;
+- другие controlled electrical representations.
+
+Все families не должны реализовываться одновременно в первом MVP.
 
 ## 9. State visualization
 
-Renderer receives semantic state/quality plus view/profile rules.
+Renderer получает semantic state/quality вместе с view/profile rules.
 
-Must support explicit uncertainty and simulation distinction where needed:
+Должны быть различимы:
 
 ```text
 CLOSED + GOOD
@@ -119,37 +127,45 @@ UNKNOWN / BAD QUALITY
 SIMULATED CLOSED
 ```
 
+Unknown и simulated state не должны визуально сливаться с known observed state.
+
 ## 10. Large-project strategy
 
-Expected techniques, selected by platform evidence:
+Техники выбираются по platform evidence и могут включать:
 
-- scene graph/custom drawing rather than one heavyweight widget per primitive;
+- scene graph/custom drawing вместо one heavyweight widget per primitive;
 - spatial indexing;
 - viewport culling;
 - batched render/update;
 - incremental layout/routing;
 - text/geometry caches where safe;
-- background computation for expensive non-UI tasks with deterministic commit back to model.
+- background computation для expensive non-UI tasks с deterministic commit обратно в model.
 
 ## 11. Routing
 
-Connection routing is view geometry.
+Connection routing — view geometry.
 
-Requirements:
+Требования:
 
 - route endpoints anchored to representation terminals;
 - junction/crossing semantics consistent with profile;
 - user-owned bends/routes;
-- reroute impacted region rather than whole diagram where feasible;
-- diagnostics for impossible/overlapping routes.
+- reroute impacted region вместо whole diagram where feasible;
+- diagnostics для impossible/overlapping routes.
 
-Universal perfect autorouting is not an MVP requirement.
+Universal perfect autorouting не является MVP requirement.
 
-## 12. Labels and designations
+## 12. Labels и designations
 
-Labels may come from equipment operational/designation names, KKS/identifier properties, rated values, state/value properties and view-specific annotations.
+Labels могут формироваться из:
 
-Profile controls which labels are required/permitted and how they are placed.
+- equipment operational/designation names;
+- KKS/identifier properties;
+- rated values;
+- state/value properties;
+- view-specific annotations.
+
+Profile определяет обязательные/разрешённые labels и правила placement.
 
 ## 13. Validation layers
 
@@ -161,24 +177,50 @@ IMPORT_PROVENANCE_WARNING
 NPT_COMPATIBILITY_ERROR
 ```
 
-One generic `invalid object` bucket is insufficient.
+Одного generic `invalid object` недостаточно.
 
 ## 14. Manufacturer profiles
 
-A manufacturer/model profile may define ratings/defaults/limits, terminal layout/roles if model-specific, state constraints, additional switching restrictions and optional detailed representation.
+Manufacturer/model profile может определять:
 
-It cannot weaken mandatory applicable constraints and requires source/revision provenance.
+- ratings/defaults/limits;
+- terminal layout/roles when model-specific;
+- state constraints;
+- additional switching restrictions;
+- optional detailed representation.
 
-## 15. Equipment library evolution
+Он не может ослаблять mandatory applicable constraints и требует source/revision provenance.
 
-Start with a small family sufficient for the real vertical slice. Promotion gate for each type includes domain meaning, terminal semantics, state semantics, validation, native graphic-profile evidence, Gallery render, save/load, import mapping and switching semantics where relevant.
+## 15. Evolution Equipment Library
+
+Начинать с малого набора типов, достаточного для first real vertical slice.
+
+Promotion gate для каждого type:
+
+- domain meaning;
+- terminal semantics;
+- state semantics;
+- validation;
+- native graphic-profile evidence;
+- Gallery render;
+- save/load;
+- import mapping;
+- switching semantics where relevant.
 
 ## 16. Search/library UX
 
-Search/filter by engineering meaning: category/type, voltage/application, manufacturer/model, standard/profile, tags/aliases, recent/frequent use and project-available types.
+Search/filter должен работать по engineering meaning:
 
-NPT library palette is a separate compatibility projection.
+- category/type;
+- voltage/application;
+- manufacturer/model;
+- standard/profile;
+- tags/aliases;
+- recent/frequent use;
+- project-available types.
 
-## 17. First vertical slice relationship
+NPT library palette остаётся отдельной compatibility projection.
 
-`IMPORT-TO-SCHEME-VERTICAL-SLICE-001` exercises this module with a real small equipment set imported from structured data, auto-layout, manual correction, save/reopen and re-import.
+## 17. Связь с первым vertical slice
+
+`IMPORT-TO-SCHEME-VERTICAL-SLICE-001` использует этот module на real small equipment set, импортированном из structured data, и проверяет auto-layout, manual correction, save/reopen и re-import.
