@@ -1,37 +1,38 @@
-# Unified Scope and Roadmap
+# Единый scope и roadmap
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Scope principle
+## 1. Принцип развития
 
-The project grows through proven vertical slices, not simultaneous implementation of every module.
+Проект развивается через доказанные vertical slices, а не через одновременную реализацию всех модулей.
 
-The common Core exists to eliminate duplication between real modules, not to become an abstract mega-platform before product workflows exist.
+Общий Core существует для устранения реального дублирования между модулями, а не для построения абстрактной mega-platform до появления продуктовых workflows.
 
-## 2. In scope
+## 2. Входит в scope
 
-### Foundation capabilities
+### 2.1. Foundation capabilities
 
 - neutral electrical project/domain model;
 - equipment/terminal/connection/topology/state concepts;
 - versioned project persistence;
-- UI Core and professional desktop shell;
-- Windows/Linux packaging after measured stack selection;
-- compliance/normative registry and policy layering;
-- developer tooling and risk-based CI.
+- UI Core и professional desktop shell;
+- Windows/Linux packaging после измеренного выбора stack;
+- compliance/normative registry и policy layering;
+- Development Bridge + self-hosted runner development platform;
+- risk-based CI и visual-first acceptance.
 
-### Scheme Studio
+### 2.2. Scheme Studio
 
 - intelligent electrical objects;
-- multiple views over one project model;
-- electrical connections independent from visual routing;
+- несколько views над одной project model;
+- electrical connections независимо от visual routing;
 - domain-aware auto-layout;
 - manual layout editing/constraints;
-- ГОСТ/ЕСКД-oriented graphic profiles with traceability;
-- validation, search and property editing;
+- ГОСТ/ЕСКД-oriented graphic profiles с traceability;
+- validation, search и property editing;
 - print/export.
 
-### Import
+### 2.3. Import
 
 - CSV/XLSX sources;
 - configurable mapping profiles;
@@ -43,7 +44,7 @@ The common Core exists to eliminate duplication between real modules, not to bec
 - provenance;
 - handoff to auto-layout.
 
-### NPT Compatibility
+### 2.4. NPT Compatibility
 
 - lossless/preserve-first XSDE handling;
 - typed `scd*` editing;
@@ -52,9 +53,13 @@ The common Core exists to eliminate duplication between real modules, not to bec
 - XTABL editor/generator;
 - project-resource resolution;
 - topology extraction research where needed;
-- interoperability rather than reimplementation of SCADA runtime.
+- interoperability без reimplementation SCADA runtime.
 
-### Switching / TBP
+### 2.5. Switching / TBP
+
+Switching module реализуется **с нуля**, а не переносится из старого TBP.
+
+Scope:
 
 - switching operation model;
 - sequence model;
@@ -63,16 +68,16 @@ The common Core exists to eliminate duplication between real modules, not to bec
 - normative validation;
 - explainable interlocks;
 - switching-form generation/checking;
-- local enterprise/site instructions as constrained overlays;
-- mandatory human review unless a future safety case changes the boundary.
+- local policy overlays для разрешённых deployment-specific правил;
+- mandatory human review, пока отдельный safety case не изменит эту границу.
 
-### Optional integration
+### 2.6. Optional integration
 
-- EOD adapter/bridge only if feasibility/cost gate passes.
+- EOD adapter/bridge только при успешном feasibility/cost gate.
 
-## 3. Explicitly out of current scope
+## 3. Явно вне текущего scope
 
-Unless explicitly reopened:
+Пока владелец не откроет отдельный work item:
 
 - complete SCADA runtime replacement;
 - online IEC-104 control infrastructure;
@@ -80,55 +85,70 @@ Unless explicitly reopened:
 - wind-farm P/Q control;
 - SCADA redundancy;
 - automatic real-equipment execution of switching sequences;
-- cloud collaboration as core dependency;
+- cloud collaboration как обязательная dependency;
 - multi-user realtime editing;
 - universal CAD/mechanical/building drafting;
 - full arbitrary Visio fidelity;
 - arbitrary DWG ecosystem;
 - plugin marketplace;
-- AI/ML auto-layout before deterministic domain-aware layout is proven.
+- AI/ML auto-layout до доказательства deterministic domain-aware layout;
+- unrestricted remote shell from ChatGPT to VPS.
 
 ## 4. Roadmap
 
 ### F0 — Unified Foundation
 
-Goal: make architecture, normative boundaries, UI/DevEx and migration unambiguous.
+Цель: однозначно зафиксировать архитектуру, normative boundaries, UI/DevEx, язык проекта, migration/disposition и первые work items.
 
-No bulk product-code migration.
+В Foundation не выполняется bulk migration product code.
 
-### F1 — Development Infrastructure Spike
+Отдельно в рамках Foundation уже доказан feasibility прямого ChatGPT Plus Project → Custom GPT Action → VPS bridge.
 
-Prove:
+### F1 — `INFRASTRUCTURE-SPIKE-001`
+
+Feasibility ChatGPT→VPS уже доказан и не повторяется как основной вопрос.
+
+Нужно доказать production-quality development infrastructure:
 
 ```text
-ChatGPT/owner
-→ GitHub
+Интерактивный контур:
+ChatGPT Project
+→ hardened EEP Development Bridge
+→ bounded build/test/inspect operations
+→ existing VPS
+
+Формальный контур:
+GitHub exact PR head
 → self-hosted runner on existing VPS
-→ targeted build/test
-→ artifact/log
-→ GitHub
-→ review
+→ targeted build/test/package
+→ checks/artifacts
+→ owner acceptance
 ```
 
 Acceptance:
 
-- one-time runner setup documented;
-- unprivileged runner account;
-- repository checkout/build job;
-- result/log visible through GitHub;
-- artifact produced;
-- private NPT corpus path outside Git;
-- no dependency on new paid control service.
+- unprivileged Development Bridge service;
+- typed/allowlisted bridge API без arbitrary shell;
+- fixed workspace/repository boundaries;
+- timeout, task ID, audit log и concurrency policy;
+- self-hosted runner под отдельным unprivileged account;
+- exact-head checkout/verification;
+- deterministic test/build command;
+- useful failure output;
+- artifact published/available without owner SSH;
+- private NPT corpus остаётся вне Git;
+- cleanup/retention policy;
+- no dependency on new mandatory paid service.
 
-### F2 — Platform Stack Spike
+### F2 — `PLATFORM-STACK-SPIKE-001`
 
-Equivalent Avalonia and Qt implementations exercise realistic shared UI/core scenarios.
+Эквивалентные Avalonia и Qt implementations проверяют representative shared UI/core scenarios.
 
-Decision output: accepted ADR selecting one stack.
+Результат — accepted ADR, выбирающий один stack.
 
-### F3 — UI Core + Minimal Domain Core
+### F3 — `UI-CORE-FOUNDATION-001` + `DOMAIN-CORE-FOUNDATION-001`
 
-UI:
+UI Core:
 
 - app shell;
 - workspace/documents;
@@ -137,9 +157,10 @@ UI:
 - properties;
 - tree/table controls;
 - command system;
-- basic shared canvas.
+- basic shared canvas;
+- русский user-facing text contract.
 
-Domain:
+Domain Core:
 
 - project;
 - equipment;
@@ -150,59 +171,62 @@ Domain:
 - validation;
 - persistence/versioning.
 
-### F4 — Import-to-Scheme Vertical Slice
+### F4 — `IMPORT-TO-SCHEME-VERTICAL-SLICE-001`
 
-First product proof:
+Первое реальное product proof:
 
 ```text
 representative CSV/XLSX
 → map fields
 → staging
 → resolve ambiguities
-→ build equipment/connections
+→ build Equipment/Terminals/Connections
 → topology validation
 → auto-layout
 → manual correction
-→ save
+→ save/reopen
 → changed source re-import
-→ reconciliation without destroying manual layout
+→ reconciliation
+→ manual layout preserved
 ```
 
 ### F5 — Scheme Studio MVP foundation
 
-Expand equipment library, controlled symbols, scheme hierarchy/views, connectors/routing, alignment/grid/layout tools, searches/diagnostics, ГОСТ profile validation and output.
+Расширить Equipment Library, controlled symbols, scheme hierarchy/views, connectors/routing, alignment/grid/layout tools, searches/diagnostics, ГОСТ profile validation и output.
 
 ### F6 — NPT Compatibility Module
 
-Integrate proven lossless cores and signal catalog under the new model.
+Интегрировать proven lossless cores и signal catalog под новой model.
 
-Priority:
+Приоритет:
 
-1. renderer fidelity for known mnemonic screenshots;
+1. renderer fidelity для known mnemonic screenshots;
 2. safe existing-object editing;
 3. typed NPT properties;
 4. XTABL data-driven generator/editor;
 5. topology extraction experiment;
-6. broader creation/editing only where native compatibility is proven.
+6. broader creation/editing только после native compatibility proof.
 
-### F7 — Switching/TBP Module
+### F7 — clean-sheet Switching / TBP Module
 
-Use shared topology/state/compliance model. Start from validated operations/sequences and existing draft-generation experience; migrate rules only with provenance.
+Реализовать заново поверх shared topology/state/compliance model.
 
-### F8 — Interlocks and advanced operational simulation
+Первые rules берутся из current verified normative sources и synthetic/cleared examples, а не из old TBP code/config.
 
-Add explainable logical/project interlocks and richer simulation after topology/state quality is proven.
+### F8 — Interlocks и advanced operational simulation
+
+Добавить explainable logical/project interlocks и richer simulation после доказательства качества topology/state model.
 
 ### F9 — EOD feasibility / optional adapter
 
-May be pulled earlier as a small architecture spike if useful, but production integration happens only after standalone boundaries are stable.
+Может быть исследован раньше небольшим architecture spike, но production integration начинается только после стабилизации standalone boundaries.
 
-## 5. Dependency order
+## 5. Порядок зависимостей
 
 ```text
 Foundation
    ↓
-Development Infrastructure
+Infrastructure
    ↓
 Platform Stack Decision
    ↓
@@ -213,16 +237,23 @@ Compliance Core ─────┘
                 Scheme / NPT / Switching
 ```
 
-## 6. Product acceptance priorities
+## 6. Приоритеты product acceptance
 
-When trade-offs occur, prioritize:
+При конфликте компромиссов приоритет:
 
-1. engineering correctness and safety boundary;
+1. engineering correctness и safety boundary;
 2. traceable/preservable data;
-3. practical user workflow and visible usability;
+3. practical user workflow и visible usability;
 4. development iteration cost;
 5. broad feature count.
 
-## 7. Stop conditions against overengineering
+## 7. Stop conditions против overengineering
 
-Do not create generalized plugin API before concrete modules require it, generalized rule language before real rules show repeated patterns, generalized layout ontology before representative schemes prove the need, distributed services where in-process calls suffice, or a universal symbol DSL before native profiles establish real requirements.
+Не создавать:
+
+- generalized plugin API до появления конкретных повторяющихся module needs;
+- generalized rule language до реальных repeated patterns;
+- generalized layout ontology до representative schemes;
+- distributed services там, где достаточно in-process calls;
+- universal symbol DSL до proof реальных profile requirements;
+- unrestricted development agent/shell surface там, где достаточно bounded typed operations.
