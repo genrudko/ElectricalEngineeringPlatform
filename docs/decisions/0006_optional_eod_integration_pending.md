@@ -1,25 +1,28 @@
 # ADR 0006 — Optional EOD Integration
 
-Status: **PENDING FEASIBILITY / COST GATE**  
-Date opened: 2026-08-18
+Статус: **PENDING FEASIBILITY / COST GATE**  
+Дата открытия: 2026-08-18
 
-## Context
+## Контекст
 
-The electrical product could provide value as an optional capability alongside EOD, especially through shared object/workplace context and references to schemes/switching forms.
+Electrical product может дать дополнительную ценность рядом с EOD, особенно через shared object/workplace context и references к schemes/switching forms.
 
-Foundation inspection of actual EOD repository materially improved feasibility:
+Foundation inspection actual EOD repository materially повысил feasibility:
 
 - `MODULE-ACTIVATION-CONTRACT-001` accepted/merged;
 - `MODULE-REGISTRY-001` completed/merged;
-- EOD already has stable first-party manifests, scoped activation for `ORGANIZATION / ENERGY_SITE / WORKPLACE`, lifecycle/audit semantics and optional-integration behavior.
+- EOD уже имеет stable first-party manifests;
+- scoped activation для `ORGANIZATION / ENERGY_SITE / WORKPLACE`;
+- lifecycle/audit semantics;
+- optional-integration behavior.
 
-## Current decision
+## Текущее решение
 
-Standalone operation is mandatory.
+Standalone operation обязательна.
 
-EOD integration is allowed only behind an isolated adapter/bridge boundary.
+EOD integration допускается только за isolated adapter/bridge boundary.
 
-Preferred feasibility target is **Level 2** using a small EOD-side bridge module that conforms to existing EOD registry and launches/deep-links into the standalone desktop application.
+Preferred feasibility target — **Level 2** через небольшой EOD-side bridge module, который использует existing EOD registry и launch/deep-link standalone desktop application.
 
 ```text
 EOD module registry
@@ -29,9 +32,11 @@ ELECTRICAL-BRIDGE first-party module
 Standalone Electrical Desktop Application
 ```
 
-This preference is not production acceptance. Exact context-security, mapping and packaging cost require executable spike.
+Это preference, а не production acceptance. Exact context-security, mapping и packaging cost требуют executable spike.
 
-## Reject/defer if integration requires
+## Reject/defer conditions
+
+Интеграция откладывается/отклоняется, если требует:
 
 - EOD-specific mandatory Core fields;
 - mandatory EOD runtime/network dependency;
@@ -41,13 +46,13 @@ This preference is not production acceptance. Exact context-security, mapping an
 - significant independent release/deploy burden;
 - second competing module-activation mechanism.
 
-Important boundary:
+Критическая boundary:
 
-> EOD module activation authorizes the EOD bridge capability; it does not automatically authorize arbitrary mutations in the standalone electrical application.
+> EOD module activation authorizes EOD bridge capability, но не arbitrary mutations в standalone electrical application.
 
 ## Required output
 
-Future bounded spike classifies result as:
+Future bounded spike классифицирует result как:
 
 ```text
 ACCEPT_LEVEL_1
