@@ -8,7 +8,36 @@
 - NPT Engineering Toolkit / compatibility;
 - новый Switching / TBP module.
 
-**Старый TBP код/config/rules не мигрируются:** switching module пишется с нуля поверх нового Domain Core + Compliance Core и текущих проверенных нормативных источников.
+**Старый TBP code/config/rules не мигрируется:** Switching module пишется с нуля поверх нового Domain Core + Compliance Core и текущих проверенных нормативных источников.
+
+## Язык проекта
+
+Пользовательский язык продукта — **русский**.
+
+На русском языке выполняются:
+
+- весь основной UI;
+- пользовательские сообщения и diagnostics explanations;
+- встроенная справка;
+- canonical документация проекта;
+- генерируемые пользовательские документы, если конкретный output profile не требует иного.
+
+Внутренняя technical/domain часть — **английская**:
+
+```text
+ElectricalProject
+CircuitBreaker
+Disconnector
+EarthingSwitch
+Busbar
+TopologyGraph
+SwitchingOperation
+InterlockRule
+```
+
+В коде, API, schemas, machine-readable IDs и internal terminology используется профессиональный engineering English электроэнергетики. Транслит не используется.
+
+Canonical правила: `docs/project/LANGUAGE_POLICY.md` и `docs/project/RU_EN_ENGINEERING_GLOSSARY.md`.
 
 ## Главный принцип
 
@@ -51,7 +80,7 @@ Application / UI Shell
 
 - графическая часть схем — через версионируемые ГОСТ/ЕСКД profiles с трассируемыми правилами и coverage matrix;
 - Switching/TBP — через versioned normative registry с применимыми ПОТЭЭ, ПТЭЭП/ПТЭЭПЭЭ, ПТЭЭС, Правилами переключений, главами ПУЭ и иными применимыми источниками;
-- государственные нормативные источники и ГОСТ/ЕСКД metadata re-verify online from authoritative sources as the relevant compliance work begins;
+- государственные нормативные источники и ГОСТ/ЕСКД metadata повторно проверяются онлайн по authoritative sources при начале соответствующего compliance work item;
 - локальные manufacturer/enterprise/site/project policies могут дополнять или ужесточать обязательный baseline, но не ослаблять его;
 - внутренние инструкции предприятий/объектов не являются shared development inputs и не должны загружаться в общий репозиторий/корпус; локальная настройка выполняется внутри контролируемого deployment environment.
 
