@@ -26,20 +26,28 @@ public sealed partial class MainWindow : Window
 
     public MainWindow()
     {
+        Console.WriteLine("P1 MainWindow: InitializeComponent begin");
         InitializeComponent();
+        Console.WriteLine("P1 MainWindow: InitializeComponent complete");
         _fixture = P1FixtureLoader.Load();
+        Console.WriteLine("P1 MainWindow: fixture loaded");
         Title = _fixture.ApplicationTitle;
 
         EquipmentTree.SelectionChanged += EquipmentTree_OnSelectionChanged;
         KeyDown += MainWindow_OnKeyDown;
 
+        Console.WriteLine("P1 MainWindow: BuildEquipmentTree begin");
         BuildEquipmentTree();
+        Console.WriteLine("P1 MainWindow: BuildEquipmentTree complete");
         BuildDocumentTabs();
+        Console.WriteLine("P1 MainWindow: BuildDocumentTabs complete");
         SelectEquipmentForTest(_fixture.SelectedEquipmentId);
+        Console.WriteLine("P1 MainWindow: initial equipment selected");
 
         StatusText.Text = _fixture.Status.Project;
         DiagnosticsText.Text = _fixture.Status.Diagnostics;
         ConnectionText.Text = _fixture.Status.Connection;
+        Console.WriteLine("P1 MainWindow: constructor complete");
     }
 
     public string FixtureSchema => _fixture.Schema;
