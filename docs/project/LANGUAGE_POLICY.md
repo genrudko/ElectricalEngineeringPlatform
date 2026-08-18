@@ -1,6 +1,6 @@
 # Языковая политика проекта
 
-Статус: canonical foundation document  
+Статус: канонический Foundation-документ  
 Применяется ко всему `ElectricalEngineeringPlatform`.
 
 ## 1. Основное правило
@@ -12,40 +12,39 @@
 Техническая и внутренняя часть          → английский
 ```
 
-Это сознательная архитектурная договорённость, а не вопрос личного стиля отдельного разработчика.
+Это архитектурная договорённость проекта, а не вопрос личного стиля разработчика.
 
-## 2. Русский язык — язык продукта
+## 2. Русский — язык продукта
 
 На русском языке выполняются:
 
-- весь пользовательский интерфейс;
+- весь основной пользовательский интерфейс;
 - меню, команды, панели, диалоги и подсказки;
 - пользовательские сообщения об ошибках, предупреждениях и неопределённости;
-- Property Inspector и названия пользовательских свойств;
+- Property Inspector labels и названия пользовательских свойств;
 - UI Gallery в части пользовательских подписей;
 - встроенная справка;
-- документация проекта в `docs/`;
-- `README.md` и `AGENTS.md` как читаемые человеком документы;
+- вся каноническая документация в `docs/`;
+- `README.md` и `AGENTS.md`;
 - пользовательские отчёты и диагностические объяснения;
-- генерируемые бланки/формы/отчёты, если конкретный export profile не требует иного языка;
+- генерируемые бланки/формы/отчёты, если конкретный output profile не требует другого языка;
 - описание нормативных требований и результатов их проверки.
 
-Пример:
+Пример пользовательского UI:
 
 ```text
-UI:
-  "Выключатель"
-  "Разъединитель"
-  "Заземляющий нож"
-  "Проверить положение"
-  "Операция запрещена"
+Выключатель
+Разъединитель
+Заземляющий нож
+Проверить положение
+Операция запрещена
 ```
 
-Не допускается интерфейс, в котором внутренняя английская модель напрямую протекает пользователю без необходимости:
+Внутренняя английская model не должна без необходимости протекать в основной UI:
 
 ```text
-CircuitBreakerState: UNKNOWN      # internal — нормально
-"CircuitBreaker State: UNKNOWN"  # основной русский UI — неправильно
+CircuitBreakerPosition: UNKNOWN   # internal — нормально
+CircuitBreaker State: UNKNOWN     # основной русский UI — неправильно
 ```
 
 Корректный пользовательский вариант:
@@ -54,23 +53,23 @@ CircuitBreakerState: UNKNOWN      # internal — нормально
 Положение выключателя: Неизвестно
 ```
 
-## 3. Английский язык — язык внутренней технической части
+## 3. Английский — язык внутренней технической части
 
 На английском языке выполняются:
 
-- имена классов, интерфейсов, методов и функций;
-- имена переменных и констант;
-- namespace/package/module IDs;
-- внутренние enum values;
+- имена classes/interfaces/methods/functions;
+- variables/constants;
+- namespaces/packages/module IDs;
+- enum values;
 - schema/serialization keys;
 - API contracts;
-- database field/table names, если они принадлежат нашему native model;
+- native database field/table names;
 - internal event/command IDs;
 - machine-readable error/rule codes;
-- имена unit/integration tests;
+- unit/integration test names;
 - source-code comments, если комментарий действительно нужен;
-- внутренние названия архитектурных сущностей и паттернов;
-- технические имена файлов/директорий, где английский упрощает tooling и cross-platform development.
+- internal architecture/domain entity names;
+- technical filenames/directories, где английский упрощает tooling и cross-platform development.
 
 Пример:
 
@@ -88,7 +87,7 @@ InterlockRule
 EnergizationState
 ```
 
-Внутренние идентификаторы не транслитерируются:
+Внутренние identifiers не транслитерируются:
 
 ```text
 Vykluchatel          # запрещено
@@ -97,18 +96,18 @@ CircuitBreaker       # правильно
 EarthingSwitch       # правильно
 ```
 
-## 4. Инженерный английский
+## 4. Профессиональный инженерный английский
 
-В технической части используется **нормальный профессиональный английский электроэнергетики**, а не буквальный перевод русских терминов и не самодельная терминология.
+Во внутренней технической части используется устоявшийся professional engineering English электроэнергетики, а не буквальные кальки и самодельная терминология.
 
-При выборе внутренних терминов приоритет:
+При выборе internal term приоритет:
 
-1. устоявшаяся международная электроэнергетическая терминология;
+1. устоявшаяся международная power-engineering terminology;
 2. IEC/IEEE/industry usage, когда применимо;
-3. терминология используемых официальных технических форматов/протоколов;
-4. единый проектный glossary.
+3. terminology официальных technical formats/protocols;
+4. canonical project glossary.
 
-Примеры базовой лексики:
+Базовые примеры:
 
 ```text
 grid / power grid
@@ -135,73 +134,73 @@ energized / de-energized
 unknown state
 ```
 
-Не следует автоматически калькировать один русский термин в один английский без проверки контекста. Например, русское «ячейка» может соответствовать `bay`, `panel`, `cubicle` или другому термину в зависимости от модели оборудования и уровня абстракции.
+Один русский термин не обязан иметь один универсальный английский эквивалент. Например, «ячейка» в зависимости от equipment/context может соответствовать `Bay`, `Panel`, `Cubicle` или другому term.
 
-## 5. RU ↔ EN glossary
+## 5. RU ↔ EN глоссарий
 
-Для domain/UI mapping ведётся canonical glossary:
+Канонический mapping между русским UI и английской internal model хранится в:
 
 ```text
 docs/project/RU_EN_ENGINEERING_GLOSSARY.md
 ```
 
-Он определяет:
+Glossary определяет:
 
-- русский пользовательский термин;
-- английское внутреннее имя;
-- контекст/ограничения;
-- допустимые синонимы;
-- нежелательные/запрещённые варианты при необходимости.
+- русский user-facing term;
+- preferred English internal term;
+- context/limitations;
+- допустимые synonyms;
+- undesirable/forbidden variants where needed.
 
-При добавлении важной новой domain entity сначала проверяется существующий glossary. Если соответствия нет — термин добавляется осознанно, а не изобретается локально в коде или UI.
+При добавлении важной shared domain entity сначала проверяется glossary. Если mapping отсутствует, новый term добавляется осознанно и централизованно.
 
 ## 6. Документация
 
-**Вся новая canonical документация пишется на русском языке.**
+**Вся новая каноническая документация пишется на русском языке.**
 
-Английские технические названия внутри русскоязычного документа сохраняются там, где они являются точными именами сущностей:
+Английские technical names сохраняются там, где являются точными identifiers:
 
 ```text
-`ElectricalProject`
-`TopologyGraph`
-`CircuitBreaker`
-`ImportPlan`
-`UNKNOWN`
+ElectricalProject
+TopologyGraph
+CircuitBreaker
+ImportPlan
+UNKNOWN
 ```
 
 Допустимый стиль:
 
-> `TopologyGraph` хранит электрическую топологию и не зависит от экранной геометрии схемы.
+> `TopologyGraph` хранит электрическую топологию и не зависит от экранной geometry схемы.
 
-Нежелательный стиль:
+Недопустимый без специальной причины стиль:
 
 > The TopologyGraph stores electrical topology and is independent from screen geometry.
 
-То есть язык объяснения — русский; язык точного technical identifier — английский.
+То есть explanatory narrative — русский; exact technical identifier — английский.
 
-Имена файлов документации могут оставаться английскими (`DOMAIN_AND_PROJECT_MODEL.md`, `UI_CORE.md` и т. п.), поскольку они являются частью внутренней структуры репозитория. Их содержимое — русское.
+Имена documentation files могут оставаться английскими (`DOMAIN_AND_PROJECT_MODEL.md`, `UI_CORE.md` и т. п.), поскольку являются частью internal repository structure. Их human-readable content остаётся русским.
 
-## 7. Интерфейс и локализация
+## 7. Интерфейс и localization
 
-Русский является **обязательным первым языком интерфейса**.
+Русский — **обязательный первый язык интерфейса**.
 
-На раннем этапе не требуется строить сложную multi-language localization platform только ради гипотетического будущего перевода. Однако строки UI не должны хаотично зашиваться в domain logic: выбранный UI framework должен позволять централизованно владеть пользовательскими строками.
+На раннем этапе не требуется сложная multi-language localization platform только ради hypothetical future translation. Однако user-facing strings не должны хаотично находиться в domain logic; выбранный UI framework должен позволять centralized ownership strings.
 
-Если в будущем появится реальная потребность в другом языке, localization добавляется отдельным work item без изменения внутренних английских domain identifiers.
+Если появится реальная потребность во втором языке, localization добавляется отдельным work item без изменения internal English domain identifiers.
 
-## 8. Исключения в пользовательском UI
+## 8. Допустимые English/Latin данные в UI
 
-Английские/латинские значения могут отображаться пользователю, когда это реальные технические данные или общепринятые обозначения, например:
+Английские/латинские значения могут отображаться пользователю, если это реальные technical data или standard identifiers:
 
 - KKS/FTS/ASU/TECH identifiers;
 - vendor command names;
 - IEC/ГОСТ designations;
-- единицы измерения и стандартные буквенные обозначения;
-- оригинальные имена импортируемых полей;
+- units и standard letter designations;
+- оригинальные names импортируемых fields;
 - filenames/paths;
-- diagnostic technical details в расширенном режиме.
+- diagnostic technical details в advanced mode.
 
-При этом основное объяснение остаётся русским.
+Основное explanation при этом остаётся русским.
 
 Пример:
 
@@ -213,7 +212,7 @@ docs/project/RU_EN_ENGINEERING_GLOSSARY.md
 
 ## 9. Логи и диагностика
 
-Машиночитаемые коды — английские:
+Machine-readable codes — английские:
 
 ```text
 POLICY_CONFLICT_WEAKENING
@@ -221,7 +220,7 @@ UNKNOWN_EQUIPMENT_STATE
 IMPORT_TERMINAL_AMBIGUITY
 ```
 
-Пользовательское сообщение — русское:
+User-facing messages — русские:
 
 ```text
 Локальное правило пытается ослабить обязательное требование.
@@ -229,11 +228,11 @@ IMPORT_TERMINAL_AMBIGUITY
 Не удалось однозначно определить присоединительный терминал.
 ```
 
-Это позволяет одновременно иметь стабильные internal codes и нормальный русский UX.
+Это сохраняет stable internal codes и нормальный Russian UX одновременно.
 
-## 10. Коммиты, ветки, issue IDs и work-item IDs
+## 10. Commits, branches, issue IDs и work-item IDs
 
-Стабильные технические идентификаторы остаются английскими:
+Stable technical identifiers остаются английскими:
 
 ```text
 UNIFIED-FOUNDATION-001
@@ -241,7 +240,7 @@ PLATFORM-STACK-SPIKE-001
 architecture/unified-foundation-001
 ```
 
-Commit subject предпочтительно писать на английском в короткой технической форме, поскольку он является частью внутренней инженерной истории репозитория:
+Commit subject предпочтительно писать на английском в короткой technical form:
 
 ```text
 docs: define project language policy
@@ -249,15 +248,15 @@ feat: add topology graph validation
 fix: preserve manual layout constraints on reimport
 ```
 
-Issue/PR body и owner-facing explanation — на русском языке, кроме точных technical identifiers и кода.
+Issue/PR body и owner-facing explanation — русские, кроме exact technical identifiers/code.
 
 ## 11. Нормативная документация
 
-Названия российских нормативных документов, требования и пользовательские объяснения сохраняются на русском языке.
+Названия российских нормативных документов, требования и user-facing explanations сохраняются на русском языке.
 
-Внутренний `rule_id` — английский/машиночитаемый.
+Internal `rule_id` — English/machine-readable.
 
-Пример:
+Пример structure:
 
 ```text
 rule_id: SWITCHING.EARTHING_SWITCH.REQUIRES_PROVEN_DEENERGIZATION
@@ -269,16 +268,16 @@ rule_id: SWITCHING.EARTHING_SWITCH.REQUIRES_PROVEN_DEENERGIZATION
 Перед включением заземляющего ножа требуется подтверждённое отсутствие напряжения в соответствии с применимым правилом.
 ```
 
-Точный текст правила и формулировка выше являются только примером структуры; нормативная семантика всегда определяется по проверенному источнику.
+Пример показывает только separation language layers. Exact rule semantics всегда определяется verified authoritative source.
 
 ## 12. Acceptance rule
 
-Foundation и последующие work items не считаются языково завершёнными, если:
+Foundation и subsequent work items не считаются language-complete, если:
 
-- canonical docs содержат англоязычный narrative text вместо русского без причины;
-- основной UI содержит необоснованные английские подписи;
-- внутренние identifiers написаны транслитом или смешанным RU/EN стилем;
-- одна domain entity получает несколько случайных английских названий;
-- пользователь видит internal enum/error code вместо русского объяснения.
+- canonical docs содержат English narrative paragraphs без реальной причины;
+- основной UI содержит необоснованные English labels;
+- internal identifiers написаны транслитом или хаотичным RU/EN mix;
+- одна domain entity получает несколько случайных English names;
+- пользователь видит internal enum/error code вместо русского explanation.
 
-Языковая политика является частью архитектурного качества продукта и проверяется при review наравне с UI/Domain boundaries.
+Языковая политика является частью architectural quality и проверяется при review наравне с UI/Domain boundaries.
