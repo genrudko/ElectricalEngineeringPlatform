@@ -87,7 +87,7 @@ paths:
           schema:
             type: string
             maxLength: 20
-            examples: ['.md']
+            example: .md
       responses:
         '200':
           description: Bounded search results
@@ -102,11 +102,15 @@ paths:
             schema:
               type: object
               additionalProperties: false
-              required: [profile, ref]
+              required:
+                - profile
+                - ref
               properties:
                 profile:
                   type: string
-                  enum: [bridge_compile, bridge_selftest]
+                  enum:
+                    - bridge_compile
+                    - bridge_selftest
                 ref:
                   type: string
                   description: Full commit SHA or origin/<branch>
@@ -124,7 +128,12 @@ paths:
       operationId: getTaskStatus
       summary: Get task state and resolved commit
       parameters:
-        - $ref: '#/components/parameters/TaskId'
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
       responses:
         '200':
           description: Task status
@@ -135,7 +144,12 @@ paths:
       operationId: getTaskLog
       summary: Get bounded task output
       parameters:
-        - $ref: '#/components/parameters/TaskId'
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
       responses:
         '200':
           description: Task log
@@ -150,22 +164,20 @@ paths:
       operationId: cancelTask
       summary: Request cancellation of one queued/running task
       parameters:
-        - $ref: '#/components/parameters/TaskId'
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-f]{32}$'
       responses:
         '200':
           description: Current task state after cancellation request
         '404':
           description: Task not found
 components:
+  schemas: {}
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-  parameters:
-    TaskId:
-      name: task_id
-      in: path
-      required: true
-      schema:
-        type: string
-        pattern: '^[0-9a-f]{32}$'
