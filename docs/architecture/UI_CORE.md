@@ -1,20 +1,57 @@
-# UI Core Architecture
+# Архитектура UI Core
 
 Статус: canonical foundation document
 
-## 1. Why UI Core is architecture
+## 1. Почему UI Core — это архитектура
 
-The product must not become a technically correct engineering engine hidden behind an archaic or exhausting interface.
+Продукт не должен превратиться в технически правильный инженерный engine, спрятанный за архаичным, неудобным или утомительным интерфейсом.
 
-UI Core is a first-class shared subsystem with the same design seriousness as Domain Core.
+UI Core — first-class shared subsystem, который проектируется с той же серьёзностью, что и Domain Core.
 
-Target UX:
+Целевой UX:
 
-> modern, dense, professional desktop engineering UI for long work sessions, large projects, keyboard+mouse and multiple monitors.
+> современный, плотный, профессиональный desktop engineering UI для длительной работы, больших проектов, клавиатуры+мыши и нескольких мониторов.
 
-Reject both legacy/MS-DOS/early-Win32 usability and sparse mobile/tablet desktop composition.
+Не принимаются оба крайних варианта:
 
-## 2. UI Core ownership
+- legacy/MS-DOS/early-Win32 usability и визуальный язык;
+- sparse/mobile/tablet composition на desktop, где полезная площадь теряется из-за огромных controls и whitespace.
+
+## 2. Язык интерфейса
+
+Основной пользовательский язык UI — **русский**.
+
+Русскими должны быть:
+
+- меню и команды;
+- названия панелей и вкладок;
+- Property Inspector labels;
+- dialogs/notifications;
+- validation/error/warning explanations;
+- command palette labels;
+- встроенная справка;
+- user-facing diagnostics;
+- generated UI-facing descriptions.
+
+Внутренние identifiers остаются английскими:
+
+```text
+CircuitBreaker
+TopologyGraph
+SwitchingOperation
+POLICY_CONFLICT_WEAKENING
+```
+
+Пользователь не должен видеть internal enum/error code вместо нормального русского объяснения.
+
+Исключения допускаются для реальных technical data: KKS, NPT command names, filenames, standard designations, external field names и т. п.
+
+Canonical языковые правила определены в:
+
+- `docs/project/LANGUAGE_POLICY.md`;
+- `docs/project/RU_EN_ENGINEERING_GLOSSARY.md`.
+
+## 3. Зона ответственности UI Core
 
 ```text
 UI Core
@@ -36,93 +73,203 @@ UI Core
 └── UI Gallery / visual test fixtures
 ```
 
-UI Core does not own switching rules, NPT semantics or equipment-specific validation.
+UI Core не владеет switching rules, NPT semantics или equipment-specific validation.
 
-## 3. Application shell
+## 4. Application Shell
 
-The shell must support project/workspace identity, main navigation without wasting working area, document tabs, split document regions where useful, detachable documents/windows, persistent tool panels, status/diagnostics, global search/command access and module-contributed views/actions.
+Application Shell должен поддерживать:
 
-Avoid copying Office Ribbon or IDE docking blindly.
+- project/workspace identity;
+- основную навигацию без бессмысленного съедания рабочей площади;
+- document tabs;
+- split document regions там, где это реально полезно;
+- detachable documents/windows;
+- persistent tool panels;
+- status/diagnostics;
+- global search и command access;
+- module-contributed views/actions через явные contracts.
 
-## 4. Workspace and multi-monitor
+Не копировать Office Ribbon или IDE docking один в один только потому, что это знакомые шаблоны. Использовать их идеи только там, где они реально уменьшают стоимость задачи пользователя.
 
-Multi-monitor is a first-class acceptance scenario.
+## 5. Workspace и multi-monitor
+
+Multi-monitor — first-class acceptance scenario.
+
+Типичный рабочий расклад:
 
 ```text
-Monitor 1 — main electrical scheme
-Monitor 2 — equipment/properties/search
-Monitor 3 — switching/TBP sequence
-Monitor 4 — table/NPT/diagnostics/secondary view
+Монитор 1 — основная электрическая схема
+Монитор 2 — оборудование / свойства / поиск
+Монитор 3 — Switching / TBP sequence
+Монитор 4 — таблица / NPT / diagnostics / secondary view
 ```
 
-Persist open views, window positions/sizes, monitor assignment with fallback, splits/tabs, visible panels and sizing/order. A stale/corrupt workspace must have safe/default recovery.
+Workspace должен сохранять:
 
-## 5. Design system
+- открытые views/documents;
+- positions/sizes top-level windows;
+- monitor assignment с fallback, если состав мониторов изменился;
+- splits/tabs;
+- visible panels;
+- размеры и порядок панелей.
 
-Define typography, spacing, density, separators, semantic colors, focus/hover/pressed/selected/disabled/error/warning states, icons, table/tree density, panel headers, dialogs and theme behavior.
+Повреждённый или устаревший workspace не должен блокировать открытие проекта: требуется safe/default recovery.
 
-Do not encode important engineering meaning only by color.
+## 6. Design System
 
-## 6. UI Gallery
+Design System определяет минимум:
 
-Create early and keep continuously runnable.
+- typography scale;
+- spacing scale;
+- control density;
+- borders/separators/elevation;
+- semantic colors;
+- focus/hover/pressed/selected/disabled/error/warning states;
+- icons/pictograms;
+- table/tree row density;
+- panel headers;
+- dialogs;
+- theme behavior;
+- engineering status colors отдельно от декоративной темы.
 
-Gallery contains shared controls/states without full project/runtime: buttons/toolbars, editors, property groups, tabs, trees, virtual tables, search results, dialogs, notifications, validation messages, context menus, command palette, canvas handles, symbol state samples and empty/loading/error states.
+Важный инженерный смысл нельзя кодировать только цветом.
 
-Purposes: rapid iteration, screenshot regression, theme/HiDPI checks, agent/developer inspection and prevention of per-module UI reinvention.
+## 7. UI Gallery
 
-## 7. Property Inspector
+UI Gallery создаётся рано и остаётся постоянно запускаемой.
 
-Shared Inspector framework supports typed descriptors/editors without making UI Core know business semantics.
+Она должна показывать shared controls и все значимые состояния без необходимости открывать полный проект/runtime:
 
-Needs single/multi-selection, mixed-value state, validation feedback, undo/redo integration, searchable groups and keyboard-friendly editing.
+```text
+Buttons / Toolbars
+Text / Numeric / Enum editors
+Property rows/groups
+Tabs / Document headers
+Trees / virtual lists
+Virtual tables
+Search results
+Dialogs
+Notifications
+Validation messages
+Context menus
+Command palette
+Canvas selection handles
+Symbol state samples
+Empty/loading/error states
+```
 
-Modules may contribute specialized editors such as equipment state/property, signal/KKS chooser, NPT typed `scdCommand`, compliance/source selector.
+Назначение Gallery:
 
-## 8. Trees and tables
+- быстрая visual iteration;
+- screenshot regression;
+- theme/HiDPI checks;
+- agent/developer inspection;
+- защита от ситуации, где каждый модуль изобретает свои controls;
+- проверка русского UI текста без запуска всего продукта.
 
-Electrical projects can contain tens/hundreds of thousands of listable entities. Use virtualization/incremental loading where appropriate.
+## 8. Property Inspector
 
-Requirements: stable selection, fast sort/filter/search, keyboard navigation, column presets, copy/export and clear diagnostics.
+Shared Inspector framework поддерживает typed descriptors/editors, но UI Core не должен знать business semantics конкретного оборудования.
 
-Platform Spike includes a 100k-row representative table.
+Нужно поддержать:
 
-## 9. Command system
+- single/multi-selection;
+- mixed-value state;
+- validation feedback;
+- undo/redo command integration;
+- searchable/filterable property groups;
+- keyboard-friendly editing.
 
-Actions should be addressable through a shared command registry:
+Modules могут подключать специализированные editors:
+
+- equipment state/property editor;
+- signal/KKS chooser;
+- NPT typed `scdCommand` editor;
+- compliance/source selector.
+
+Внутреннее свойство может называться `RatedVoltage`, но пользователь видит, например, `Номинальное напряжение`.
+
+## 9. Trees и tables
+
+Electrical projects могут содержать десятки и сотни тысяч listable entities. UI должен использовать virtualization/incremental loading там, где это требуется измерениями.
+
+Требования:
+
+- stable selection;
+- быстрые sort/filter/search;
+- keyboard navigation;
+- column presets;
+- copy/export selected data;
+- ясные validation/status indicators;
+- отсутствие полного создания heavyweight control для каждой строки, если benchmark показывает плохую масштабируемость.
+
+Platform Stack Spike включает representative table на 100 000 строк.
+
+## 10. Command System
+
+Действия должны адресоваться через shared command registry:
 
 ```text
 command ID
-label
+русская label
 icon
 shortcut
-availability/canExecute
+availability / canExecute
 execution
 context
 ```
 
-This enables consistent toolbar/context-menu/command-palette/shortcut behavior.
+Это позволяет одной semantic command согласованно появляться в toolbar, context menu, command palette и keyboard shortcut без дублирования enablement logic.
 
-## 10. Canvas framework
+## 11. Canvas Framework
 
-UI Core owns shared viewport interaction infrastructure while Scheme/NPT modules own rendering semantics.
+UI Core владеет общей viewport/interaction infrastructure, а Scheme/NPT modules — rendering semantics.
 
-Shared concerns may include viewport transform, zoom/pan, hit-testing contract, selection model, marquee selection, pointer capture, snapping/guides, overlays/handles, keyboard navigation and performance instrumentation.
+Shared concerns могут включать:
 
-Do not implement one heavyweight desktop control per visual primitive without benchmark evidence.
+- viewport transform;
+- zoom/pan;
+- spatial hit-testing contract;
+- selection model;
+- marquee selection;
+- pointer capture;
+- snapping/guides;
+- overlays/handles;
+- keyboard navigation;
+- viewport diagnostics/performance instrumentation.
 
-## 11. Scheme editing UX principles
+Не реализовывать каждый graphic primitive как отдельный heavyweight desktop control без benchmark evidence.
 
-- selection predictable/reversible;
-- reconnecting a semantic terminal visibly differs from moving line geometry;
-- destructive operations show effect before commit;
-- auto-layout never silently destroys locked/manual placement;
-- validation locates affected entity/view/rule;
-- selection/property context survives reasonable view transitions.
+## 12. UX принцип редактирования схем
 
-## 12. Error and uncertainty UX
+Основные правила:
 
-Differentiate:
+- selection предсказуем и обратим;
+- reconnect semantic terminal визуально и семантически отличается от перемещения route geometry;
+- destructive operation показывает эффект до commit, если риск это требует;
+- auto-layout никогда молча не уничтожает locked/manual placement;
+- validation позволяет быстро перейти к affected entity/view/rule;
+- selection/property context по возможности сохраняется при переходах между views.
+
+Особенно важно различать:
+
+```text
+Удалить из текущего вида
+≠
+Удалить оборудование из проекта
+```
+
+и:
+
+```text
+Изменить изгиб линии
+≠
+Переподключить терминал
+```
+
+## 13. UX ошибок и неопределённости
+
+Различать как минимум:
 
 ```text
 INFO
@@ -132,40 +279,74 @@ BLOCKED
 UNKNOWN / REQUIRES_CONFIRMATION
 ```
 
-Messages answer what happened, what entity/rule/source is involved, whether work can continue and what resolves it.
+Internal codes остаются английскими, но UI explanation — русское.
 
-## 13. UX budgets
+Сообщение должно отвечать:
 
-Initial qualitative targets:
+- что произошло;
+- какой объект/rule/source затронут;
+- можно ли продолжать работу;
+- что требуется сделать для разрешения ситуации.
 
-- project navigation/search immediate and keyboard-accessible;
-- property editing avoids modal-dialog chains;
-- repetitive 84-WTG table/scheme structure is data-driven, not row-by-row;
-- multi-monitor workspace restores without manual rearrangement every launch;
-- import surfaces ambiguity in one review workflow rather than dozens of modal interruptions.
+В engineering/switching context неопределённость нельзя визуально нормализовать в обычное безопасное состояние.
 
-## 14. Developer UX budget
+## 14. UX budgets
 
-- shared components runnable in Gallery;
-- visual snapshots/headless rendering where framework permits;
-- small UI patch produces targeted preview quickly;
-- visual acceptance precedes unrelated full-system gates;
-- theme/layout changes use centralized tokens/components rather than override stacks.
+Начальные qualitative targets:
 
-## 15. HiDPI and mixed DPI
+- project navigation/search быстрые и keyboard-accessible;
+- property editing не превращается в цепочку modal dialogs;
+- repetitive 84-WTG table/scheme structure создаётся data-driven способом, а не построчно;
+- multi-monitor workspace восстанавливается без ручной перестановки окон каждый запуск;
+- import собирает ambiguity/conflicts в один review workflow вместо десятков modal interruptions;
+- основные действия названы понятными русскими инженерными терминами.
 
-Acceptance covers common scale classes, moving windows between monitors with different scale factors, crisp vector scheme rendering, stable text/control sizes and no coordinate mismatch between canvas rendering and hit-testing.
+## 15. Developer UX budget
 
-## 16. Accessibility
+- shared component запускается в Gallery;
+- visual snapshot/headless rendering доступен там, где framework это позволяет;
+- небольшой UI patch быстро даёт targeted preview;
+- visual acceptance выполняется до unrelated full-system gates;
+- theme/layout changes используют centralized tokens/components, а не override stacks;
+- UI text централизован настолько, чтобы можно было поддерживать consistent Russian terminology без поиска строк по всему codebase.
 
-Visible focus, logical tab order, predictable shortcuts, readable contrast, non-color-only status cues and scalable text/control metrics within practical engineering density.
+## 16. HiDPI и mixed DPI
 
-## 17. Visual acceptance contract
+Acceptance должен покрывать:
 
-A UI change is not accepted because it compiles. Evidence may include UI Gallery screenshot, targeted headless screenshot, interaction test, owner preview build and mixed-DPI/multi-window manual check.
+- распространённые scale classes;
+- перенос окон между мониторами с разными scale factors;
+- crisp vector scheme rendering;
+- stable text/control sizes;
+- отсутствие coordinate mismatch между canvas rendering и hit-testing.
 
-For a small UI-only patch, do not block first visual review on full NPT corpus/topology/switching suites.
+## 17. Accessibility
 
-## 18. Framework independence
+Нужны:
 
-This document is framework-neutral. Avalonia and Qt must each prove they can implement these contracts during Platform Stack Spike.
+- visible keyboard focus;
+- logical tab order;
+- predictable shortcuts;
+- readable contrast;
+- non-color-only status cues;
+- scalable text/control metrics при сохранении разумной engineering density.
+
+## 18. Visual acceptance contract
+
+UI change не считается принятым только потому, что он компилируется.
+
+В зависимости от scope evidence может включать:
+
+- UI Gallery screenshot;
+- targeted headless screenshot;
+- interaction test;
+- owner preview build;
+- mixed-DPI/multi-window manual check.
+
+Для небольшого UI-only patch нельзя блокировать первую visual review полным NPT corpus/topology/switching suite.
+
+## 19. Framework independence
+
+Документ framework-neutral.
+
+Avalonia и Qt должны доказать во время Platform Stack Spike, что способны реализовать этот contract без деградации профессионального desktop UX, русского user-facing слоя, больших data views и heavy engineering canvas.
