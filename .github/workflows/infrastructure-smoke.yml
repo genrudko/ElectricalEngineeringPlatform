@@ -88,6 +88,28 @@ jobs:
           systemctl is-active --quiet eep-dev-bridge.service
           echo "eep-dev-bridge.service=active"
 
+      - name: Inspect Development Bridge runtime surface
+        shell: bash
+        run: |
+          set -u
+          echo "--- systemd metadata ---"
+          systemctl show eep-dev-bridge.service \
+            --property=User \
+            --property=Group \
+            --property=FragmentPath \
+            --property=WorkingDirectory \
+            --property=ExecStart \
+            --no-pager
+          echo "--- deployment root ---"
+          stat -c '%A %U:%G %n' /opt/eep-dev-bridge 2>&1 || true
+          find /opt/eep-dev-bridge -maxdepth 1 -type f \
+            -printf '%M %u:%g %f\n' 2>&1 | sort || true
+          echo "--- unauthenticated localhost surface ---"
+          for path in /health /status /openapi.json /docs /redoc; do
+            code="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:8788${path}" 2>/dev/null || true)"
+            printf '%s=%s\n' "$path" "${code:-request_failed}"
+          done
+
       - name: Exercise deliberate failure diagnostics
         id: deliberate_failure
         continue-on-error: true
