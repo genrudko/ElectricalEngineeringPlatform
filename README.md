@@ -2,19 +2,57 @@
 
 Единый модульный электротехнический инженерный комплекс для построения, импорта, редактирования, визуализации и анализа электрической модели объекта, выпуска электрических схем, совместимости с NPT Expert/Modus и подготовки/проверки оперативных переключений.
 
-Этот репозиторий является новым каноническим umbrella-repository для объединения трёх прежних направлений:
+Репозиторий `genrudko/ElectricalEngineeringPlatform` является каноническим repository продукта.
 
-- ElectroScheme Studio;
-- NPT Engineering Toolkit;
-- TBP / подготовка и проверка бланков переключений.
+Функциональные направления:
 
-## Главный принцип
+- Scheme Studio;
+- NPT Compatibility;
+- новый clean-sheet Switching / TBP module;
+- общие Domain Core, UI Core, Compliance Core, Import/Reconciliation и Development Platform.
 
-Источником истины является нейтральная модель проекта:
+Старый TBP code/config/rules **не мигрируется**. Switching module проектируется и реализуется с нуля поверх нового `ElectricalProject`, `TopologyGraph`, State model и Compliance Core.
+
+## Язык проекта
+
+Язык продукта и всей канонической documentation — **русский**.
+
+На русском языке выполняются:
+
+- основной user interface;
+- пользовательские messages, warnings и diagnostic explanations;
+- встроенная help;
+- documentation в `docs/`;
+- user reports/forms, если конкретный output profile не требует другого языка.
+
+Internal technical layer использует **English и professional power-engineering terminology**:
 
 ```text
 ElectricalProject
-├── Sites / Objects
+CircuitBreaker
+Disconnector
+EarthingSwitch
+Busbar
+VoltageLevel
+TopologyGraph
+SwitchingOperation
+InterlockRule
+```
+
+Code, API, schema keys, identifiers, internal events/error codes и tests — English. Transliteration в technical identifiers не допускается.
+
+Canonical rules:
+
+- `docs/project/LANGUAGE_POLICY.md`;
+- `docs/project/RU_EN_ENGINEERING_GLOSSARY.md`.
+
+## Source of truth
+
+Каноническая engineering model:
+
+```text
+ElectricalProject
+├── Sites / Facilities
 ├── VoltageLevels
 ├── Equipment
 ├── Terminals
@@ -27,9 +65,9 @@ ElectricalProject
 └── Views
 ```
 
-Схемы, CSV/XLSX, XSDE, XTABL, Visio и бланки переключений являются представлениями, импортами/экспортами, документами либо совместимостными адаптерами общей модели, а не параллельными источниками истины.
+Схемы, CSV/XLSX, XSDE, XTABL, Visio и switching forms являются representations, imports/exports, documents или compatibility adapters общей model, а не parallel sources of truth.
 
-## Целевая архитектура
+## Target architecture
 
 ```text
 Application / UI Shell
@@ -43,58 +81,96 @@ Application / UI Shell
 └── Switching / TBP & Interlocks
 ```
 
-Архитектурный стиль: **modular monolith**.
+Architectural style: **modular monolith**.
 
-## Нормативная база
+Главные invariants:
 
-- графическая часть схем — через версионируемые ГОСТ/ЕСКД profiles с трассируемыми правилами и coverage matrix;
-- switching/TBP — через versioned normative registry с применимыми ПОТЭЭ, ПТЭЭП/ПТЭЭПЭЭ, ПТЭЭС, Правилами переключений, главами ПУЭ и локальными требованиями;
-- локальные manufacturer/enterprise/site/project policies могут дополнять или ужесточать обязательный baseline, но не ослаблять его.
+- topology отделена от diagram geometry;
+- `UNKNOWN` является first-class state и не превращается silently в safe state;
+- NPT-specific identifiers остаются в NPT module/adapters;
+- local policy overlays могут tighten mandatory baseline, но не weaken его;
+- standalone operation не зависит от EOD.
+
+## Normative contour
+
+- graphics schemes строятся через versioned ГОСТ/ЕСКД profiles с explicit provenance и coverage matrix;
+- Switching использует versioned normative registry для applicable ПОТЭЭ, ПТЭЭП/ПТЭЭПЭЭ, ПТЭЭС, Правил переключений, отдельных chapters ПУЭ и других applicable sources;
+- public regulatory sources и ГОСТ/ЕСКД metadata re-verify online по authoritative sources перед соответствующим compliance work item;
+- internal enterprise/site instructions не являются shared development inputs и не загружаются в общий Git/VPS corpus;
+- local deployment requirements поддерживаются через controlled `LocalPolicy`/`PolicyPackage` mechanism внутри authorized environment.
 
 ## UI/UX
 
-UI Core — самостоятельный фундамент. Цель — современный плотный professional desktop UX для длительной инженерной работы, больших проектов, мыши+клавиатуры и нескольких мониторов.
+UI Core — самостоятельный architectural foundation. Цель — современный, плотный, профессиональный desktop UX для длительной инженерной работы, больших projects, keyboard+mouse и multi-monitor.
+
+UI не должен выглядеть как legacy/MS-DOS/early Win32 и не должен быть sparse mobile-first interface на desktop.
 
 ## Platform stack
 
-Финальный стек пока не выбран. Кандидаты:
+Final stack пока **не выбран**.
+
+Candidates:
 
 - Avalonia + C#/.NET;
 - Qt 6 + C++/QML.
 
-Выбор выполняется только после эквивалентного executable Platform Stack Spike.
+Selection выполняется только после equivalent `PLATFORM-STACK-SPIKE-001`.
 
 ## Development Platform
 
+Canonical state и changes контролируются через GitHub, existing VPS используется как execution plane.
+
+2026-08-18 фактически доказан direct interactive contour:
+
 ```text
-Owner / ChatGPT
-      ↓
-GitHub — canonical control plane
-      ↓
-self-hosted runner
-      ↓
-existing VPS — build/test/corpus/artifacts
-      ↓
-portable preview
-      ↓
-owner acceptance endpoint
+ChatGPT Plus Project chat
+        ↓ @Custom GPT + Action
+HTTPS + Bearer
+        ↓
+EEP Development Bridge
+        ↓
+existing VPS
 ```
 
-Не предполагается обязательный новый платный Business/MCP/control-plane сервис.
+Доказано:
+
+- Custom GPT Action работает на current ChatGPT Plus;
+- Action работает inside existing Project chat;
+- в том же Project chat доступен GitHub connector;
+- `GET /health` реально доходит до VPS и возвращает `200 OK`;
+- bridge работает за Caddy/HTTPS/Let's Encrypt, FastAPI слушает localhost под unprivileged service account.
+
+Target development model:
+
+```text
+Interactive contour:
+ChatGPT Project → EEP Development Bridge → VPS
+
+Formal contour:
+GitHub → self-hosted runner on VPS → checks/artifacts → PR acceptance
+```
+
+Bridge не должен становиться universal remote shell. Execution operations задаются bounded typed/allowlisted API contracts.
+
+New mandatory paid Business/MCP/API services Foundation не требует.
 
 ## EOD
 
-Интеграция с Electronic Operational Documentation рассматривается как optional bridge/module integration через существующий EOD module registry и отдельный feasibility/cost gate. Standalone operation комплекса обязательна.
+Integration с Electronic Operational Documentation рассматривается как optional bridge/module integration через existing EOD module registry и separate feasibility/cost gate. Standalone operation обязательна.
 
-## Foundation
+## Current stage
 
-Первый work item нового репозитория — перенос и принятие Unified Foundation. После него:
+Active work item: `UNIFIED-FOUNDATION-001`.
+
+После accepted Foundation:
 
 ```text
-Infrastructure Spike
-→ Avalonia vs Qt Platform Stack Spike
-→ UI Core + Minimal Domain Core
-→ Import-to-Scheme Vertical Slice
+INFRASTRUCTURE-SPIKE-001
+→ PLATFORM-STACK-SPIKE-001
+→ UI-CORE-FOUNDATION-001 + DOMAIN-CORE-FOUNDATION-001
+→ IMPORT-TO-SCHEME-VERTICAL-SLICE-001
 ```
 
-Начинать чтение после Foundation migration следует с `AGENTS.md` и `docs/INDEX.md`.
+`INFRASTRUCTURE-SPIKE-001` не доказывает сам факт ChatGPT→VPS access — он уже proven. Spike должен harden bridge, развернуть self-hosted GitHub runner и доказать exact-head build/test/artifact workflow.
+
+Начинать чтение следует с `AGENTS.md` и `docs/INDEX.md`.
