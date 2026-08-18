@@ -157,7 +157,24 @@ Representative staging diff table:
 - list external runtime dependencies;
 - restore/run artifact from clean directory.
 
-## 5. Development-loop benchmark
+## 5. Windows build/package lane — explicit gate
+
+Existing development VPS является Linux host, поэтому Windows build/package path нельзя считать автоматически решённым наличием self-hosted VPS runner.
+
+Spike обязан отдельно доказать reproducible Windows lane в рамках current no-new-mandatory-paid-service baseline.
+
+Допустимые варианты исследуются по фактическим capabilities выбранного stack/toolchain, например:
+
+- GitHub-hosted Windows runner, если он доступен в текущем repository/account baseline без изменения cost policy;
+- existing/dedicated Windows self-hosted runner, если такой execution host будет доступен;
+- cross-build с Linux только если он реально производит корректный runnable Windows artifact и все native dependencies/package steps доказаны;
+- другой reproducible mechanism, явно принятый owner после измерения cost/maintenance.
+
+Owner workstation может использоваться для manual interaction/visual acceptance, но **не должен становиться единственным canonical Windows build environment**.
+
+Если candidate не имеет реалистичного reproducible Windows build/package lane в принятых operational constraints, это считается material architecture/toolchain risk и входит в stack decision; нельзя закрыть gap фразой `Windows build where available`.
+
+## 6. Development-loop benchmark
 
 Для каждого candidate измерить wall-clock/developer steps для:
 
@@ -177,7 +194,7 @@ Record:
 
 Этот metric имеет explicit decision weight.
 
-## 6. Domain Core comparison
+## 7. Domain Core comparison
 
 Оба candidates реализуют same tiny model/tests:
 
@@ -203,18 +220,18 @@ Compare:
 
 Full Domain Core в spike не строится.
 
-## 7. Native integration
+## 8. Native integration
 
 Доказать file open/save, clipboard structured data, drag/drop file, print/export, top-level window management, safe paths и HiDPI reporting через adapters.
 
 Framework object не становится canonical project serialization.
 
-## 8. Test matrix
+## 9. Test matrix
 
 Automated minimum:
 
 - Linux runner build/test;
-- Windows build/test where available;
+- reproducible Windows build/test/package lane, proven as described above;
 - unit/domain tests;
 - UI Gallery capture;
 - canvas/table benchmarks;
@@ -228,13 +245,13 @@ Manual owner evidence:
 - input latency/desktop feel;
 - independent PDF/print viewing.
 
-## 9. Licensing/dependency gate
+## 10. Licensing/dependency gate
 
 До selection записать exact framework/version licenses/distribution obligations, linking implications, commercial-license dependencies if any, third-party components, support policy и security/update strategy.
 
 Не использовать remembered license summaries как authority.
 
-## 10. Scoring
+## 11. Scoring
 
 Сначала показать raw measurements, затем scoring.
 
@@ -246,31 +263,32 @@ Manual owner evidence:
 | tables/tree | medium-high | | | |
 | multi-monitor/HiDPI | high | | | |
 | testing/visual CI | high | | | |
-| packaging | medium | | | |
+| Windows/Linux packaging | high | | | |
 | domain/test productivity | medium-high | | | |
 | maintenance/licensing | medium-high | | | |
 
-## 11. Selection rule
+## 12. Selection rule
 
 Qt wins, если measured performance/desktop capabilities дают **material advantage**, достаточное для justification более высокой implementation/toolchain complexity.
 
 Avalonia wins, если проходит representative performance/desktop thresholds с более простым/быстрым maintainable C#/.NET development.
 
-Если ни один candidate не проходит mandatory thresholds, stop и revisit architecture.
+Если ни один candidate не проходит mandatory thresholds, включая reproducible target-platform build/package requirements, stop и revisit architecture.
 
-## 12. Relationship to old Tauri spike
+## 13. Relationship to old Tauri spike
 
 Historical Tauri evidence остаётся полезным для packaging baseline, native-dialog/clipboard/drop lessons, deterministic artifact methodology и Visio tooling boundary.
 
 Он не является automatic winner.
 
-## 13. Outputs
+## 14. Outputs
 
 - оба candidate implementations;
 - benchmark datasets/generator;
 - raw measurements;
 - screenshots/videos as needed;
-- package artifacts;
+- Windows/Linux package artifacts;
+- documented Windows build/package lane;
 - dependency/license report;
 - comparative matrix;
 - owner manual acceptance record;
@@ -278,7 +296,7 @@ Historical Tauri evidence остаётся полезным для packaging bas
 - target repository layout;
 - immediate UI/Domain next work item.
 
-## 14. Prohibited scope
+## 15. Prohibited scope
 
 В spike не входят:
 
