@@ -1,12 +1,12 @@
-# Import, Reconciliation and Auto Layout
+# Import, Reconciliation и Auto Layout
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Product role
+## 1. Роль в продукте
 
-Structured import is a first-class module and one of the central product differentiators.
+Structured import — first-class module и один из центральных product differentiators.
 
-The objective is not merely `CSV → objects on canvas`.
+Цель — не просто `CSV → objects on canvas`.
 
 ```text
 structured source
@@ -18,16 +18,16 @@ structured source
 → safe re-import/update
 ```
 
-## 2. Supported first sources
+## 2. Первые source formats
 
 Initial target:
 
 - CSV;
 - XLSX.
 
-The importer must not force one rigid corporate template as the only accepted source.
+Importer не должен навязывать один rigid corporate template.
 
-Users map external columns to canonical semantics and save mapping profiles.
+Пользователь сопоставляет external columns с canonical semantics и сохраняет `MappingProfile`.
 
 ```text
 "Поз."          → equipment.external_id
@@ -45,7 +45,7 @@ Source file
   ↓
 Source reader
   ↓
-Mapping profile
+MappingProfile
   ↓
 Normalization
   ↓
@@ -64,17 +64,29 @@ Approved ImportPlan
 ElectricalProject
 ```
 
-Each stage must be independently diagnosable/testable.
+Каждый stage должен быть независимо diagnosable/testable.
 
-## 4. Mapping profiles
+## 4. MappingProfile
 
-A mapping profile records profile ID/version/name, accepted source sheet/table patterns, column mappings, transforms/normalizers, units, equipment-type mapping, identifier strategy, connection-reference syntax, required/optional columns, defaults with provenance and optional organization/site scope.
+Mapping profile хранит:
 
-Mapping profile is configuration, not arbitrary executable code from the spreadsheet.
+- profile ID/version/name;
+- accepted source sheet/table patterns;
+- column mappings;
+- transforms/normalizers;
+- units;
+- equipment-type mapping;
+- identifier strategy;
+- connection-reference syntax;
+- required/optional columns;
+- defaults with provenance;
+- optional organization/site scope where justified.
 
-## 5. Confidence and ambiguity
+Mapping profile — configuration, а не arbitrary executable code из spreadsheet.
 
-Minimum resolution classes:
+## 5. Confidence и ambiguity
+
+Минимальные resolution classes:
 
 ```text
 RESOLVED
@@ -83,19 +95,28 @@ CONFLICT
 INVALID
 ```
 
-If a source connection points to equipment with several possible terminals and no deterministic rule resolves it, the correct behavior is to present candidates/reason — not silently choose the first terminal.
+Если source connection ссылается на equipment с несколькими возможными terminals и deterministic rule не даёт однозначный результат, система показывает candidates/reason и требует решения пользователя, а не выбирает первый terminal молча.
 
 ## 6. Staging model
 
-`ImportCandidate` is separate from canonical project.
+`ImportCandidate` отделён от canonical project.
 
-Staging review summarizes new/matched equipment, changed properties, new/changed/removed connections, unresolved references, duplicate IDs, type conflicts, voltage/domain conflicts and useful raw-source diagnostics.
+Staging review показывает:
 
-No canonical mutation happens until ImportPlan is approved.
+- new/matched equipment;
+- changed properties;
+- new/changed/removed connections;
+- unresolved references;
+- duplicate IDs;
+- type conflicts;
+- voltage/domain conflicts;
+- useful raw-source diagnostics.
+
+До approval `ImportPlan` canonical mutation не выполняется.
 
 ## 7. Reconciliation
 
-Repeat import is a primary scenario.
+Repeat import — primary scenario.
 
 Possible results:
 
@@ -109,30 +130,45 @@ CONFLICT
 MANUAL_MATCH_REQUIRED
 ```
 
-Potential removal must distinguish source-authoritative deletion, source omission/filter, project-owned entity and ambiguous disappearance.
+Potential removal должен различать:
 
-Do not delete automatically unless source authority/profile and user approval permit it.
+- source-authoritative deletion;
+- source omission/filter;
+- project-owned entity;
+- ambiguous disappearance.
+
+Automatic deletion запрещён, пока source authority/profile и user approval явно его не разрешают.
 
 ## 8. Provenance
 
-Retain where practical:
+По возможности сохраняются:
 
 - source file/content fingerprint;
 - sheet/table;
 - row/external ID;
 - mapping profile/version;
-- raw value relevant to reconciliation;
+- raw value, значимый для reconciliation;
 - normalized value;
 - transform/rule used;
 - import revision.
 
 ## 9. Topology construction
 
-Validation includes endpoint existence, terminal compatibility, duplicate connection, impossible loops where forbidden, voltage-level mismatch, terminal cardinality, dangling network fragments, unsupported equipment and site/object consistency.
+Validation включает:
 
-Exact electrical rules grow through Compliance/Equipment Library profiles.
+- endpoint existence;
+- terminal compatibility;
+- duplicate connection;
+- impossible loops where forbidden;
+- voltage-level mismatch;
+- terminal cardinality;
+- dangling network fragments;
+- unsupported equipment;
+- site/object consistency.
 
-## 10. Auto-layout is not topology
+Exact electrical rules растут через Compliance/Equipment Library profiles.
+
+## 10. Auto-layout не является topology
 
 ```text
 TopologyGraph + ViewProfile + ExistingConstraints
@@ -140,13 +176,23 @@ TopologyGraph + ViewProfile + ExistingConstraints
 LayoutProposal
 ```
 
-The proposal may be rejected/edited without changing topology.
+`LayoutProposal` можно отклонить/исправить без изменения topology.
 
 ## 11. Domain-aware layout
 
-Initial deterministic strategies may understand voltage levels, buses/sections, bay/feeder grouping, transformers as level boundaries, switching-equipment sequence along a path, earthing switches, lines/generators/loads, orientation preferences and standard label regions.
+Initial deterministic strategies могут учитывать:
 
-Avoid generic force-directed layout as the primary electrical strategy.
+- voltage levels;
+- busbars/sections;
+- bay/feeder grouping;
+- transformers как level boundaries;
+- switching-equipment sequence along a path;
+- earthing switches;
+- lines/generators/loads;
+- orientation preferences;
+- standard label regions.
+
+Generic force-directed layout не используется как primary electrical strategy.
 
 ## 12. Layout constraints
 
@@ -164,11 +210,11 @@ KeepTogether
 MinimumSpacingOverride
 ```
 
-Impossible constraint sets produce diagnostics rather than corrupted geometry.
+Impossible constraint sets дают diagnostics, а не corrupted geometry.
 
 ## 13. Incremental layout
 
-Priority:
+Приоритеты:
 
 1. preserve user-owned/locked constraints;
 2. preserve unchanged local neighborhoods where possible;
@@ -176,7 +222,7 @@ Priority:
 4. reroute only impacted routes where feasible;
 5. expose layout conflicts for review.
 
-Global full re-layout is an explicit command, not default update behavior.
+Global full re-layout — explicit command, а не default update behavior.
 
 ## 14. Layout profiles
 
@@ -188,36 +234,36 @@ Possible future profiles:
 - auxiliary power;
 - free/legacy imported view.
 
-Introduce only after repeated real examples justify them.
+Profile вводится только после repeated real examples.
 
-## 15. First vertical-slice acceptance
+## 15. Acceptance первого vertical slice
 
-1. open CSV/XLSX;
-2. map fields or select profile;
-3. create equipment/terminals/connections;
-4. show staging summary;
-5. resolve deliberately ambiguous case;
-6. apply ImportPlan;
+1. открыть CSV/XLSX;
+2. сопоставить поля или выбрать profile;
+3. создать Equipment/Terminals/Connections;
+4. показать staging summary;
+5. разрешить deliberately ambiguous case;
+6. применить `ImportPlan`;
 7. render auto-generated one-line view;
-8. manually move/lock/re-route selected elements;
+8. вручную move/lock/re-route выбранные элементы;
 9. save/reopen native project;
-10. import modified source;
-11. show reconciliation diff;
-12. apply update;
-13. prove manual layout constraints survive;
+10. импортировать modified source;
+11. показать reconciliation diff;
+12. применить update;
+13. доказать сохранение manual layout constraints;
 14. validate topology before/after.
 
-## 16. Failure modes to prevent
+## 16. Failure modes, которые нужно исключить
 
-- source rows become native project storage;
-- importer mutates canonical project while parsing;
-- ambiguous terminals chosen silently;
-- entity matching by display name only;
-- every re-import destroys layout;
-- layout engine changes topology to make drawing prettier;
-- manual edits cannot be distinguished from generated geometry;
-- every corporate spreadsheet requires a one-off hard-coded parser when mapping profile is sufficient.
+- source rows становятся native project storage;
+- importer мутирует canonical project во время parsing;
+- ambiguous terminals выбираются молча;
+- entity matching выполняется только по display name;
+- каждый re-import уничтожает layout;
+- layout engine меняет topology ради внешнего вида;
+- manual edits нельзя отличить от generated geometry;
+- каждый corporate spreadsheet требует one-off hard-coded parser, хотя достаточно MappingProfile.
 
 ## 17. Future source adapters
 
-The same staging/reconciliation contracts can later support NPT project import, controlled Visio extraction, CIM/exchange formats and corporate databases/APIs.
+Те же staging/reconciliation contracts позже могут поддержать NPT project import, controlled Visio extraction, CIM/exchange formats и corporate databases/APIs.
