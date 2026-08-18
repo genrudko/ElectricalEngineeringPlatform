@@ -85,6 +85,42 @@ jobs:
           echo "deliberate_failure_outcome=${FAILURE_OUTCOME}"
           test "${FAILURE_OUTCOME}" = "failure"
 
+      - name: Build evidence file
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVIDENCE_DIR="$RUNNER_TEMP/infrastructure-smoke"
+          mkdir -p "$EVIDENCE_DIR"
+          {
+            echo "work_item=INFRASTRUCTURE-SPIKE-001"
+            echo "runner_name=${RUNNER_NAME:-unknown}"
+            echo "runner_os=${RUNNER_OS:-unknown}"
+            echo "runner_arch=${RUNNER_ARCH:-unknown}"
+            echo "host=$(hostname)"
+            echo "user=$(id -un)"
+            echo "event=${GITHUB_EVENT_NAME}"
+            echo "event_sha=${GITHUB_SHA}"
+            if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+              echo "pr_head=${{ github.event.pull_request.head.sha }}"
+            fi
+            echo "persistent_deploy_key=absent"
+            echo "development_bridge=active"
+            echo "deliberate_failure_path=observed"
+            echo "generated_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > "$EVIDENCE_DIR/evidence.txt"
+          sha256sum "$EVIDENCE_DIR/evidence.txt" > "$EVIDENCE_DIR/evidence.sha256"
+          cat "$EVIDENCE_DIR/evidence.txt"
+
+      - name: Upload smoke evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: infrastructure-smoke-evidence
+          path: ${{ runner.temp }}/infrastructure-smoke/
+          if-no-files-found: error
+          retention-days: 3
+
       - name: Write GitHub job summary
         if: always()
         shell: bash
@@ -102,4 +138,5 @@ jobs:
             echo "- Persistent deploy key under runner account: absent"
             echo "- Development Bridge service: checked"
             echo "- Deliberate failure path: exercised with continue-on-error"
+            echo "- Evidence artifact: \`infrastructure-smoke-evidence\`"
           } >> "$GITHUB_STEP_SUMMARY"
