@@ -28,9 +28,32 @@ Site/object instruction
 Project-specific policy
 ```
 
-Это не `last write wins`.
+Эта схема показывает composition layers, но **не означает simple precedence по позиции в списке** и не является `last write wins`.
 
-## 3. Non-weakening invariant
+## 3. Resolution dimensions
+
+Policy resolution должен отдельно учитывать как минимум:
+
+```text
+Authority / mandatory status
+Applicability / scope
+Specificity
+Effective date / version
+Explicit delegation / permitted local choice
+Comparability of constraints
+```
+
+Ключевые правила:
+
+- более specific local rule не получает право ослабить locked mandatory requirement только из-за specificity;
+- manufacturer constraint не считается автоматически «ниже» или «выше» government rule — сначала определяется applicability и совместимость requirements;
+- если mandatory source **явно делегирует** организации/объекту выбор параметра, procedure, threshold или формы внутри заданных границ, корректная local configuration внутри этой delegation не является weakening;
+- local rule вне delegated bounds является conflict;
+- если authority/applicability/comparability нельзя определить машинно, результат должен быть `REQUIRES_REVIEW`/configuration conflict, а не guessed precedence.
+
+Иными словами, specificity отвечает на вопрос «к какому объекту это относится», а authority/non-weakening — «что разрешено менять».
+
+## 4. Non-weakening invariant
 
 Для locked mandatory rule `R`:
 
@@ -41,6 +64,7 @@ local overlay may:
   reduce allowed range
   add required check/step
   add local wording/template
+  choose/configure value inside explicit delegated bounds
 
 local overlay may NOT:
   disable R
@@ -48,11 +72,12 @@ local overlay may NOT:
   convert blocking requirement into warning
   treat UNKNOWN as PASS where R requires proof
   suppress mandatory step solely by configuration
+  exceed an explicit delegated range/choice contract
 ```
 
 Attempted weakening создаёт configuration error, mandatory baseline остаётся effective.
 
-## 4. PolicyPackage
+## 5. PolicyPackage
 
 ```text
 PolicyPackage
@@ -74,7 +99,7 @@ Exact serialization остаётся PENDING.
 
 Package содержит formalized local policy, необходимую software. Original internal instruction не требуется копировать в shared development repository/corpus.
 
-## 5. Applicability
+## 6. Applicability
 
 Local package может target:
 
@@ -89,7 +114,7 @@ Local package может target:
 
 Site-name checks не должны размазываться по application code.
 
-## 6. Manufacturer/equipment constraints
+## 7. Manufacturer/equipment constraints
 
 Examples:
 
@@ -103,7 +128,7 @@ Examples:
 
 Public manufacturer sources могут использоваться during development. Restricted manuals остаются внутри authorized local/deployment environment, если redistribution не разрешена.
 
-## 7. Enterprise/site rules
+## 8. Enterprise/site rules
 
 Examples:
 
@@ -120,7 +145,7 @@ Source layer должен быть visible пользователю.
 
 Shared development проверяет mechanics на synthetic/cleared rules, а не real confidential instructions.
 
-## 8. Rule composition
+## 9. Rule composition
 
 Illustrative limit rule:
 
@@ -130,7 +155,7 @@ enterprise: X <= 80
 resolved: X <= 80
 ```
 
-Attempted site rule `X <= 120` создаёт `POLICY_CONFLICT_WEAKENING`.
+Attempted site rule `X <= 120` создаёт `POLICY_CONFLICT_WEAKENING`, если baseline не содержит explicit delegation, допускающую такое значение.
 
 Для boolean prerequisites:
 
@@ -140,9 +165,20 @@ local requires B
 resolved requires A AND B
 ```
 
+Пример explicit delegation:
+
+```text
+mandatory:
+  organization selects X in range 40..60
+site policy:
+  X = 50
+resolved:
+  X = 50   # valid delegated choice, not weakening
+```
+
 Если rules нельзя сравнить формально, требуется explicit composition semantics или human review, а не guess.
 
-## 9. Conflict classes
+## 10. Conflict classes
 
 ```text
 WEAKENING_ATTEMPT
@@ -152,16 +188,19 @@ MISSING_REQUIRED_SOURCE
 OUT_OF_SCOPE_REFERENCE
 EXPIRED_POLICY
 UNRESOLVED_APPLICABILITY
+INVALID_DELEGATED_VALUE
 ```
 
-Diagnostics идентифицируют обе conflicting rules/sources.
+Diagnostics идентифицируют conflicting rules/sources и relevant authority/delegation context.
 
-## 10. Policy authoring UX
+## 11. Policy authoring UX
 
 Target editor должен поддерживать:
 
 - source metadata;
+- authority/mandatory status;
 - applicability selectors;
+- delegated parameter/choice bounds where defined;
 - typed parameters;
 - explanation;
 - comparison с inherited baseline;
@@ -172,7 +211,7 @@ Target editor должен поддерживать:
 
 Early implementation может использовать structured local policy files + validation до появления full UI.
 
-## 11. Policy lifecycle
+## 12. Policy lifecycle
 
 Suggested states:
 
@@ -187,7 +226,7 @@ EXPIRED
 
 Нужно фиксировать package versions, active для released schemes/switching forms/project baseline.
 
-## 12. Project portability
+## 13. Project portability
 
 Project references required policy package identities/versions и показывает:
 
@@ -199,7 +238,7 @@ Project references required policy package identities/versions и показыв
 
 Если required safety/normative policy отсутствует, нельзя silently use defaults и показывать green validation.
 
-## 13. Development vs deployment storage
+## 14. Development vs deployment storage
 
 ### Shared development
 
@@ -208,6 +247,7 @@ Project references required policy package identities/versions и показыв
 - policy schema;
 - synthetic/cleared example packages;
 - non-weakening tests;
+- delegated-choice tests;
 - public manufacturer examples where redistribution is clear.
 
 Не должен требовать:
@@ -222,7 +262,7 @@ Authorized enterprise/site administrators могут создавать/install 
 
 Original internal source documents остаются governed предприятием и не должны покидать его environment.
 
-## 14. Deployment profiles
+## 15. Deployment profiles
 
 Предпочтительный pattern:
 
@@ -235,13 +275,15 @@ same executable
 
 Избегать per-site product forks.
 
-## 15. Tests
+## 16. Tests
 
 Каждый operational local policy package должен иметь:
 
 - schema validation;
 - source metadata validation;
+- authority/applicability resolution tests;
 - non-weakening check;
+- delegated-choice boundary tests where applicable;
 - positive/negative scenarios для critical rules;
 - compatibility с declared baseline;
 - effective-date checks;
@@ -249,7 +291,7 @@ same executable
 
 Product/framework tests используют synthetic packages. Site-specific acceptance tests могут выполняться locally против actual deployed policy package без publishing internal source material.
 
-## 16. Anti-goals
+## 17. Anti-goals
 
 Не реализовывать:
 
@@ -257,4 +299,5 @@ Product/framework tests используют synthetic packages. Site-specific a
 - `disableMandatoryRule=true`;
 - arbitrary site-specific code branches where data suffices;
 - opaque precedence based on file load order;
+- automatic assumption that a more specific rule has greater normative authority;
 - development process, требующий загрузки confidential enterprise instructions в проект.
