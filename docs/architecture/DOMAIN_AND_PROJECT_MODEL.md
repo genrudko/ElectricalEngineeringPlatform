@@ -47,8 +47,10 @@ Core attributes намеренно компактны:
 - object/site/voltage context;
 - typed properties;
 - terminal set;
-- state reference/current simulated state where applicable;
+- ссылки/bindings на state data where applicable;
 - source/provenance references.
+
+Observed/imported, simulated и planned state не должны смешиваться внутри одного неразличимого `currentState` field. Их context определяется отдельно, см. раздел 9.
 
 Equipment type definitions живут в Equipment Library, а не в giant inheritance hierarchy.
 
@@ -119,7 +121,7 @@ PATH_STATUS_UNKNOWN
 
 Unknown data не превращается в optimistic safe state.
 
-## 8. State
+## 8. State semantics
 
 State состоит из typed values с knowledge/quality semantics.
 
@@ -136,7 +138,39 @@ SignalQuality:
 
 `DEENERGIZED_PROVEN` намеренно отличается от отсутствия известного energized path при incomplete data.
 
-## 9. Signals
+## 9. State contexts
+
+Safety-relevant state всегда существует в явном context. Минимально архитектура различает:
+
+```text
+OBSERVED_BASELINE
+SIMULATED
+PLANNED_TARGET
+```
+
+Exact type names могут уточняться при реализации, но semantic separation обязательна.
+
+### `OBSERVED_BASELINE`
+
+Состояние, полученное из наблюдения, импорта, ручного ввода или другого accepted source. Должно сохранять source/provenance, quality и timestamp/revision where applicable.
+
+### `SIMULATED`
+
+Отдельный state context, получаемый при последовательном применении `SwitchingOperation` к выбранному baseline. Он не изменяет observed baseline и не утверждает фактическое состояние оборудования.
+
+### `PLANNED_TARGET`
+
+Желаемое/целевое состояние, если workflow требует его хранить. Оно не является ни observed, ни simulated state.
+
+Правила:
+
+- state query всегда выполняется относительно explicit context/snapshot;
+- `TopologyGraph` calculation, rule evaluation и Switching simulation получают state context явно;
+- simulated state нельзя silently persist как observed/current real-world state;
+- UI обязан различать baseline/simulation/target, если различие влияет на решение пользователя;
+- `UNKNOWN` и quality semantics сохраняются независимо в каждом context.
+
+## 10. Signals
 
 `Signal` — domain binding/reference, не обязательно online runtime channel.
 
@@ -151,7 +185,7 @@ SignalQuality:
 
 NPT ASU/TECH implementation details остаются в NPT adapter/catalog.
 
-## 10. Views
+## 11. Views
 
 `View` — controlled representation поверх project entities.
 
@@ -167,7 +201,7 @@ NPT ASU/TECH implementation details остаются в NPT adapter/catalog.
 
 View хранит entity inclusion/filters, representation profile, geometry/layout, labels/annotations, layer/group settings и layout constraints, но не duplicate authoritative topology.
 
-## 11. Layout constraints
+## 12. Layout constraints
 
 Manual correction после auto-layout является first-class data:
 
@@ -182,7 +216,7 @@ Manual correction после auto-layout является first-class data:
 
 Auto-layout обязан сохранять protected constraints при incremental updates.
 
-## 12. Provenance
+## 13. Provenance
 
 Imported/generated entities сохраняют достаточно provenance для объяснения origin и reconciliation:
 
@@ -198,7 +232,7 @@ SourceRef
 
 Provenance не является canonical identity.
 
-## 13. Compliance profile references
+## 14. Compliance profile references
 
 ```text
 ProjectCompliance
@@ -213,13 +247,13 @@ ProjectCompliance
 
 Resolved rules/source versions, использованные для release, должны быть snapshot-able/auditable.
 
-## 14. Module extensions
+## 15. Module extensions
 
 Vendor/module-specific information, которое должно пережить round-trip, но не имеет neutral meaning, хранится в namespaced module extensions, например `extensions.npt`.
 
 Extension не становится required для interpretation neutral topology без отдельного ADR/model change.
 
-## 15. Undo/redo и transactions
+## 16. Undo/redo и transactions
 
 Engineering changes представлены как transactions/change sets:
 
@@ -228,11 +262,11 @@ Engineering changes представлены как transactions/change sets:
 - apply approved `ImportPlan`;
 - change property;
 - change layout constraint;
-- apply simulated switching operation.
+- apply simulated switching operation к explicit `SIMULATED` context.
 
-Simulation state и persisted observed/current state должны оставаться явно разделёнными.
+Observed/imported baseline state, simulated state и planned/target state остаются разделёнными на model/API boundary, а не только визуально в UI.
 
-## 16. Native project format requirements
+## 17. Native project format requirements
 
 До выбора serialization implementation должен доказать:
 
@@ -245,7 +279,7 @@ Simulation state и persisted observed/current state должны остават
 - diffability/diagnostics;
 - отсутствие hidden dependency на GUI-framework object serialization.
 
-## 17. Non-goals initial Core
+## 18. Non-goals initial Core
 
 Не включать заранее:
 
