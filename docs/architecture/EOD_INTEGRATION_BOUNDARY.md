@@ -1,31 +1,31 @@
-# Optional EOD Integration Boundary
+# Граница optional EOD integration
 
-Статус: canonical foundation document  
+Статус: канонический Foundation-документ  
 Decision state: **FEASIBILITY-GATED / NOT COMMITTED**
 
-## 1. Objective
+## 1. Цель
 
-Explore whether the electrical platform can be exposed as an optional module/capability inside Electronic Operational Documentation (EOD) **without compromising standalone architecture or materially increasing development/release cost**.
+Проверить, можно ли представить Electrical Engineering Platform как optional capability/module рядом с Electronic Operational Documentation (EOD) **без нарушения standalone architecture и без существенного роста development/release cost**.
 
-Integration is desirable only if cheap, bounded and operationally useful.
+Интеграция имеет смысл только если она дешёвая, bounded и operationally useful.
 
-## 2. Factual EOD baseline verified during Foundation
+## 2. Фактический EOD baseline
 
-The EOD repository already contains an accepted and implemented optional-module control plane.
+В EOD repository уже существует accepted optional-module control plane.
 
-Verified evidence at 2026-08-18:
+Verified evidence на 2026-08-18:
 
-- EOD `MODULE-ACTIVATION-CONTRACT-001` was accepted/merged in PR #62;
-- EOD `MODULE-REGISTRY-001` was completed/merged in PR #68;
-- v1 activation scopes are `ORGANIZATION`, `ENERGY_SITE`, `WORKPLACE`;
-- the registry has stable module IDs/capabilities, scoped activation, lifecycle/audit semantics and central access decisions;
-- optional integration is an explicit supported concept and does not need to become a hard dependency.
+- `MODULE-ACTIVATION-CONTRACT-001` accepted/merged в PR #62;
+- `MODULE-REGISTRY-001` completed/merged в PR #68;
+- activation scopes: `ORGANIZATION`, `ENERGY_SITE`, `WORKPLACE`;
+- registry имеет stable module IDs/capabilities, scoped activation, lifecycle/audit semantics и central access decisions;
+- optional integration является explicit supported concept и не требует hard dependency.
 
-### Architectural implication
+### Архитектурное следствие
 
-This materially improves feasibility of Level 2 integration.
+Это materially повышает feasibility Level 2 integration.
 
-Preferred design:
+Предпочтительный design:
 
 ```text
 EOD
@@ -40,7 +40,7 @@ EOD
 Standalone Electrical Desktop Application
 ```
 
-EOD registry controls whether the bridge capability is available in a given EOD scope. It does not automatically authorize mutations inside the desktop application.
+EOD registry определяет доступность bridge capability в конкретном EOD scope, но не authorizes автоматически mutations внутри desktop application.
 
 ## 3. Non-negotiable principle
 
@@ -50,7 +50,7 @@ Standalone Electrical Product
           └── optional EOD Adapter / EOD Bridge Module
 ```
 
-Never:
+Не допускается:
 
 ```text
 EOD runtime
@@ -58,29 +58,29 @@ EOD runtime
 Electrical Product Core
 ```
 
-Domain Core, project storage, Scheme, Import and Switching must work when EOD is absent.
+Domain Core, project storage, Scheme, Import и Switching работают при полном отсутствии EOD.
 
-## 4. Potential useful integration scenarios
+## 4. Полезные integration scenarios
 
-- EOD module registry/launcher opens the standalone complex;
-- deep link from EOD object/workplace to electrical project/view/equipment;
-- deep link from electrical product back to related EOD document/journal/instruction;
-- bounded context handoff: organization/site/workplace/user/project/equipment IDs where both products support them;
-- attach/reference released scheme or switching form in EOD workflow;
-- optional shared identity/session context if a future explicit contract makes it cheap and secure;
-- module availability/activation controlled by existing EOD registry without EOD owning electrical project data.
+- EOD module registry/launcher открывает standalone complex;
+- deep link из EOD object/workplace в electrical project/view/equipment;
+- deep link из electrical product обратно в related EOD document/journal;
+- bounded context handoff: organization/site/workplace/user/project/equipment IDs там, где обе стороны это поддерживают;
+- reference released scheme/switching form в EOD workflow;
+- optional shared identity/session context, если future contract докажет низкую стоимость и достаточную security;
+- module availability/activation контролируется existing EOD registry без передачи EOD ownership электрического project data.
 
-Prefer links/contracts over embedding the entire desktop UI runtime.
+Предпочтение — links/contracts, а не embedding всего desktop UI runtime.
 
 ## 5. Integration levels
 
 ### Level 0 — none
 
-Products operate independently. Always supported.
+Products работают независимо. Этот режим поддерживается всегда.
 
 ### Level 1 — launcher/deep-link bridge
 
-EOD launches/focuses standalone application with typed context.
+EOD запускает/focus standalone application с typed context.
 
 Conceptual URIs:
 
@@ -90,48 +90,52 @@ electrical://project/{id}/equipment/{id}
 electrical://project/{id}/switching/{sequenceId}
 ```
 
-Exact URI/security contract is PENDING.
+Exact URI/security contract остаётся PENDING.
 
 ### Level 2 — bounded EOD bridge module + context integration
 
-EOD exposes a first-party bridge module through its existing module registry and passes bounded context to the standalone application. Runtime and electrical project storage remain independent.
+EOD exposes first-party bridge module через existing module registry и передаёт bounded context standalone application.
 
-Because EOD already has accepted scoped activation and optional-integration semantics, this is the preferred feasibility target subject to an executable spike.
+Runtime и electrical project storage остаются независимыми.
+
+Поскольку EOD уже имеет accepted scoped activation и optional-integration semantics, Level 2 является preferred feasibility target subject to executable spike.
 
 ### Level 3 — embedded native UI/runtime integration
 
-High cost/risk. Not accepted by default. The existence of an EOD module registry does not justify embedding Qt/Avalonia desktop UI into Django/web runtime.
+High cost/risk. Не принимается по умолчанию.
+
+Наличие EOD module registry не является основанием для embedding Qt/Avalonia desktop UI в Django/web runtime.
 
 ## 6. Feasibility gate
 
-Accept only if a small spike demonstrates:
+Интеграция принимается только если small spike докажет:
 
-1. standalone application remains unchanged in Core architecture;
-2. EOD bridge/adapter can be removed/disabled cleanly;
-3. Domain Core contains zero EOD-specific mandatory fields/types;
-4. narrow versioned integration contract;
+1. standalone application сохраняет Core architecture;
+2. EOD bridge/adapter cleanly removable/disable-able;
+3. Domain Core содержит zero EOD-specific mandatory fields/types;
+4. integration contract narrow и versioned;
 5. existing EOD module manifest/activation semantics reused rather than forked;
-6. no separate fork of electrical UI shell;
-7. packaging/release duplication is small and measurable;
-8. EOD unavailability does not prevent local project work;
-9. access control/context handoff is explicit and auditable;
-10. EOD scope activation is not mistaken for desktop-project authorization;
-11. maintenance burden is acceptable for a small team.
+6. нет separate fork electrical UI shell;
+7. packaging/release duplication мала и измерима;
+8. EOD unavailability не блокирует local project work;
+9. access control/context handoff explicit и auditable;
+10. EOD scope activation не путается с desktop-project authorization;
+11. maintenance burden приемлем для небольшой команды.
 
 ## 7. Reject/cost triggers
 
-Reject/defer if integration requires:
+Reject/defer, если integration требует:
 
-- EOD-specific entities in neutral Domain Core;
-- required EOD network/runtime dependency for normal work;
+- EOD-specific entities в neutral Domain Core;
+- required EOD network/runtime dependency для normal work;
 - duplicate embedded vs standalone UI;
 - pervasive `if (eodMode)` branches;
 - separate long-lived product fork;
-- duplicated authoritative electrical databases with bidirectional sync;
+- duplicated authoritative electrical databases с bidirectional sync;
 - substantial independent installer/release pipeline;
-- privileged EOD/server credentials on development runners;
-- desktop/web framework compromise solely for embedding;
-- second competing activation mechanism instead of existing EOD registry.
+- privileged EOD/server credentials на development runners;
+- desktop/web framework compromise только ради embedding;
+- second competing activation mechanism вместо existing EOD registry.
 
 ## 8. Data ownership
 
@@ -144,7 +148,7 @@ Reject/defer if integration requires:
 | EOD bridge activation/audit | EOD module registry |
 | cross-links/context mappings | explicit integration record / bridge contract |
 
-Do not create silent mirrored authoritative copies.
+Silent mirrored authoritative copies запрещены.
 
 ## 9. Identity mapping
 
@@ -156,38 +160,42 @@ EOD related object/document
 ↔ Electrical equipment/view/sequence/release reference
 ```
 
-Mapping must be explicit, versioned and repairable. Display names are not stable identity keys.
+Mapping должен быть explicit, versioned и repairable. Display names не являются stable identity keys.
 
-## 10. Authentication and permissions
+## 10. Authentication и permissions
 
-- adapter receives minimum required claims/context;
-- standalone local mode remains defined;
-- electrical mutation authorization remains owned by electrical product unless explicitly delegated by accepted contract;
-- EOD `ModuleAccessDecision` controls EOD bridge access, not every desktop action;
-- a deep link is not authorization by itself;
-- signed/short-lived launch context should be evaluated rather than trusting arbitrary URI parameters when identity matters.
+- adapter получает minimum required claims/context;
+- standalone local mode остаётся defined;
+- electrical mutation authorization принадлежит electrical product, если accepted contract явно не делегирует её;
+- EOD `ModuleAccessDecision` контролирует EOD bridge access, а не каждый desktop action;
+- deep link сам по себе не является authorization;
+- signed/short-lived launch context должен рассматриваться вместо доверия arbitrary URI parameters, когда identity имеет значение.
 
 ## 11. UX boundary
 
-Preferred UX is seamless-but-separate: EOD exposes the capability only where registry allows it, one action opens/focuses the desktop application on relevant context, and cross-links avoid duplicate manual navigation.
+Предпочтительный UX — seamless-but-separate:
 
-Do not force an embedded web-like experience if it degrades professional desktop UX or multi-monitor support.
+- EOD показывает capability только там, где registry её разрешает;
+- одно действие открывает/focus desktop application на relevant context;
+- cross-links убирают duplicate navigation.
+
+Не форсировать embedded web-like experience, если он ухудшает professional desktop UX или multi-monitor support.
 
 ## 12. Suggested feasibility spike
 
 1. inspect/reuse current EOD module manifest/capability API;
-2. register `ELECTRICAL-BRIDGE` test module/capability;
-3. activate it for selected EOD scopes;
-4. pass typed context where mappings exist;
-5. open/focus standalone electrical preview app;
-6. produce callback/deep link to EOD record;
-7. prove inactive bridge is hidden/blocked through existing EOD access seam;
-8. measure changed files/dependencies/packaging/maintenance burden;
-9. demonstrate standalone electrical operation with EOD adapter removed.
+2. зарегистрировать `ELECTRICAL-BRIDGE` test module/capability;
+3. активировать его для selected EOD scopes;
+4. передать typed context, где mappings существуют;
+5. открыть/focus standalone electrical preview app;
+6. создать callback/deep link to EOD record;
+7. доказать, что inactive bridge hidden/blocked через existing EOD access seam;
+8. измерить changed files/dependencies/packaging/maintenance burden;
+9. продемонстрировать standalone electrical operation с removed EOD adapter.
 
-No shared database and no embedded full UI in first spike.
+No shared database и no embedded full UI в first spike.
 
-## 13. Current feasibility assessment
+## 13. Текущая feasibility assessment
 
 Likely low-cost path:
 
@@ -198,7 +206,7 @@ EOD first-party bridge module
 + standalone desktop app
 ```
 
-Exact bridge API, context security and deployment cost remain unproven.
+Exact bridge API, context security и deployment cost пока не доказаны.
 
 ## 14. Decision outcome
 
@@ -209,4 +217,4 @@ DEFER
 REJECT_TOO_EXPENSIVE
 ```
 
-`REJECT_TOO_EXPENSIVE` is a valid engineering result; EOD integration must not distort the main product.
+`REJECT_TOO_EXPENSIVE` является допустимым инженерным результатом. EOD integration не должна искажать основной продукт.
