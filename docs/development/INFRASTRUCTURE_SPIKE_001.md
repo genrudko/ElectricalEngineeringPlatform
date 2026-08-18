@@ -1,6 +1,6 @@
 # INFRASTRUCTURE-SPIKE-001 — GitHub ↔ development VPS
 
-Статус: **ACTIVE — GitHub/VPS runner baseline PROVEN; Bridge hardening remains**  
+Статус: **ACTIVE — GitHub/VPS runner baseline PROVEN; Bridge v0.2 DEPLOYED; ChatGPT Action E2E remains**  
 Issue: #3  
 Branch: `infrastructure/infrastructure-spike-001`  
 Draft PR: #4
@@ -51,7 +51,10 @@ eepbridge
 - runner name: `eep-development-vps`;
 - runner labels: `self-hosted`, `linux`, `x64`, `eep-vps`;
 - runner work root: `/home/eep-runner/actions-runner`;
-- interactive repository workspace: `/home/eep-workspace/workspace/ElectricalEngineeringPlatform`.
+- interactive repository workspace: `/home/eep-workspace/workspace/ElectricalEngineeringPlatform`;
+- Bridge application root: `/opt/eep-dev-bridge`;
+- Bridge state root: `/var/lib/eep-dev-bridge`;
+- Bridge bind: `127.0.0.1:8788` behind existing Caddy TLS endpoint.
 
 ## 3. Phase A — безопасный repository access с VPS — PROVEN
 
@@ -123,17 +126,19 @@ Canonical infrastructure smoke workflow:
 - `persist-credentials: false`;
 - clean workspace preparation.
 
+External Actions в persistent self-hosted workflow pinned на immutable commit SHA, а не на floating tags.
+
 Важно: `GITHUB_SHA` для `pull_request` может представлять synthetic merge ref, поэтому formal PR-head authority записывается отдельно как `github.event.pull_request.head.sha` и сравнивается с actual branch ref + checked-out `HEAD`.
 
 ## 6. Smoke / failure / artifact evidence — PROVEN
 
-Первый baseline workflow доказал execution path. После уточнения exact-checkout contract current successful evidence:
+Current successful evidence для Bridge deployment source commit:
 
 - workflow: `Infrastructure Smoke`;
-- run ID: `32172549233`;
-- job ID: `95826882592`;
+- run ID: `32175626537`;
+- job ID: `95836766611`;
 - runner: `eep-development-vps`;
-- head: `73c50b47c3408d63e0455a63c15584dda661c324`;
+- exact head: `45047e86974bd46fe55a3209bd5a3667375c15c3`;
 - job conclusion: `success`.
 
 Успешно выполнены:
@@ -143,6 +148,9 @@ Canonical infrastructure smoke workflow:
 - exact event-head checkout;
 - checked-out `HEAD` verification;
 - clean Git worktree verification;
+- Bridge installer syntax validation;
+- Bridge Python compile + 9 bounded-policy unit tests;
+- static rejection of arbitrary-command primitives;
 - runner persistent credential isolation;
 - `EEP Development Bridge` service health check;
 - deliberate failure (`exit 17`) с ожидаемым readable diagnostic path;
@@ -152,13 +160,13 @@ Canonical infrastructure smoke workflow:
 - GitHub job summary;
 - explicit temporary evidence cleanup.
 
-Artifact:
+Current artifact:
 
 ```text
 name: infrastructure-smoke-evidence
-artifact id: 9337793243
-size: 667 bytes
-digest: sha256:b9594875fc5022585ea7b460f7ce52191076ecf94c3730297ae83501235bf59f
+artifact id: 9338897252
+size: 683 bytes
+digest: sha256:e87113cbe4c68b4a155f316e41503e162cda71afb9282f48e9c81221817273da
 retention: 3 days
 ```
 
@@ -228,9 +236,9 @@ Baseline rules:
 - repository checkout перед formal job очищается;
 - fixed persistent workspace не считается canonical state.
 
-## 10. Development Bridge compatibility
+## 10. Development Bridge v0.2 — DEPLOYED
 
-Existing `EEP Development Bridge` runner не заменяет.
+Bridge и runner остаются разными contours:
 
 ```text
 Interactive:
@@ -240,31 +248,88 @@ Formal:
 GitHub Actions → self-hosted runner → VPS
 ```
 
-Infrastructure smoke проверяет, что `eep-dev-bridge.service` остаётся active после runner installation/jobs/restart.
+Bridge v0.2 source находится в:
 
-Разделение identities/credentials обязательно сохраняется.
+- `tools/development_bridge/app.py`;
+- `tools/development_bridge/bridge_core.py`;
+- `tools/development_bridge/tests/test_bridge_core.py`;
+- `tools/development_bridge/openapi-action.yaml`;
+- `scripts/install_development_bridge.sh`.
 
-## 11. Что ещё осталось в полном `INFRASTRUCTURE-SPIKE-001`
+Runtime deployed из exact commit:
 
-GitHub↔VPS runner subphase доказана. Но canonical `NEXT_WORK_ITEMS.md` также требует production-quality hardening интерактивного Bridge.
+```text
+45047e86974bd46fe55a3209bd5a3667375c15c3
+```
 
-Открытый Bridge scope:
+Owner deployment evidence:
 
-- fixed allowed repository/workspace roots;
-- typed/allowlisted read operations;
-- bounded execution profiles вместо arbitrary shell;
-- path normalization/escape prevention;
-- task IDs/status/logs для long tasks;
-- timeout/cancellation;
-- output truncation/size limits;
-- concurrency limit;
-- audit log;
-- token rotation/recovery procedure;
-- deterministic task profiles, которые позже разделяются с runner через `./dev` contract.
+```text
+PASS: EEP Development Bridge v0.2 deployed
+Backup: /var/backups/eep-dev-bridge/20260818T192334Z
+Bridge: active, authenticated, OpenAPI/docs hidden
+Bridge state: writable only at /var/lib/eep-dev-bridge
+Repo sync: timer enabled, read-only deploy key remains isolated
+```
 
-Следовательно, **runner baseline не является автоматическим acceptance всего `INFRASTRUCTURE-SPIKE-001`**. PR #4 остаётся Draft до завершения Bridge hardening и owner acceptance либо до отдельного owner decision явно разделить work item.
+После deployment дополнительно подтверждено:
 
-## 12. Issue #3 acceptance matrix — GitHub/VPS part
+- `eep-dev-bridge.service`: `active`;
+- GitHub runner service: `active`;
+- `eep-workspace-sync.timer`: `active`;
+- unauthenticated `/health` и `/status` требуют bearer auth;
+- `/openapi.json`, `/docs`, `/redoc` не публикуются runtime service;
+- `eepbridge` имеет read-only доступ к fixed repository root;
+- `eepbridge` не может писать repository root или `.git`;
+- `eepbridge` не может читать deploy key `eep-workspace`;
+- Bridge state writable только в dedicated `/var/lib/eep-dev-bridge` через systemd hardening exception;
+- audit `service_start` запись создаётся после старта;
+- bounded task concurrency = 1;
+- task timeout и bounded output реализованы;
+- arbitrary shell endpoint отсутствует;
+- allowed execution profiles ограничены `bridge_compile` и `bridge_selftest`.
+
+## 11. Failure/rollback evidence Bridge deployment
+
+Hardening deployment специально не считался успешным до реального runtime start.
+
+Во время доводки были обнаружены и исправлены два инфраструктурных дефекта:
+
+1. **Git cross-owner safety** — `eepbridge` получил `dubious ownership` при работе с checkout владельца `eep-workspace`. Исправлено точечным `git -c safe.directory=<fixed-root>`; глобальный wildcard `safe.directory=*` не используется.
+2. **systemd read-only namespace** — при `ProtectSystem=strict` `/var/lib/eep-dev-bridge/audit.jsonl` был read-only, несмотря на корректного Linux owner. Исправлено через dedicated `StateDirectory=eep-dev-bridge` + `ReadWritePaths=/var/lib/eep-dev-bridge`, а не отключением systemd sandbox.
+
+В обоих случаях installer остановил rollout и восстановил предыдущий working Bridge. После второго исправления deployment завершился PASS.
+
+Installer теперь выполняет preflight Python compile до замены working runtime и содержит rollback source/systemd override при ошибке deployment.
+
+## 12. Bounded Bridge API contract
+
+Runtime OpenAPI intentionally hidden; canonical ChatGPT Action schema хранится отдельно в Git:
+
+`tools/development_bridge/openapi-action.yaml`
+
+Allowlisted surface:
+
+```text
+GET  /health
+GET  /status
+GET  /workspace/status
+GET  /repository/status
+GET  /git/status
+GET  /git/diff
+GET  /files
+GET  /search
+POST /tasks/run
+GET  /tasks/{task_id}
+GET  /tasks/{task_id}/log
+POST /tasks/{task_id}/cancel
+```
+
+Execution API принимает только typed profile + validated ref. Допустимый ref — full lowercase 40-char SHA либо bounded `origin/<branch>` без Git revision operators.
+
+File read API ограничен fixed repository root, нормализует path, блокирует absolute/path traversal/symlink escape и возвращает только bounded UTF-8 output.
+
+## 13. Issue #3 acceptance matrix
 
 | # | Criterion | State | Evidence |
 |---|---|---|---|
@@ -273,17 +338,54 @@ GitHub↔VPS runner subphase доказана. Но canonical `NEXT_WORK_ITEMS.m
 | 3 | runner Online | PASS | jobs received/executed |
 | 4 | PR workflow picked by intended runner | PASS | `eep-development-vps` |
 | 5 | exact head + runner identity recorded | PASS | workflow logs/artifact |
-| 6 | deterministic smoke succeeds | PASS | run `32172549233` |
+| 6 | deterministic smoke succeeds | PASS | run `32175626537` |
 | 7 | deliberate failure diagnostic | PASS | controlled `exit 17` + asserted outcome |
-| 8 | small artifact in GitHub | PASS | artifact `9337793243` |
+| 8 | small artifact in GitHub | PASS | artifact `9338897252` |
 | 9 | result inspectable without SSH | PASS | GitHub connector/actions evidence |
 | 10 | runner returns usable | PASS | successful rerun after service restart |
-| 11 | existing Bridge functional | PASS | service health check in job |
+| 11 | existing Bridge functional | PASS | Bridge v0.2 deployment PASS + service active |
 | 12 | no broad long-lived GitHub credential on runner | PASS | deploy key absent + read-only `GITHUB_TOKEN` |
 
-## 13. Следующий шаг внутри work item
+Additional Bridge-hardening acceptance:
 
-Перейти к bounded `EEP Development Bridge` hardening, не создавая новый issue/branch/PR.
+| Criterion | State | Evidence |
+|---|---|---|
+| fixed repository/workspace root | PASS | runtime `/home/eep-workspace/workspace/ElectricalEngineeringPlatform` |
+| typed/allowlisted read operations | PASS | v0.2 API source + tests |
+| no arbitrary shell | PASS | fixed task profiles + static workflow check |
+| path escape prevention | PASS | unit tests for absolute/parent/symlink escape |
+| task ID/status/log/cancel | PASS | v0.2 API contract |
+| timeout/output bounds/concurrency 1 | PASS | v0.2 implementation |
+| audit state writable under hardened systemd | PASS | deployment audit-write verification |
+| repo credential isolation | PASS | owner deployment checks |
+| authenticated ChatGPT Action end-to-end | **PENDING** | requires Action schema update + Project-chat invocation |
+| token rotation/recovery procedure | **PENDING DOC/EVIDENCE** | do not rotate working token solely for ceremony |
+
+## 14. Следующий шаг внутри work item
+
+Следующий шаг — не SSH и не новый server patch.
+
+Нужно обновить ChatGPT Action на schema:
+
+`tools/development_bridge/openapi-action.yaml`
+
+После этого из Project-чата выполнить authenticated E2E:
+
+```text
+getBridgeHealth
+→ getServerStatus
+→ getWorkspaceStatus
+→ getRepositoryStatus
+→ readWorkspaceFile
+→ searchWorkspace
+→ runBridgeTask(profile=bridge_selftest, ref=<exact SHA/origin branch>)
+→ poll task
+→ read bounded log
+```
+
+Если этот contour проходит, остаётся зафиксировать token rotation/recovery procedure и провести owner acceptance всего `INFRASTRUCTURE-SPIKE-001`.
+
+PR #4 остаётся **DRAFT / DO NOT MERGE** до явной owner acceptance.
 
 После полного acceptance `INFRASTRUCTURE-SPIKE-001` следующий product work item:
 
