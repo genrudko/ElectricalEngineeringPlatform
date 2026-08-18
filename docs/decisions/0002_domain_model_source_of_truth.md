@@ -1,37 +1,47 @@
-# ADR 0002 — Neutral Domain Model as Source of Truth
+# ADR 0002 — Neutral Domain Model как Source of Truth
 
-Status: **ACCEPTED by owner direction / recorded in UNIFIED-FOUNDATION-001**  
-Date: 2026-08-18
+Статус: **ACCEPTED по owner direction / зафиксирован в `UNIFIED-FOUNDATION-001`**  
+Дата: 2026-08-18
 
-## Context
+## Контекст
 
-The product must support native schemes, structured CSV/XLSX import, NPT XSDE/XTABL compatibility, Visio interoperability and Switching/TBP without creating competing authoritative models.
+Продукт должен поддерживать native schemes, structured CSV/XLSX import, NPT XSDE/XTABL compatibility, Visio interoperability и Switching/TBP без создания competing authoritative models.
 
-## Decision
+## Решение
 
-`ElectricalProject` and its neutral electrical domain model are the engineering source of truth.
+`ElectricalProject` и его neutral electrical domain model являются engineering source of truth.
 
-Core semantic ownership includes stable equipment identity, equipment type/properties, terminals, connections, topology, state/quality semantics, neutral signal bindings, project/view references and compliance profile references.
+Core semantic ownership включает:
 
-Views and external formats are projections/adapters.
+- stable equipment identity;
+- equipment type/properties;
+- terminals;
+- connections;
+- topology;
+- state/quality semantics;
+- neutral signal bindings;
+- project/view references;
+- compliance profile references.
 
-NPT-specific identifiers/serialization and EOD-specific identifiers must not become required Core fields.
+Views и external formats являются projections/adapters.
 
-Topology is distinct from diagram geometry.
+NPT-specific identifiers/serialization и EOD-specific identifiers не становятся required Core fields.
 
-`UNKNOWN` is first-class and never silently collapsed into a safe/negative state.
+Topology отделена от diagram geometry.
 
-## Consequences
+`UNKNOWN` — first-class state и никогда не collapse молча в safe/negative state.
 
-- CSV/XLSX import uses staging/reconciliation before Domain mutation;
-- Scheme module stores layout/views separately from electrical connections;
-- NPT module translates/preserves vendor data behind adapter boundary;
-- Switching module consumes shared topology/state;
-- project persistence must be versioned/migratable and framework-neutral.
+## Последствия
 
-## Rejected alternatives
+- CSV/XLSX import использует staging/reconciliation до Domain mutation;
+- Scheme module хранит layout/views отдельно от electrical connections;
+- NPT module переводит/preserves vendor data за adapter boundary;
+- Switching module потребляет shared topology/state;
+- project persistence versioned/migratable и framework-neutral.
 
-- Diagram canvas as source of truth — rejected because moving geometry must not redefine topology.
-- XSDE/NPT as source of truth — rejected due vendor lock/pollution of native semantics.
-- Excel/CSV as native project format — rejected due insufficient topology/state/view/versioning semantics.
-- TBP own equipment database — rejected due duplicate identity/topology.
+## Отклонённые альтернативы
+
+- **Diagram canvas as source of truth** — rejected: moving geometry не должна redefine topology.
+- **XSDE/NPT as source of truth** — rejected из-за vendor lock и pollution native semantics.
+- **Excel/CSV as native project format** — rejected из-за недостаточной topology/state/view/versioning semantics.
+- **Switching/TBP own equipment database** — rejected из-за duplicate identity/topology.
