@@ -8,6 +8,10 @@ Different enterprises, sites and equipment fleets may have legitimate additional
 
 The product must support this **without allowing local configuration to weaken an applicable mandatory requirement**.
 
+Important development-boundary decision:
+
+> Internal enterprise/site instructions are not required shared development inputs and should not be uploaded into GitHub, ChatGPT project storage or the common VPS corpus. The capability is developed using synthetic/cleared examples and applied inside the authorized deployment environment.
+
 ## 2. Layer model
 
 ```text
@@ -68,6 +72,8 @@ PolicyPackage
 
 Exact serialization is PENDING.
 
+The package contains the formalized local policy needed by the software. It does not require the original internal instruction document to be copied into the shared development repository/corpus.
+
 ## 5. Applicability
 
 A local package may target enterprise, branch/site/object, voltage level, equipment type, manufacturer/model, specific bay/installation class, switching operation category or document/scheme profile.
@@ -86,6 +92,8 @@ Examples:
 
 Require source manual revision/model applicability and distinguish from government norms/company policy.
 
+Public manufacturer sources may be used during development where available. Restricted manuals stay in the authorized local/deployment environment unless redistribution is permitted.
+
 ## 7. Enterprise/site rules
 
 Examples:
@@ -100,6 +108,8 @@ Examples:
 - stricter scheme-release/approval process.
 
 Source layer must be shown to user.
+
+Shared development verifies these mechanics with synthetic/cleared rules, not real confidential instructions.
 
 ## 8. Rule composition
 
@@ -141,7 +151,7 @@ Diagnostics identify both rules/sources.
 
 Target editor should support source metadata, applicability selectors, typed parameters, explanation, comparison with inherited baseline, preview of resolved policy, conflict validation, test scenarios and revision history/diff.
 
-Early implementation may use version-controlled structured files plus validation before a full UI exists.
+Early implementation may use structured local policy files plus validation before a full UI exists.
 
 ## 11. Policy lifecycle
 
@@ -164,11 +174,28 @@ A project references required policy package identities/versions and reports ava
 
 If required safety/normative policy is missing, do not silently use defaults and show green validation.
 
-## 13. Public vs private storage
+## 13. Development vs deployment storage
 
-Enterprise/site/manufacturer policy material may be confidential/proprietary.
+### Shared development
 
-Architecture allows public/product repo to contain schema/examples only and private policy packages on controlled VPS/local deployment.
+May contain:
+
+- policy schema;
+- synthetic/cleared example packages;
+- non-weakening tests;
+- public manufacturer examples where redistribution is clear.
+
+Must not require:
+
+- real enterprise instructions;
+- site operational instructions;
+- confidential approval documents.
+
+### Real deployment
+
+Authorized enterprise/site administrators may create/install policy packages from their internal documentation inside the controlled environment.
+
+Original internal source documents remain governed by the enterprise and do not need to leave that environment.
 
 ## 14. Deployment profiles
 
@@ -187,6 +214,8 @@ Avoid per-site product forks.
 
 Every operational local policy package should have schema validation, source metadata validation, non-weakening check, positive/negative scenarios for critical rules, compatibility with declared baseline, effective-date checks and resolution snapshot test.
 
+The product/framework tests use synthetic packages. Site-specific acceptance tests may run locally against the actual deployed policy package without publishing internal source material.
+
 ## 16. Anti-goals
 
-Do not implement unrestricted scripting from policy files, `disableMandatoryRule=true`, arbitrary site-specific code branches where data suffices, or opaque precedence based on file load order.
+Do not implement unrestricted scripting from policy files, `disableMandatoryRule=true`, arbitrary site-specific code branches where data suffices, opaque precedence based on file load order, or a development process that requires uploading confidential enterprise instructions to the project.
