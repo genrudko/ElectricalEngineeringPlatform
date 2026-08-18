@@ -10,7 +10,7 @@
 - Bootstrap commit: `5aa73328917447fb410489e8f67685ee4907ae66`.
 - Активный issue: #1 `UNIFIED-FOUNDATION-001`.
 - Активная branch: `architecture/unified-foundation-001`.
-- Foundation Draft PR: #2 `UNIFIED-FOUNDATION-001 — establish canonical platform foundation`.
+- Foundation Draft PR: #2 `UNIFIED-FOUNDATION-001 — канонический Foundation Electrical Engineering Platform`.
 - PR #2 остаётся **OPEN / DRAFT / NOT MERGED** до отдельной owner acceptance и явной команды на Ready/Merge.
 - Previous Foundation source в `genrudko/electroscheme-studio` issue #5 / Draft PR #6 закрыт как superseded и остаётся historical migration evidence.
 - Tauri desktop spike в `genrudko/electroscheme-studio` issue #3 / Draft PR #4 остаётся research evidence only.
@@ -36,16 +36,19 @@ Exact head, compare state, changed files и workflow/check state являютс�
 - Compliance Core с versioned normative provenance;
 - topology отделена от geometry;
 - State model с first-class `UNKNOWN`;
+- observed/baseline, simulated и planned/target state contexts разделены на model/API boundary;
 - structured CSV/XLSX Import + reconciliation + auto-layout;
 - ГОСТ/ЕСКД graphic profiles;
 - switching rules с привязкой к current Russian energy-sector normative sources;
-- local policy overlays не могут ослаблять applicable mandatory baseline;
+- Local Policy resolution различает authority, applicability, specificity и explicit delegation;
+- local policy overlays не могут ослаблять applicable locked mandatory baseline, кроме корректного выбора внутри явно delegated bounds;
 - NPT compatibility находится за module/adapter boundary;
 - optional EOD integration — только через strict feasibility/cost gate;
 - GitHub — canonical control plane;
 - existing VPS — development execution plane;
 - risk-based CI и visual-first UI acceptance;
 - final platform stack — только после equivalent Avalonia-vs-Qt executable spike;
+- Windows build/package lane должна быть доказана отдельно, потому что existing VPS является Linux host;
 - русский — язык продукта/UI/canonical documentation;
 - английский — язык internal technical/domain layer с professional power-engineering terminology.
 
@@ -159,6 +162,7 @@ Business/MCP/OpenAI API не являются required dependencies current deve
 
 - Avalonia vs Qt final selection;
 - heavy-canvas performance на representative workload;
+- reproducible Windows build/test/package lane в no-new-mandatory-paid-service baseline;
 - exact native project package format/schema v1;
 - complete equipment-type library;
 - completeness/correctness NPT `nodes` как topology source;
@@ -233,6 +237,7 @@ hardening Development Bridge
         ↓
 PLATFORM-STACK-SPIKE-001
 Avalonia vs Qt
++ reproducible Windows/Linux build/package lanes
         ↓
 UI-CORE-FOUNDATION-001
 +
@@ -260,11 +265,14 @@ module expansion: Scheme / NPT / clean-sheet Switching
 
 ## 11. Acceptance posture
 
-Foundation должен защитить project как минимум от шести known failure modes:
+Foundation должен защитить project как минимум от девяти known failure modes:
 
 1. competing domain models;
 2. legacy-looking/unusable UI despite correct backend;
 3. untraceable normative folklore embedded in code;
 4. development pipeline, где small visible repair превращается в дни unrelated CI;
 5. хаотичный mixed-language product;
-6. unrestricted remote shell/agent access к VPS вместо bounded development control API.
+6. unrestricted remote shell/agent access к VPS вместо bounded development control API;
+7. mixing observed/simulated/planned equipment state;
+8. treating policy specificity as automatic normative authority;
+9. declaring Windows support without a reproducible Windows build/package lane.
