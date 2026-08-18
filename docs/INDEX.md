@@ -15,8 +15,8 @@
 6. `docs/project/UNIFIED_PRODUCT_VISION.md` — цель, user value и границы продукта.
 7. `docs/project/UNIFIED_SCOPE_AND_ROADMAP.md` — scope, исключения, фазы и vertical slices.
 8. `docs/project/MIGRATION_PLAN_UNIFIED.md` — что переносится как knowledge/evidence, а что пишется с нуля.
-9. `docs/project/NEXT_WORK_ITEMS.md` — точные контракты следующих work items.
-10. `docs/project/LEGACY_SOURCE_INDEX.md` — исторические исследования/корпуса и их disposition.
+9. `docs/project/NEXT_WORK_ITEMS.md` — точные contracts следующих work items.
+10. `docs/project/LEGACY_SOURCE_INDEX.md` — historical research/corpora и их disposition.
 11. `docs/project/INPUT_ASSETS_AND_STORAGE.md` — какие исходные материалы реально нужны и где они хранятся.
 12. `docs/architecture/UNIFIED_SYSTEM_ARCHITECTURE.md` — modular-monolith структура и ownership.
 13. `docs/architecture/DOMAIN_AND_PROJECT_MODEL.md` — `ElectricalProject`, equipment/terminal/connection/topology/state/view invariants.
@@ -30,7 +30,7 @@
 21. `docs/compliance/NORMATIVE_REGISTRY.md` — initial source registry и lifecycle.
 22. `docs/compliance/GRAPHICS_GOST_PROFILE.md` — graphics ГОСТ/ЕСКД profile architecture.
 23. `docs/compliance/LOCAL_POLICY_OVERLAYS.md` — manufacturer/enterprise/site/project настройка и non-weakening.
-24. `docs/compliance/SAFETY_BOUNDARIES.md` — границы автоматизации и safety claims.
+24. `docs/compliance/SAFETY_BOUNDARIES.md` — границы automation и safety claims.
 25. `docs/development/DEVELOPMENT_PLATFORM.md` — ChatGPT Project + GitHub + Development Bridge + existing VPS + self-hosted runner.
 26. `docs/development/PLATFORM_STACK_SPIKE.md` — Avalonia vs Qt executable decision contract.
 27. `docs/development/CI_AND_ACCEPTANCE.md` — risk-based CI, visual-first acceptance и preview artifacts.
@@ -48,22 +48,24 @@
 ```text
 Язык продукта и канонической документации → русский
 Язык кода/internal API/schema/identifiers → английский
-Внутренняя электротехническая терминология → профессиональный engineering English
+Внутренняя электротехническая терминология → professional engineering English
 ```
 
-Пользователь видит русские термины и объяснения; internal model использует стабильные английские identifiers, например `CircuitBreaker`, `Disconnector`, `EarthingSwitch`, `TopologyGraph`, `SwitchingOperation`.
+Пользователь видит русские terms и explanations; internal model использует stable English identifiers, например `CircuitBreaker`, `Disconnector`, `EarthingSwitch`, `TopologyGraph`, `SwitchingOperation`.
 
-Транслит в technical identifiers не допускается.
+Transliteration в technical identifiers не допускается.
 
-Английские слова внутри русскоязычной документации используются как точные technical identifiers/industry terms, а не как язык narrative text.
+English внутри Russian documentation используется для exact technical identifiers, established engineering terms и machine-readable values, а не как язык explanatory narrative.
+
+Foundation documentation приведена к этой policy; дальнейшие нарушения считаются documentation defect.
 
 ## 3. Явные решения владельца
 
-- Старый TBP code/config/rules **не мигрируется**. `Modules.Switching` реализуется с нуля.
-- Внутренние инструкции предприятий/объектов **не являются shared development inputs**. `Local Policy Overlay` разрабатывается на synthetic/cleared examples и применяется в контролируемом deployment environment.
-- Государственные нормативные документы и ГОСТ/ЕСКД metadata получаются и повторно проверяются онлайн по authoritative sources по мере выполнения соответствующих compliance work items; вручную собирать большой пакет документов не требуется.
-- Русский — обязательный язык UI и документации; английский — обязательный язык внутренней technical/domain части.
-- ChatGPT Plus + Project chat + Custom GPT Action может использоваться как интерактивный bridge к existing VPS; этот путь фактически доказан 2026-08-18.
+- Старый TBP code/config/rules **не мигрируется**. `Modules.Switching` реализуется clean-sheet.
+- Внутренние инструкции предприятий/объектов **не являются shared development inputs**. `LocalPolicy` mechanics разрабатываются на synthetic/cleared examples и применяются в controlled deployment environment.
+- Государственные нормативные документы и ГОСТ/ЕСКД metadata получаются и повторно проверяются онлайн по authoritative sources по мере выполнения соответствующих compliance work items; вручную собирать большой package документов не требуется.
+- Русский — обязательный язык UI и канонической documentation; английский — обязательный язык internal technical/domain layer.
+- ChatGPT Plus + Project chat + Custom GPT Action может использоваться как interactive bridge к existing VPS; этот path фактически доказан 2026-08-18.
 
 ## 4. Доказанный Development Bridge
 
@@ -80,15 +82,15 @@ ChatGPT Plus Project chat
 → existing VPS
 ```
 
-Также подтверждено, что в том же Project-чате доступен GitHub connector.
+Также подтверждено, что GitHub connector работает в том же Project chat.
 
-Это не отменяет formal GitHub CI. Целевая модель — два контура:
+Это не отменяет formal GitHub CI. Целевая model — два contours:
 
 ```text
-интерактивный:
+interactive:
 ChatGPT Project → EEP Development Bridge → VPS
 
-формальный:
+formal:
 GitHub → self-hosted runner on VPS → checks/artifacts → PR acceptance
 ```
 
@@ -108,11 +110,11 @@ Bridge API остаётся bounded/allowlisted; arbitrary remote shell не я�
 
 ## 6. Legacy/research sources
 
-Старые репозитории и локальные материалы не являются новым canonical product state.
+Старые repositories и local materials не являются новым canonical product state.
 
 - `genrudko/electroscheme-studio` — Visio/VSDX/VSSX, prototype, Tauri/platform-spike, market/reference и UI research.
 - NPT/Modus archives and extracted research — compatibility corpus outside Git.
-- Old TBP — historical only, `DO_NOT_MIGRATE` unless owner later reopens one specific artifact.
+- Old TBP — historical only, `DO_NOT_MIGRATE`, пока owner не переоткроет один specific artifact.
 - EOD — отдельный canonical repository; взаимодействие только через bounded integration work.
 
 См. `docs/project/LEGACY_SOURCE_INDEX.md`.
@@ -141,10 +143,10 @@ official publication / official issuer
 → secondary explanatory source
 ```
 
-Ни одна редакция не считается бессрочно актуальной. `NORMATIVE_REGISTRY.md` хранит дату проверки, effective dates, amendments/supersedes и review status.
+Ни одна edition не считается бессрочно актуальной. `NORMATIVE_REGISTRY.md` хранит verification date, effective dates, amendments/supersedes и review status.
 
-Для ГОСТ official status/edition metadata обязательно; детальная extraction выполняется по lawful full-text source при необходимости. Случайные unofficial copies не являются нормативным authority.
+Для ГОСТ official status/edition metadata обязательно; detailed extraction выполняется по lawful full-text source при необходимости. Random unofficial copies не являются normative authority.
 
 ## 9. Правило изменения документации
 
-Если код/архитектура меняют source-of-truth model, module boundary, normative behavior, project storage, import semantics, safety boundary, UI Core contract, language/terminology contract или development/deployment process — соответствующий canonical owner document обновляется в том же PR.
+Если code/architecture меняют source-of-truth model, module boundary, normative behavior, project storage, import semantics, safety boundary, UI Core contract, language/terminology contract или development/deployment process — соответствующий canonical owner document обновляется в том же PR.
