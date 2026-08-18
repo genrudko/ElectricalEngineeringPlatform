@@ -1,25 +1,34 @@
 # ADR 0005 — Desktop Platform Stack
 
-Status: **PENDING EVIDENCE**  
-Date opened: 2026-08-18
+Статус: **PENDING EVIDENCE**  
+Дата открытия: 2026-08-18
 
-## Context
+## Контекст
 
-The new unified scope requires a heavy professional desktop application: large engineering canvas, 100k-row data views, multi-window/multi-monitor workspace, rich properties/tables and strong visual testing.
+Unified scope требует heavy professional desktop application: large engineering canvas, 100k-row data views, multi-window/multi-monitor workspace, rich properties/tables и strong visual testing.
 
-Historical Tauri/Vue/TypeScript/SVG work remains research evidence only.
+Historical Tauri/Vue/TypeScript/SVG work остаётся research evidence only.
 
-## Candidates admitted to final spike
+## Candidates для final spike
 
 1. C#/.NET + Avalonia.
 2. C++ + Qt 6/QML.
 
 ## Decision rule
 
-No candidate is accepted before the equivalent executable contract in `docs/development/PLATFORM_STACK_SPIKE.md` is completed and owner manual evidence is available.
+Ни один candidate не принимается до выполнения equivalent executable contract из `docs/development/PLATFORM_STACK_SPIKE.md` и появления owner manual evidence.
 
-The selected stack must balance representative canvas performance, professional desktop UI/multi-monitor behavior, large table/tree performance, testing/visual CI, packaging, iteration speed, small-team maintainability and exact licensing/dependency obligations.
+Selected stack должен балансировать:
+
+- representative canvas performance;
+- professional desktop UI/multi-monitor behavior;
+- large table/tree performance;
+- testing/visual CI;
+- packaging;
+- iteration speed;
+- small-team maintainability;
+- exact licensing/dependency obligations.
 
 ## Required output
 
-The Platform Stack Spike updates this document to ACCEPTED with raw benchmark references and explicit rationale.
+`PLATFORM-STACK-SPIKE-001` обновляет этот ADR до `ACCEPTED` с raw benchmark references, owner evidence и explicit rationale.
