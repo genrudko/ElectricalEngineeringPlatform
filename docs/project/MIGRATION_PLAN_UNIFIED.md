@@ -1,22 +1,22 @@
-# Migration Plan — Legacy Sources into One Product
+# План миграции legacy-источников в единый продукт
 
-Статус: canonical foundation document
+Статус: канонический Foundation-документ
 
-## 1. Purpose
+## 1. Назначение
 
-Migration does **not** mean copying three old codebases into one tree.
+Migration **не означает** копирование нескольких старых codebases в одно дерево.
 
-The new product has three different legacy relationships:
+У нового продукта три разных отношения к legacy-источникам:
 
-1. **ElectroScheme Studio** — research/prototype source from which selected evidence/tools may be reused after review;
-2. **NPT Engineering Toolkit / NPT materials** — compatibility/research source whose proven format knowledge must be preserved behind the NPT boundary;
-3. **old TBP project** — **not a code/config migration source for the new Switching module**. The Switching/TBP module is designed and implemented from scratch against the new Domain Core, Compliance Core and current verified normative sources.
+1. **ElectroScheme Studio** — research/prototype source, из которого после отдельной проверки могут быть переиспользованы конкретные evidence/tools;
+2. **NPT Engineering Toolkit / NPT materials** — compatibility/research source, чьи доказанные format semantics нужно сохранить за NPT boundary;
+3. **старый TBP project** — **не является источником code/config migration** для нового Switching module. Новый Switching/TBP реализуется с нуля поверх Domain Core, Compliance Core и current verified normative sources.
 
-The objective is to preserve proven knowledge only where it is actually useful, without dragging obsolete architecture into the new product.
+Цель — сохранять доказанные знания только там, где они реально снижают риск, не перетаскивая устаревшую архитектуру в новый продукт.
 
-## 2. Migration classification
+## 2. Классификация legacy assets
 
-For every significant legacy asset that is considered for reuse classify:
+Для каждого значимого legacy asset, рассматриваемого для reuse, используется один из статусов:
 
 ```text
 RETAIN_AS_EVIDENCE
@@ -28,55 +28,63 @@ DO_NOT_MIGRATE
 RETIRE_AFTER_ACCEPTANCE
 ```
 
-Every salvaged/migrated asset records source/path/commit where possible, current responsibility, known limitations, new owner module, required tests/evidence, dependency/licensing concerns and retirement condition.
+Для reused/migrated asset по возможности фиксируются:
 
-## 3. ElectroScheme Studio migration
+- source repository/path/commit;
+- исходная ответственность;
+- известные ограничения;
+- новый owner module;
+- required tests/evidence;
+- dependency/licensing concerns;
+- условие retirement.
+
+## 3. ElectroScheme Studio
 
 Source repository: `genrudko/electroscheme-studio`.
 
-Likely retain as evidence:
+### 3.1. Сохранять как research/evidence
 
 - VSDX/VSSX inspection/ShapeSheet research;
 - market/reference-product research;
 - prototype quarantine/disposition method;
 - snapping/grid/busbar experiments;
 - platform/packaging measurements;
-- Tauri spike implementation and failure evidence;
+- Tauri spike implementation и failure evidence;
 - Visio controlled fixtures/round-trip knowledge.
 
-Likely reimplement from new contract:
+### 3.2. Скорее реализовать заново по новому contract
 
 - application shell;
 - old CSS/design/ribbon/property composition;
 - large canvas ownership/state composition;
 - duplicated frontend/backend document state;
-- product-level command/mutation path if it conflicts with new Domain Core.
+- product-level command/mutation path, если он конфликтует с новым Domain Core.
 
-Pending after Platform Spike:
+### 3.3. Решается только после Platform Stack Spike
 
 - Vue/TypeScript/SVG code reuse;
 - Rust/Tauri native adapters;
 - current web build pipeline.
 
-No Tauri/WebView asset is promoted merely because historical CI was green.
+Ни один Tauri/WebView asset не становится production baseline только потому, что historical CI был green.
 
-## 4. NPT Engineering Toolkit migration
+## 4. NPT Engineering Toolkit
 
-NPT research is a major compatibility/domain corpus and should be preserved carefully.
+NPT research — важный compatibility/domain corpus и должен сохраняться осторожно.
 
-### Proven concepts to carry forward
+### 4.1. Доказанные знания, которые нужно перенести
 
 - lossless/preserve-first XML handling;
-- XSDE document/object inventory and semantics;
-- embedded CustElem vs external `.menu` distinction;
+- XSDE document/object inventory и semantics;
+- distinction embedded `CustElem` vs external `.menu`;
 - typed custom-value semantics (`scdState`, `scdCommand`, `scdValue`, `scdColor`, etc.);
 - ASU/TECH/KKS signal catalog model/search;
-- XTABL v6.0 lossless records and proven field meanings;
-- preserve-only handling for unknown XTABL fields;
+- XTABL v6.0 lossless records и proven field meanings;
+- preserve-only handling для unknown XTABL fields;
 - native resource/path alias handling;
 - explicit safe/unsafe creation boundaries.
 
-### Must remain NPT-specific
+### 4.2. Что остаётся NPT-specific
 
 - `sTag` allocation/counters;
 - `RTID`/`TechData` registry semantics;
@@ -85,112 +93,110 @@ NPT research is a major compatibility/domain corpus and should be preserved care
 - XSDE XML order/comments/unknown fields;
 - XTABL raw-record specifics.
 
-These live in NPT adapters/storage and translate to/from neutral domain entities where justified.
+Эти данные живут в NPT adapters/storage и переводятся в neutral domain entities только там, где mapping доказан.
 
-### Critical unresolved experiment
+### 4.3. Критический unresolved experiment
 
-NPT `nodes` are topology-related but are not yet proven to reconstruct a complete neutral electrical graph.
+NPT `nodes` связаны с topology, но пока не доказано, что они позволяют восстановить complete neutral electrical graph.
 
 Required evidence:
 
-1. select one small known real cell/mnemonic;
-2. extract object/Tech/node relations;
-3. map to neutral terminals/connections;
-4. render/graph topology independently;
-5. manually compare with visible one-line diagram;
-6. test energized/de-energized propagation under known switching states;
-7. record unmapped/ambiguous relationships.
+1. выбрать небольшой known real cell/mnemonic;
+2. извлечь object/Tech/node relations;
+3. сопоставить их neutral terminals/connections;
+4. построить topology graph независимо от NPT renderer;
+5. вручную сравнить с visible one-line diagram;
+6. проверить energized/de-energized propagation на известных switching states;
+7. зафиксировать unmapped/ambiguous relationships.
 
-Until this passes, do not make NPT topology import a Core invariant.
+До принятия этого эксперимента NPT topology import не является Core invariant или обещанной capability.
 
-### Renderer status
+### 4.4. Renderer status
 
-Existing Mnemo renderer is not accepted for fidelity. Compare known mnemonic(s) side-by-side with native NPT/Modus before broad editor expansion.
+Существующий Mnemo renderer не принят по fidelity. До расширения editor scope требуется side-by-side comparison с native NPT/Modus.
 
 ## 5. Switching / TBP — clean-sheet implementation
 
-Owner decision: **do not migrate the old TBP codebase, YAML/configuration or rule implementation into the new product.**
+Owner decision: **не мигрировать старый TBP codebase, YAML/configuration, rules и tests в новый продукт**.
 
-The new `Modules.Switching` is written from scratch using:
+Новый `Modules.Switching` пишется с нуля на основе:
 
-- the neutral `ElectricalProject` model;
+- neutral `ElectricalProject` model;
 - shared equipment/terminal/connection/topology/state semantics;
-- the new Compliance Core;
+- Compliance Core;
 - current verified Russian normative sources;
 - synthetic/cleared engineering scenarios;
-- later user/site configuration through the Local Policy Overlay mechanism.
+- будущей deployment-specific настройки через Local Policy Overlay mechanism.
 
-The old TBP project may remain archived outside the new repository as historical context only. It is not a dependency, test oracle, normative authority or required migration input.
+Старый TBP может оставаться в прежнем локальном архиве только как historical context. Он не является dependency, test oracle, normative authority или required migration input.
 
-### What may be retained conceptually
+### 5.1. Что может сохраниться только как уже принятый продуктовый принцип
 
-Only product-level lessons already explicitly accepted in the new Foundation may survive, for example:
+- switching-form generation — decision support, а не real-equipment control;
+- qualified human review остаётся обязательным;
+- rules требуют provenance/applicability/versioning;
+- object/site-specific stricter policy является поддерживаемой capability.
 
-- switching-form generation is decision support, not real-equipment control;
-- qualified human review remains required;
-- rules require provenance/applicability/versioning;
-- object/site-specific stricter policy is a supported capability.
+Эти принципы заново определены в текущих canonical documents и не требуют копирования старой реализации.
 
-These principles are redefined in current canonical documents and do **not** require copying old TBP implementation.
+## 6. Стратегия нормативных источников
 
-## 6. Normative source strategy
+Федеральные/отраслевые нормативные акты и standards получаются из current online authoritative sources непосредственно при rule/profile development.
 
-Federal/sector normative acts and standards are obtained from current online authoritative sources during rule/profile development.
-
-Priority:
+Приоритет:
 
 ```text
 official publication / official issuer
 → official standards catalogue
-→ authoritative legal/reference cross-check where needed
+→ authoritative legal/reference cross-check when needed
 ```
 
-Do not use the old TBP repository as a source of current normative truth.
+Старый TBP repository не используется как источник current normative truth.
 
-For ГОСТ, official status/metadata must come from Rosstandart/catalogue sources. Full-text access/redistribution is handled only through legally permitted sources; random internet copies are not promoted to normative authority.
+Для ГОСТ official status/metadata берётся из Rosstandart/catalogue sources. Full-text access/redistribution используется только через lawful sources; случайные internet copies не становятся нормативным authority.
 
 ## 7. Enterprise/site instructions
 
-Internal enterprise/site instructions are **not required development inputs and should not be uploaded into this project/repository by default**.
+Внутренние enterprise/site instructions **не являются required development inputs и не загружаются в общий project/repository по умолчанию**.
 
-The platform must support such local policy in deployment, but Foundation/development tests use synthetic or deliberately cleared overlay examples.
+Platform должна поддерживать такие local policies на deployment, но Foundation/development tests используют synthetic или deliberately cleared overlay examples.
 
-At a real enterprise/site, authorized administrators may configure local policy packages from internal documentation inside that controlled environment without publishing the source documents to GitHub or the shared development corpus.
+На реальном объекте authorized administrators формируют local policy package внутри контролируемого environment. Shared GitHub development process не требует оригиналов внутренних документов.
 
-## 8. Data migration philosophy
+## 8. Философия data migration
 
-Old data may be imported through explicit adapters/migrations only where a real product workflow requires it.
+Old data импортируется через explicit adapters/migrations только при наличии реального product workflow.
 
-Where round-trip compatibility is required, especially NPT, preserve vendor-specific payload in adapter-owned structures/extension blocks rather than flattening unknown information into neutral Core.
+Если требуется round-trip compatibility, особенно для NPT, vendor-specific payload сохраняется в adapter-owned structures/extensions, а не теряется при flattening в neutral Core.
 
 ## 9. Repository strategy
 
-During Foundation and early spikes:
+Во время Foundation и ранних spikes:
 
-- keep this repository clean;
-- do not bulk-vendor old product trees;
-- do not import the old TBP project;
-- do not commit NPT vendor binaries/full corpus;
-- do not collect internal enterprise/site instructions as development assets;
-- fetch/re-verify public normative sources when rule/profile work begins;
-- create production source tree only after platform stack selection;
-- record asset disposition before any reuse.
+- держать новый repository чистым;
+- не bulk-vendor старые product trees;
+- не импортировать old TBP project;
+- не commit NPT vendor binaries/full corpus;
+- не собирать internal enterprise/site instructions как development assets;
+- fetch/re-verify public normative sources при начале конкретной compliance работы;
+- создавать production source tree только после platform stack selection;
+- фиксировать disposition до любого legacy reuse.
 
 ## 10. Migration gates
 
-A legacy asset is reused only if:
+Legacy asset переиспользуется только если:
 
-1. a concrete target module/use case exists;
-2. reuse is cheaper/safer than clean reimplementation;
-3. behavior/data semantics are understood;
-4. representative tests can prove it;
-5. required provenance/unknown fields are not lost;
-6. owner accepts the reuse decision.
+1. существует конкретный target module/use case;
+2. reuse дешевле/безопаснее clean reimplementation;
+3. behavior/data semantics понятны;
+4. representative tests могут это доказать;
+5. required provenance/unknown fields не теряются;
+6. владелец принимает reuse decision.
 
-For the old TBP project, the current disposition is explicitly `DO_NOT_MIGRATE` unless the owner later reopens that decision for a narrowly identified artifact.
+Для old TBP текущий disposition — `DO_NOT_MIGRATE`, пока владелец явно не переоткроет решение для конкретного narrowly identified artifact.
 
 ## 11. Anti-goal
 
-Do not optimize for preserving old implementation effort.
+Не оптимизировать migration под сохранение уже потраченного времени.
 
-Preserve **validated knowledge, compatibility semantics and useful research evidence** where they materially reduce risk. Rebuild product logic cleanly where the old implementation does not fit the new architecture.
+Сохранять **validated knowledge, compatibility semantics и полезное research evidence**, когда это реально снижает риск. Product logic, не соответствующий новой архитектуре, реализуется заново.
