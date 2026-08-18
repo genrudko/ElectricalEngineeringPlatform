@@ -32,14 +32,15 @@
 23. `docs/compliance/LOCAL_POLICY_OVERLAYS.md` — manufacturer/enterprise/site/project настройка и non-weakening.
 24. `docs/compliance/SAFETY_BOUNDARIES.md` — границы automation и safety claims.
 25. `docs/development/DEVELOPMENT_PLATFORM.md` — ChatGPT Project + GitHub + Development Bridge + existing VPS + self-hosted runner.
-26. `docs/development/PLATFORM_STACK_SPIKE.md` — Avalonia vs Qt executable decision contract.
-27. `docs/development/CI_AND_ACCEPTANCE.md` — risk-based CI, visual-first acceptance и preview artifacts.
-28. `docs/decisions/0001_unified_electrical_platform.md` — единый продукт.
-29. `docs/decisions/0002_domain_model_source_of_truth.md` — neutral domain authority.
-30. `docs/decisions/0003_layered_normative_policy.md` — rule layering/non-weakening.
-31. `docs/decisions/0004_github_vps_development_plane.md` — control/execution plane и proven ChatGPT→VPS bridge.
-32. `docs/decisions/0005_platform_stack_pending.md` — PENDING Avalonia-vs-Qt decision.
-33. `docs/decisions/0006_optional_eod_integration_pending.md` — PENDING EOD feasibility decision.
+26. `docs/development/CHATGPT_PROJECT_CONTEXT.md` — Project Memory, Project Sources, retrieval-first chats, checkpoints и отказ от routine giant handoffs.
+27. `docs/development/PLATFORM_STACK_SPIKE.md` — Avalonia vs Qt executable decision contract.
+28. `docs/development/CI_AND_ACCEPTANCE.md` — risk-based CI, visual-first acceptance и preview artifacts.
+29. `docs/decisions/0001_unified_electrical_platform.md` — единый продукт.
+30. `docs/decisions/0002_domain_model_source_of_truth.md` — neutral domain authority.
+31. `docs/decisions/0003_layered_normative_policy.md` — rule layering/non-weakening.
+32. `docs/decisions/0004_github_vps_development_plane.md` — control/execution plane и proven ChatGPT→VPS bridge.
+33. `docs/decisions/0005_platform_stack_pending.md` — PENDING Avalonia-vs-Qt decision.
+34. `docs/decisions/0006_optional_eod_integration_pending.md` — PENDING EOD feasibility decision.
 
 ## 2. Языковая политика
 
@@ -66,8 +67,37 @@ Foundation documentation приведена к этой policy; дальнейш
 - Государственные нормативные документы и ГОСТ/ЕСКД metadata получаются и повторно проверяются онлайн по authoritative sources по мере выполнения соответствующих compliance work items; вручную собирать большой package документов не требуется.
 - Русский — обязательный язык UI и канонической documentation; английский — обязательный язык internal technical/domain layer.
 - ChatGPT Plus + Project chat + Custom GPT Action может использоваться как interactive bridge к existing VPS; этот path фактически доказан 2026-08-18.
+- Для continuity внутри одного ChatGPT Project принят retrieval-first workflow: previous project chats + редкие Project Source checkpoints + stable Project Instructions; routine giant handoff-файлы не являются default mechanism.
+- Project Memory используется для восстановления контекста/причин решений, но GitHub/runtime остаются authority для ответа «что истинно сейчас».
 
-## 4. Доказанный Development Bridge
+## 4. ChatGPT Project context strategy
+
+Целевая coordination model:
+
+```text
+Project chats
+→ рабочая история и retrieval
+
+Project Sources
+→ редкие accepted checkpoints / decision notes
+
+Project Instructions
+→ устойчивые operating rules без volatile SHA/status
+
+GitHub
+→ current canonical project/development state
+
+EEP Development Bridge / runner
+→ actual runtime/execution evidence
+```
+
+Новый chat внутри Project начинается с retrieval-запроса по нескольким уникальным anchors, затем coordinator обязан отдельно re-verify current GitHub/runtime state.
+
+Tasks/reminders используются как time/recurrence mechanism, а не как engineering-state database. Branch chats используются для альтернативных hypotheses, а не как замена ADR/checkpoint.
+
+Canonical contract: `docs/development/CHATGPT_PROJECT_CONTEXT.md`.
+
+## 5. Доказанный Development Bridge
 
 Фактически подтверждена цепочка:
 
@@ -96,7 +126,7 @@ GitHub → self-hosted runner on VPS → checks/artifacts → PR acceptance
 
 Bridge API остаётся bounded/allowlisted; arbitrary remote shell не является допустимым Foundation direction.
 
-## 5. PENDING решения
+## 6. PENDING решения
 
 До доказательного spike не считаются принятыми:
 
@@ -108,7 +138,7 @@ Bridge API остаётся bounded/allowlisted; arbitrary remote shell не я�
 - exact scope автоматизируемых normative rules;
 - final product/brand name beyond current working name.
 
-## 6. Legacy/research sources
+## 7. Legacy/research sources
 
 Старые repositories и local materials не являются новым canonical product state.
 
@@ -119,7 +149,7 @@ Bridge API остаётся bounded/allowlisted; arbitrary remote shell не я�
 
 См. `docs/project/LEGACY_SOURCE_INDEX.md`.
 
-## 7. Приоритет источников
+## 8. Приоритет источников
 
 При конфликте содержания:
 
@@ -134,7 +164,9 @@ Bridge API остаётся bounded/allowlisted; arbitrary remote shell не я�
 
 `AGENTS.md` имеет высший приоритет только по operating process.
 
-## 8. Приоритет нормативных источников
+Project Memory и Project Source checkpoints помогают continuity, но не переопределяют GitHub/runtime evidence.
+
+## 9. Приоритет нормативных источников
 
 ```text
 official publication / official issuer
@@ -147,6 +179,6 @@ official publication / official issuer
 
 Для ГОСТ official status/edition metadata обязательно; detailed extraction выполняется по lawful full-text source при необходимости. Random unofficial copies не являются normative authority.
 
-## 9. Правило изменения документации
+## 10. Правило изменения документации
 
-Если code/architecture меняют source-of-truth model, module boundary, normative behavior, project storage, import semantics, safety boundary, UI Core contract, language/terminology contract или development/deployment process — соответствующий canonical owner document обновляется в том же PR.
+Если code/architecture меняют source-of-truth model, module boundary, normative behavior, project storage, import semantics, safety boundary, UI Core contract, language/terminology contract или development/deployment/coordination process — соответствующий canonical owner document обновляется в том же PR.
