@@ -1,48 +1,51 @@
-# ADR 0001 — Unified Electrical Engineering Platform
+# ADR 0001 — Единая Electrical Engineering Platform
 
-Status: **ACCEPTED by owner direction / recorded in UNIFIED-FOUNDATION-001**  
-Date: 2026-08-18
+Статус: **ACCEPTED по owner direction / зафиксирован в `UNIFIED-FOUNDATION-001`**  
+Дата: 2026-08-18
 
-## Context
+## Контекст
 
-ElectroScheme Studio, NPT Engineering Toolkit and TBP/switching-form work independently converged on the same concepts: equipment identity, terminals, connections, topology, state and engineering/operational rules.
+Scheme Studio, NPT Engineering Toolkit/Compatibility и Switching/TBP требуют одних и тех же базовых concepts: equipment identity, terminals, connections, topology, state и engineering/operational rules.
 
-Keeping three independent architectures would duplicate project models, equipment libraries, topology logic, state handling, UI infrastructure and normative configuration.
+Три независимые архитектуры привели бы к duplicate project models, equipment libraries, topology logic, state handling, UI infrastructure и normative configuration.
 
-## Decision
+Старый TBP implementation отдельно признан unsuitable для migration и не определяет новую Switching architecture.
 
-Build one standalone modular electrical-engineering product with shared Domain Core, UI Core and Compliance Core.
+## Решение
 
-Former projects become modules/migration sources:
+Создавать один standalone modular electrical-engineering product с общими Domain Core, UI Core и Compliance Core.
+
+Функциональные modules:
 
 - Scheme Studio;
 - NPT Compatibility;
-- Switching/TBP.
+- clean-sheet Switching/TBP;
+- first-class CSV/XLSX Import/Reconciliation;
+- Equipment Library.
 
-CSV/XLSX Import and Equipment Library become first-class shared modules.
+Архитектурный стиль — modular monolith, пока future ADR не докажет необходимость distributed boundary.
 
-Architectural style: modular monolith unless a later ADR proves a distributed boundary necessary.
+## Последствия
 
-## Consequences
+Положительные:
 
-Positive:
-
-- one project/equipment identity;
-- topology/state reuse across scheme, NPT and switching;
-- one UI/design foundation;
-- one normative policy model;
+- одна project/equipment identity;
+- topology/state reuse между Scheme, NPT и Switching;
+- одна UI/design foundation;
+- одна normative policy model;
 - import once, reuse across modules;
-- less maintenance duplication.
+- меньше maintenance duplication.
 
 Costs/risks:
 
-- Foundation/migration before feature expansion;
-- common Core must avoid becoming an over-general mega-framework;
-- old code cannot be merged mechanically;
-- platform stack needs reevaluation under unified scope.
+- Foundation/migration decisions до broad feature expansion;
+- common Core не должен превратиться в over-general mega-framework;
+- old code нельзя merge механически;
+- platform stack должен быть переоценён под unified scope.
 
-## Rejected alternatives
+## Отклонённые альтернативы
 
-- Three permanently independent products — rejected due domain divergence/repeated maintenance.
-- Immediate codebase concatenation — rejected due incompatible models/UI stacks/prototypes.
-- Microservices around former products — rejected for local-first desktop scope and small-team cost.
+- **Three permanently independent products** — rejected из-за domain divergence и repeated maintenance.
+- **Immediate codebase concatenation** — rejected из-за incompatible models/UI stacks/prototypes.
+- **Microservices вокруг former products** — rejected для local-first desktop scope и small-team cost.
+- **Reuse old TBP architecture as Switching baseline** — rejected по owner decision; module создаётся clean-sheet.
