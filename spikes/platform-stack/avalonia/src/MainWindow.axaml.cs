@@ -32,9 +32,12 @@ public sealed partial class MainWindow : Window
         _fixture = P1FixtureLoader.Load();
         Console.WriteLine("P1 MainWindow: fixture loaded");
         Title = _fixture.ApplicationTitle;
+        Console.WriteLine("P1 MainWindow: title assigned");
 
         EquipmentTree.SelectionChanged += EquipmentTree_OnSelectionChanged;
+        Console.WriteLine("P1 MainWindow: tree selection handler attached");
         KeyDown += MainWindow_OnKeyDown;
+        Console.WriteLine("P1 MainWindow: key handler attached");
 
         Console.WriteLine("P1 MainWindow: BuildEquipmentTree begin");
         BuildEquipmentTree();
