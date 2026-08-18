@@ -63,6 +63,7 @@ printf '%s\n' "=== 1. Prepare identities and read-only repository access ==="
 usermod -aG eep-workspace eepbridge
 chmod g+rx /home/eep-workspace /home/eep-workspace/workspace
 chmod -R g+rX "$READONLY_REPO"
+chmod -R g-w "$READONLY_REPO"
 
 printf '%s\n' "=== 2. Install Bridge v0.2 source ==="
 install -d -o eepbridge -g eepbridge -m 0750 "$DEPLOY_DIR"
@@ -113,8 +114,16 @@ systemctl daemon-reload
 systemctl enable --now "$SYNC_TIMER"
 systemctl start "$SYNC_SERVICE"
 
-printf '%s\n' "=== 4. Verify eepbridge can read repository but not workspace SSH key ==="
+printf '%s\n' "=== 4. Verify eepbridge can read repository but cannot write it or read workspace SSH key ==="
 sudo -u eepbridge -H git -C "$READONLY_REPO" rev-parse HEAD >/dev/null
+if sudo -u eepbridge -H test -w "$READONLY_REPO"; then
+  echo "ERROR: eepbridge can write repository root" >&2
+  false
+fi
+if sudo -u eepbridge -H test -w "$READONLY_REPO/.git"; then
+  echo "ERROR: eepbridge can write repository metadata" >&2
+  false
+fi
 if sudo -u eepbridge -H test -r /home/eep-workspace/.ssh/eep_github_ed25519; then
   echo "ERROR: eepbridge can read eep-workspace deploy key" >&2
   false
