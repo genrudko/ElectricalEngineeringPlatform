@@ -188,15 +188,50 @@ Required evidence:
 
 # COMPLIANCE-RULES-SLICE-001
 
-Prove source→rule→test→diagnostic lifecycle with a very small set of current requirements:
+Prove current-source → rule → test → diagnostic lifecycle with a very small set of requirements.
 
-- one switching rule from Order 757;
+Inputs are acquired/re-verified online from authoritative public sources at execution time; no manually uploaded normative pack is required.
+
+Minimum slice:
+
+- one switching rule from the current applicable Order 757 text;
 - one supporting PTEES/PTEEP/POTEE applicability example;
-- one site stricter overlay;
+- one **synthetic stricter local-policy overlay** demonstrating the enterprise/site mechanism without using confidential instructions;
 - one attempted weakening conflict;
 - one UNKNOWN prerequisite scenario.
 
-No claim of complete document coverage.
+No old TBP rule/config reuse and no claim of complete document coverage.
+
+---
+
+# SWITCHING-FOUNDATION-001
+
+## Dependency
+
+Minimal Domain Core + Compliance Core contracts accepted.
+
+## Objective
+
+Implement the Switching/TBP module **from scratch**, without migration of the old TBP codebase/YAML/rules.
+
+## Initial scope
+
+- semantic `SwitchingOperation`;
+- ordered `SwitchingSequence`;
+- simulated state distinct from observed/imported state;
+- rule/interlock evaluation result;
+- topology recalculation after each simulatable step;
+- explainable `ALLOW / BLOCK / UNKNOWN / REQUIRES_CONFIRMATION` results;
+- draft document projection;
+- mandatory human-review boundary;
+- synthetic local-policy overlay support.
+
+## Source policy
+
+- current government/sector normative acts are re-verified online from authoritative sources;
+- ГОСТ/ПУЭ/source metadata follow Compliance Core provenance rules;
+- internal enterprise/site instructions are not required for shared development;
+- old TBP implementation is not a test oracle or normative authority.
 
 ---
 
