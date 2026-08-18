@@ -1,10 +1,16 @@
 using Avalonia.Headless;
 using Eep.PlatformStack.P1.Avalonia;
 
+Console.WriteLine("P1 Avalonia smoke: starting headless session");
 using var session = HeadlessUnitTestSession.StartNew(typeof(App));
+using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+
+Console.WriteLine("P1 Avalonia smoke: dispatching shell checks");
 await session.Dispatch(() =>
 {
+    Console.WriteLine("P1 Avalonia smoke: constructing MainWindow");
     var window = new MainWindow();
+    Console.WriteLine("P1 Avalonia smoke: showing MainWindow");
     window.Show();
 
     Check(window.FixtureSchema == "eep.p1-shell-fixture/v1", "fixture schema");
@@ -32,8 +38,10 @@ await session.Dispatch(() =>
     Check(window.Content is not null, "window content rendered");
 
     window.Close();
-    Console.WriteLine("P1 Avalonia headless smoke: PASS");
-}, CancellationToken.None);
+    Console.WriteLine("P1 Avalonia smoke: shell checks complete");
+}, timeout.Token);
+
+Console.WriteLine("P1 Avalonia headless smoke: PASS");
 
 static void Check(bool condition, string name)
 {
