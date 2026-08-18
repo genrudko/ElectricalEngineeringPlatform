@@ -2,7 +2,7 @@
 
 Единый модульный электротехнический инженерный комплекс для построения, импорта, редактирования, визуализации и анализа электрической модели объекта, выпуска электрических схем, совместимости с NPT Expert/Modus и подготовки/проверки оперативных переключений.
 
-Этот репозиторий является новым каноническим umbrella-repository для объединения трёх прежних направлений:
+Этот репозиторий является каноническим umbrella-repository для объединения трёх прежних направлений:
 
 - ElectroScheme Studio;
 - NPT Engineering Toolkit;
@@ -48,7 +48,7 @@ Application / UI Shell
 ## Нормативная база
 
 - графическая часть схем — через версионируемые ГОСТ/ЕСКД profiles с трассируемыми правилами и coverage matrix;
-- switching/TBP — через versioned normative registry с применимыми ПОТЭЭ, ПТЭЭП/ПТЭЭПЭЭ, ПТЭЭС, Правилами переключений, главами ПУЭ и локальными требованиями;
+- Switching/TBP — через versioned normative registry с применимыми ПОТЭЭ, ПТЭЭП/ПТЭЭПЭЭ, ПТЭЭС, Правилами переключений, главами ПУЭ и локальными требованиями;
 - локальные manufacturer/enterprise/site/project policies могут дополнять или ужесточать обязательный baseline, но не ослаблять его.
 
 ## UI/UX
@@ -84,11 +84,15 @@ owner acceptance endpoint
 
 ## EOD
 
-Интеграция с Electronic Operational Documentation рассматривается как optional bridge/module integration через существующий EOD module registry и отдельный feasibility/cost gate. Standalone operation комплекса обязательна.
+Интеграция с Electronic Operational Documentation рассматривается как optional bridge/module integration через уже существующий EOD module registry и отдельный feasibility/cost gate. Standalone operation комплекса обязательна.
 
-## Foundation
+## Current Foundation work item
 
-Первый work item нового репозитория — перенос и принятие Unified Foundation. После него:
+- issue: #1 `UNIFIED-FOUNDATION-001`;
+- branch: `architecture/unified-foundation-001`;
+- PR: Draft only; no Ready/Merge without explicit owner command.
+
+После Foundation:
 
 ```text
 Infrastructure Spike
@@ -97,4 +101,12 @@ Infrastructure Spike
 → Import-to-Scheme Vertical Slice
 ```
 
-Начинать чтение после Foundation migration следует с `AGENTS.md` и `docs/INDEX.md`.
+Начинать чтение:
+
+1. `AGENTS.md`
+2. `docs/INDEX.md`
+3. `docs/project/CURRENT_STATE.md`
+4. `docs/project/UNIFIED_PRODUCT_VISION.md`
+5. `docs/project/NEXT_WORK_ITEMS.md`
+
+Исторические исследования и vendor/reference corpora не копируются механически в этот репозиторий; см. `docs/project/LEGACY_SOURCE_INDEX.md`.
