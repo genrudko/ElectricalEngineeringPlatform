@@ -15,28 +15,29 @@ Active branch: `architecture/unified-foundation-001`
 6. `docs/project/MIGRATION_PLAN_UNIFIED.md` — миграция Scheme Studio, NPT Toolkit и TBP без механического слияния кода.
 7. `docs/project/NEXT_WORK_ITEMS.md` — точные контракты следующих work items.
 8. `docs/project/LEGACY_SOURCE_INDEX.md` — откуда брать исторические исследования/код/корпуса.
-9. `docs/architecture/UNIFIED_SYSTEM_ARCHITECTURE.md` — modular-monolith структура и ownership.
-10. `docs/architecture/DOMAIN_AND_PROJECT_MODEL.md` — `ElectricalProject`, equipment/terminal/connection/topology/state/view invariants.
-11. `docs/architecture/UI_CORE.md` — design system, workspace, multi-window, shared controls/canvas и UX budgets.
-12. `docs/architecture/SCHEME_AND_EQUIPMENT_LIBRARY.md` — Scheme module, semantic equipment library и representations.
-13. `docs/architecture/IMPORT_AND_AUTO_LAYOUT.md` — CSV/XLSX mapping, staging, reconciliation, topology construction, layout constraints.
-14. `docs/architecture/SWITCHING_AND_INTERLOCKS.md` — switching sequence/state transition/interlock model.
-15. `docs/architecture/NPT_COMPATIBILITY_BOUNDARY.md` — XSDE/XTABL/NPT signal compatibility без загрязнения Core.
-16. `docs/architecture/EOD_INTEGRATION_BOUNDARY.md` — optional EOD bridge и reject/cost gate.
-17. `docs/compliance/NORMATIVE_ARCHITECTURE.md` — normative rule engine, provenance, applicability и versioning.
-18. `docs/compliance/NORMATIVE_REGISTRY.md` — initial source registry и lifecycle.
-19. `docs/compliance/GRAPHICS_GOST_PROFILE.md` — graphics ГОСТ/ЕСКД profile architecture.
-20. `docs/compliance/LOCAL_POLICY_OVERLAYS.md` — manufacturer/enterprise/site/project тонкая настройка и non-weakening.
-21. `docs/compliance/SAFETY_BOUNDARIES.md` — границы автоматизации и safety claims.
-22. `docs/development/DEVELOPMENT_PLATFORM.md` — GitHub + existing VPS + self-hosted runner.
-23. `docs/development/PLATFORM_STACK_SPIKE.md` — Avalonia vs Qt executable decision contract.
-24. `docs/development/CI_AND_ACCEPTANCE.md` — risk-based CI, visual-first acceptance, preview builds.
-25. `docs/decisions/0001_unified_electrical_platform.md` — единый продукт.
-26. `docs/decisions/0002_domain_model_source_of_truth.md` — neutral domain authority.
-27. `docs/decisions/0003_layered_normative_policy.md` — rule layering/non-weakening.
-28. `docs/decisions/0004_github_vps_development_plane.md` — control/execution plane.
-29. `docs/decisions/0005_platform_stack_pending.md` — PENDING Avalonia-vs-Qt decision.
-30. `docs/decisions/0006_optional_eod_integration_pending.md` — PENDING EOD feasibility decision.
+9. `docs/project/INPUT_ASSETS_AND_STORAGE.md` — какие исходные файлы куда класть и что нельзя коммитить.
+10. `docs/architecture/UNIFIED_SYSTEM_ARCHITECTURE.md` — modular-monolith структура и ownership.
+11. `docs/architecture/DOMAIN_AND_PROJECT_MODEL.md` — `ElectricalProject`, equipment/terminal/connection/topology/state/view invariants.
+12. `docs/architecture/UI_CORE.md` — design system, workspace, multi-window, shared controls/canvas и UX budgets.
+13. `docs/architecture/SCHEME_AND_EQUIPMENT_LIBRARY.md` — Scheme module, semantic equipment library и representations.
+14. `docs/architecture/IMPORT_AND_AUTO_LAYOUT.md` — CSV/XLSX mapping, staging, reconciliation, topology construction, layout constraints.
+15. `docs/architecture/SWITCHING_AND_INTERLOCKS.md` — switching sequence/state transition/interlock model.
+16. `docs/architecture/NPT_COMPATIBILITY_BOUNDARY.md` — XSDE/XTABL/NPT signal compatibility без загрязнения Core.
+17. `docs/architecture/EOD_INTEGRATION_BOUNDARY.md` — optional EOD bridge и reject/cost gate.
+18. `docs/compliance/NORMATIVE_ARCHITECTURE.md` — normative rule engine, provenance, applicability и versioning.
+19. `docs/compliance/NORMATIVE_REGISTRY.md` — initial source registry и lifecycle.
+20. `docs/compliance/GRAPHICS_GOST_PROFILE.md` — graphics ГОСТ/ЕСКД profile architecture.
+21. `docs/compliance/LOCAL_POLICY_OVERLAYS.md` — manufacturer/enterprise/site/project тонкая настройка и non-weakening.
+22. `docs/compliance/SAFETY_BOUNDARIES.md` — границы автоматизации и safety claims.
+23. `docs/development/DEVELOPMENT_PLATFORM.md` — GitHub + existing VPS + self-hosted runner.
+24. `docs/development/PLATFORM_STACK_SPIKE.md` — Avalonia vs Qt executable decision contract.
+25. `docs/development/CI_AND_ACCEPTANCE.md` — risk-based CI, visual-first acceptance, preview builds.
+26. `docs/decisions/0001_unified_electrical_platform.md` — единый продукт.
+27. `docs/decisions/0002_domain_model_source_of_truth.md` — neutral domain authority.
+28. `docs/decisions/0003_layered_normative_policy.md` — rule layering/non-weakening.
+29. `docs/decisions/0004_github_vps_development_plane.md` — control/execution plane.
+30. `docs/decisions/0005_platform_stack_pending.md` — PENDING Avalonia-vs-Qt decision.
+31. `docs/decisions/0006_optional_eod_integration_pending.md` — PENDING EOD feasibility decision.
 
 ## 2. PENDING decisions
 
@@ -66,7 +67,7 @@ historical / research / migration evidence
 - NPT/Modus archives and extracted research — compatibility corpus, not GitHub source code;
 - TBP local source/project materials — switching/rule/domain migration source pending explicit import into this repository.
 
-See `docs/project/LEGACY_SOURCE_INDEX.md`.
+See `docs/project/LEGACY_SOURCE_INDEX.md` and `docs/project/INPUT_ASSETS_AND_STORAGE.md`.
 
 ## 4. Source authority
 
