@@ -1,0 +1,73 @@
+name: G0 Environment Inventory
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/g0-environment-inventory.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: [self-hosted, linux, x64, eep-vps]
+    timeout-minutes: 5
+    steps:
+      - name: Capture read-only host and tool inventory
+        shell: bash
+        run: |
+          set -u
+          echo '=== identity ==='
+          echo "runner_name=${RUNNER_NAME:-unknown}"
+          echo "runner_os=${RUNNER_OS:-unknown}"
+          echo "runner_arch=${RUNNER_ARCH:-unknown}"
+          echo "host=$(hostname)"
+          echo "user=$(id -un)"
+          echo "uid=$(id -u)"
+
+          echo '=== os ==='
+          cat /etc/os-release 2>/dev/null || true
+          uname -a 2>/dev/null || true
+          getconf GNU_LIBC_VERSION 2>/dev/null || true
+
+          echo '=== cpu ==='
+          lscpu 2>/dev/null || true
+          printf 'nproc='; nproc 2>/dev/null || true
+
+          echo '=== memory ==='
+          free -b 2>/dev/null || true
+          grep -E '^(MemTotal|MemAvailable|SwapTotal|SwapFree):' /proc/meminfo 2>/dev/null || true
+
+          echo '=== disk ==='
+          df -B1 -T / 2>/dev/null || true
+          df -B1 -T "${RUNNER_WORKSPACE:-/home/eep-runner/actions-runner/_work}" 2>/dev/null || true
+
+          echo '=== tools ==='
+          for tool in git python3 gcc g++ gcc-13 g++-13 clang clang++ cmake ninja dotnet qmake6 qtpaths6; do
+            printf '%s.path=' "$tool"
+            command -v "$tool" 2>/dev/null || echo MISSING
+            case "$tool" in
+              git) git --version 2>&1 || true ;;
+              python3) python3 --version 2>&1 || true ;;
+              gcc|g++|gcc-13|g++-13|clang|clang++) "$tool" --version 2>&1 | head -n 1 || true ;;
+              cmake) cmake --version 2>&1 | head -n 1 || true ;;
+              ninja) ninja --version 2>&1 || true ;;
+              dotnet) dotnet --info 2>&1 || true ;;
+              qmake6) qmake6 -v 2>&1 || true ;;
+              qtpaths6) qtpaths6 --qt-version 2>&1 || true ;;
+            esac
+          done
+
+          echo '=== selected dpkg packages ==='
+          for pkg in gcc g++ gcc-13 g++-13 clang cmake ninja-build qt6-base-dev qt6-declarative-dev libqt6svg6-dev dotnet-sdk-10.0; do
+            dpkg-query -W -f='${Package}\t${Version}\n' "$pkg" 2>/dev/null || printf '%s\tMISSING\n' "$pkg"
+          done
+
+          echo '=== common roots ==='
+          for path in /usr/share/dotnet /usr/lib/qt6 /opt/Qt; do
+            if [ -e "$path" ]; then
+              stat -c '%A %U:%G %n' "$path" 2>/dev/null || true
+            else
+              echo "$path MISSING"
+            fi
+          done
