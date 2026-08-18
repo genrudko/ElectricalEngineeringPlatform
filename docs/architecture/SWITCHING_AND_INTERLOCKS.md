@@ -6,6 +6,8 @@
 
 Switching/TBP module uses the shared electrical model to prepare, simulate and validate switching sequences and to generate/check switching-form documents.
 
+It is a **clean-sheet implementation**. The old TBP codebase/configuration/rules are not migration inputs or normative authority.
+
 It is not a real-equipment control system.
 
 ## 2. Core flow
@@ -103,7 +105,7 @@ The software model does not claim to replace or verify physical implementation u
 
 ## 9. Human review boundary
 
-Inherited TBP principle remains baseline:
+Foundation safety baseline:
 
 > generated forms/sequences are drafts/decision support requiring qualified human review before operational use.
 
@@ -113,13 +115,15 @@ Changing this boundary requires separate safety/legal/normative acceptance and c
 
 Switching module consumes resolved rules from Compliance Core with source/version/effective dates, applicability, authority/severity, local-overlay resolution and test/evidence status.
 
-Applicable sources include the registered Russian energy-sector documents in `docs/compliance/NORMATIVE_REGISTRY.md`.
+Applicable government/sector sources are acquired/re-verified online from authoritative sources as the relevant compliance work is implemented. The old TBP implementation is not used as a source of normative truth.
 
 ## 11. Local instructions and enterprise policy
 
-Site-specific switching instructions may define additional checks, stricter sequences, equipment-specific restrictions, local operational names, mandatory intermediate steps, approved wording and special conditions for normal/repair schemes.
+The product must support site-specific rules that add checks, stricter sequences, equipment-specific restrictions, local operational names, mandatory intermediate steps, approved wording and special conditions for normal/repair schemes.
 
 They cannot suppress an applicable locked mandatory requirement. Conflict is an explicit error.
+
+Shared development does **not** require real internal enterprise/site instructions. These mechanics are developed against synthetic/cleared policy fixtures. Real internal instructions remain inside the authorized deployment environment and are formalized into local policy packages there.
 
 ## 12. Operational names vs identity
 
@@ -160,10 +164,13 @@ A blocked/unresolved sequence must never be silently rendered as approved/ready.
 - unit tests for predicates/rule resolution;
 - scenario tests on known schemes/states;
 - invariant/property tests where useful;
-- regression fixtures from accepted operational examples;
+- synthetic/cleared regression scenarios;
 - normative rule tests bound to rule IDs/source versions;
 - negative tests for UNKNOWN/incomplete topology;
-- sequence revalidation after reorder/change.
+- sequence revalidation after reorder/change;
+- local-policy tests proving stricter overlays and rejection of weakening attempts.
+
+Old TBP tests are not accepted as canonical regression fixtures merely because they already exist.
 
 ## 17. Prohibited early features
 
@@ -172,4 +179,5 @@ A blocked/unresolved sequence must never be silently rendered as approved/ready.
 - automatic approval/signature;
 - assertion that simulation guarantees physical safety;
 - local switch that disables mandatory rules;
-- black-box AI-generated sequence accepted without deterministic validation/provenance.
+- black-box AI-generated sequence accepted without deterministic validation/provenance;
+- migration of old TBP rules/configuration without a new explicit owner decision.
