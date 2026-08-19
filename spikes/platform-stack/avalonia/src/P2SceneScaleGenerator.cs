@@ -165,7 +165,7 @@ public static class P2SceneScaleGenerator
         return new GeneratedP2Scene(tier, seed, scene, counts, Fingerprint(scene, counts, seed));
     }
 
-    private static SemanticEntityKind EntityKindFor(int index) => index % 4 switch
+    private static SemanticEntityKind EntityKindFor(int index) => (index % 4) switch
     {
         0 => SemanticEntityKind.Busbar,
         1 => SemanticEntityKind.CircuitBreaker,
@@ -193,12 +193,12 @@ public static class P2SceneScaleGenerator
     private static SemanticState StateFor(int seed, int index)
     {
         var value = DeterministicWord(seed, index);
-        return value % 20 switch
+        return (value % 20u) switch
         {
-            0 => SemanticState.Unknown,
-            1 => SemanticState.Intermediate,
-            2 => SemanticState.SimulatedClosed,
-            < 11 => SemanticState.Open,
+            0u => SemanticState.Unknown,
+            1u => SemanticState.Intermediate,
+            2u => SemanticState.SimulatedClosed,
+            < 11u => SemanticState.Open,
             _ => SemanticState.Closed
         };
     }
@@ -206,7 +206,8 @@ public static class P2SceneScaleGenerator
     private static double DeterministicOffset(int seed, int index, int salt, int amplitude)
     {
         var word = DeterministicWord(seed ^ salt, index);
-        return (word % (uint)(amplitude * 2 + 1)) - amplitude;
+        var span = amplitude * 2 + 1;
+        return (int)(word % (uint)span) - amplitude;
     }
 
     private static uint DeterministicWord(int seed, int index)
