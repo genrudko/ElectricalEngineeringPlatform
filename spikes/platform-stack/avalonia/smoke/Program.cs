@@ -59,6 +59,7 @@ foreach (var expected in new[]
 
 Console.WriteLine("P1 Avalonia presentation-behavior smoke: PASS");
 P2SemanticSmoke.Run();
+P2ScaleSmoke.Run();
 
 static void Collect(EquipmentNodeFixture node, ISet<string> ids)
 {
