@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Eep.PlatformStack.P2.Semantics;
 
 namespace Eep.PlatformStack.P1.Avalonia;
@@ -16,7 +17,21 @@ public sealed partial class MainWindow
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        InstallP2Canvas();
+        Program.TraceStartup("window-opened");
+        Dispatcher.UIThread.Post(() =>
+        {
+            Program.TraceStartup("p2-install-enter");
+            try
+            {
+                InstallP2Canvas();
+                Program.TraceStartup("p2-install-complete");
+            }
+            catch (Exception ex)
+            {
+                Program.TraceStartup($"p2-install-failed {ex.GetType().Name}: {ex.Message}");
+                throw;
+            }
+        });
     }
 
     private void InstallP2Canvas()
@@ -37,7 +52,9 @@ public sealed partial class MainWindow
             throw new InvalidOperationException("P2 canvas cannot mount because no document tabs exist.");
         }
 
+        Program.TraceStartup("p2-manifest-load-enter");
         _p2TierManifest = P2SceneTierManifest.Load();
+        Program.TraceStartup("p2-manifest-load-complete");
         var host = new Grid
         {
             RowDefinitions = RowDefinitions.Parse("Auto,*"),
@@ -99,6 +116,7 @@ public sealed partial class MainWindow
             return;
         }
 
+        Program.TraceStartup($"p2-tier-{tier}-load-enter");
         P2SemanticScene scene;
         GeneratedP2Scene? generated = null;
         if (tier == "DEMO")
@@ -138,6 +156,7 @@ public sealed partial class MainWindow
         {
             StatusText.Text = $"P2 {tier} loaded · semantic={generated.Counts.SemanticElementCount:N0} · entities={generated.Counts.EntityCount:N0} · sha={generated.FingerprintSha256[..12]}";
         }
+        Program.TraceStartup($"p2-tier-{tier}-load-complete");
     }
 
     private void SetP2ViewportMode(P2ViewportMode mode)
