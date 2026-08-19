@@ -1,10 +1,12 @@
-# P1 candidate-neutral acceptance surface
+# P1 acceptance surface — remaining Avalonia candidate
 
-This document is the stack-neutral functional contract for both P1 applications. It is fixed before candidate-specific implementation.
+This document defines the frozen functional surface for P1. It was originally candidate-neutral and remains unchanged in substance after Qt withdrawal.
+
+Owner amendment: `docs/development/PLATFORM_STACK_SPIKE_OWNER_AMENDMENT_2026-08-19.md`.
 
 ## Composition
 
-Both candidates implement one light-theme dense engineering desktop shell:
+The remaining Avalonia candidate implements one light-theme dense engineering desktop shell:
 
 ```text
 Menu
@@ -42,7 +44,7 @@ Open/Save operate only on harmless demo state in P1. No production project seria
 
 ## UI Gallery states
 
-Both candidates show the same logical examples:
+The candidate must show the frozen logical examples:
 
 - primary/default, secondary and disabled button;
 - text and numeric input;
@@ -62,7 +64,7 @@ Both candidates show the same logical examples:
 
 ## Typography
 
-Pinned fixture: Noto Sans 2.015, Regular 400 and SemiBold 600. `shared/fixtures/font-fixture.json` must receive exact binary SHA-256 values before first accepted visual evidence.
+Pinned fixture: Noto Sans 2.015, Regular 400 and SemiBold 600. `shared/fixtures/font-fixture.json` contains the exact binary SHA-256 values used by accepted evidence.
 
 No silent system-font fallback is accepted for the mandatory visual fixture.
 
@@ -75,8 +77,14 @@ No silent system-font fallback is accepted for the mandatory visual fixture.
 04-long-russian-text
 ```
 
-Logical content and requested viewport size are kept equal. Pixel-perfect styling is not an acceptance requirement.
+The frozen logical content and requested viewport remain the P1 visual contract. Pixel-perfect styling against a withdrawn second framework is not an acceptance requirement.
+
+## Decision boundary
+
+Passing P1 means only that Avalonia may proceed to the next viability gate. It is not a stack-selection decision.
+
+If a mandatory P1 requirement cannot be met without violating the active hard constraints, P1 fails and the spike result becomes `NO_STACK_PASSES_CURRENT_CONTRACT` unless the owner explicitly changes the contract.
 
 ## Scope boundary
 
-P1 explicitly does not implement semantic canvas, 100k tables/Import Review, detachable multi-window behavior, production project/domain model, final packaging, weighted scoring or stack selection.
+P1 explicitly does not implement semantic canvas, 100k tables/Import Review, detachable multi-window behavior, production project/domain model, final packaging or final stack selection.
