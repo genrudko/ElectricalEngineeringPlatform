@@ -10,7 +10,9 @@ internal static class Program
     {
         try
         {
+            TraceStartup("program-main-enter");
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            TraceStartup("program-main-exit");
             return 0;
         }
         catch (Exception ex)
@@ -23,6 +25,24 @@ internal static class Program
     public static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect();
+
+    internal static void TraceStartup(string stage)
+    {
+        if (!string.Equals(Environment.GetEnvironmentVariable("EEP_P2_STARTUP_TRACE"), "1", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        try
+        {
+            var target = Path.Combine(Path.GetTempPath(), "EEP.P1.Avalonia.startup-trace.log");
+            File.AppendAllText(target, $"{DateTimeOffset.UtcNow:O} {stage}{Environment.NewLine}", Encoding.UTF8);
+        }
+        catch
+        {
+            // CI-only trace must never alter application behavior.
+        }
+    }
 
     private static void WriteStartupFailure(Exception ex)
     {
