@@ -66,10 +66,10 @@ public sealed class P2CanvasController
         switch (mode)
         {
             case P2ViewportMode.Normal:
-                SetViewport(0.50, new ScenePoint(50, 50));
+                TargetVisibleSemanticElements(500, viewportWidth, viewportHeight);
                 break;
             case P2ViewportMode.Dense:
-                SetViewport(0.25, new ScenePoint(40, 40));
+                TargetVisibleSemanticElements(2_000, viewportWidth, viewportHeight);
                 break;
             case P2ViewportMode.ZoomToFit:
                 FitScene(viewportWidth, viewportHeight, 32);
@@ -133,6 +133,31 @@ public sealed class P2CanvasController
         return ids;
     }
 
+    public IReadOnlyList<string> VisibleConnectionIds(double viewportWidth, double viewportHeight)
+    {
+        var visible = VisibleWorldRect(viewportWidth, viewportHeight);
+        var ids = new List<string>();
+        foreach (var connectionId in Scene.Connections.Keys)
+        {
+            if (ConnectionBounds(connectionId).Intersects(visible))
+            {
+                ids.Add(connectionId);
+            }
+        }
+        return ids;
+    }
+
+    public int VisibleSemanticElementCount(double viewportWidth, double viewportHeight)
+    {
+        var entityIds = VisibleEntityIds(viewportWidth, viewportHeight);
+        var terminalCount = 0;
+        foreach (var entityId in entityIds)
+        {
+            terminalCount += Scene.Entities[entityId].Terminals.Count;
+        }
+        return entityIds.Count + terminalCount + VisibleConnectionIds(viewportWidth, viewportHeight).Count;
+    }
+
     public SceneRect EntityBounds(string entityId)
     {
         var entity = Scene.Entities[entityId];
@@ -140,6 +165,16 @@ public sealed class P2CanvasController
         return entity.Kind == SemanticEntityKind.Busbar
             ? new SceneRect(position.X, position.Y, BusbarWidth, BusbarHeight)
             : new SceneRect(position.X - DeviceWidth / 2, position.Y - DeviceHeight / 2, DeviceWidth, DeviceHeight);
+    }
+
+    public SceneRect ConnectionBounds(string connectionId)
+    {
+        var route = ConnectionRoute(connectionId);
+        var left = route.Min(point => point.X);
+        var top = route.Min(point => point.Y);
+        var right = route.Max(point => point.X);
+        var bottom = route.Max(point => point.Y);
+        return new SceneRect(left, top, Math.Max(1, right - left), Math.Max(1, bottom - top));
     }
 
     public string? HitTestEntity(ScenePoint world, double tolerance = 4)
@@ -275,10 +310,51 @@ public sealed class P2CanvasController
     public bool Undo() => History.Undo(Scene);
     public bool Redo() => History.Redo(Scene);
 
-    private void SetViewport(double zoom, ScenePoint pan)
+    public void SetViewport(double zoom, ScenePoint pan)
     {
         Zoom = Math.Clamp(zoom, 0.05, 8.0);
         Pan = pan;
+    }
+
+    private void TargetVisibleSemanticElements(int target, double viewportWidth, double viewportHeight)
+    {
+        if (Scene.Entities.Count == 0)
+        {
+            return;
+        }
+
+        if (target >= Scene.Entities.Count + Scene.Terminals.Count + Scene.Connections.Count)
+        {
+            FitScene(viewportWidth, viewportHeight, 32);
+            return;
+        }
+
+        var bounds = SceneBounds();
+        var center = new ScenePoint(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+        var low = 0.05;
+        var high = 8.0;
+        for (var i = 0; i < 18; i++)
+        {
+            var zoom = (low + high) / 2;
+            CenterViewport(center, zoom, viewportWidth, viewportHeight);
+            var visible = VisibleSemanticElementCount(viewportWidth, viewportHeight);
+            if (visible > target)
+            {
+                low = zoom;
+            }
+            else
+            {
+                high = zoom;
+            }
+        }
+        CenterViewport(center, (low + high) / 2, viewportWidth, viewportHeight);
+    }
+
+    private void CenterViewport(ScenePoint center, double zoom, double viewportWidth, double viewportHeight)
+    {
+        SetViewport(zoom, new ScenePoint(
+            viewportWidth / 2 - center.X * zoom,
+            viewportHeight / 2 - center.Y * zoom));
     }
 
     private void FitScene(double viewportWidth, double viewportHeight, double margin)
