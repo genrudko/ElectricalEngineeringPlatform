@@ -85,7 +85,7 @@ jobs:
           set -euo pipefail
           EVIDENCE="$RUNNER_TEMP/eep-p1-qt-evidence"
           INSTALLER="$RUNNER_TEMP/qt-online-installer-linux-x64-4.11.0.run"
-          URL='https://download.qt.io/official_releases/online_installers/qt-online-installer-linux-x64-4.11.0.run'
+          URL='https://download.qt.io/archive/online_installers/4.11/qt-online-installer-linux-x64-4.11.0.run'
           curl --fail --location --retry 2 --output "$INSTALLER" "$URL"
           echo '40b76bdf74f6a396341efb70ae2e754fcd878474babb6cd9d7f07eff12a85c62  '"$INSTALLER" | sha256sum --check -
           chmod +x "$INSTALLER"
@@ -158,7 +158,7 @@ jobs:
             'git_sha':os.environ['EXACT_HEAD'],'run_id':os.environ['GITHUB_RUN_ID'],
             'timestamp_utc':subprocess.check_output(['date','-u','+%Y-%m-%dT%H:%M:%SZ'],text=True).strip(),
             'os':{'name':'Ubuntu','version':'24.04.4 LTS','build':'','kernel':platform.release(),'arch':platform.machine()},
-            'host':{'cpu_model':next((l.split(':',1)[1].strip() for l in Path('/proc/cpuinfo').read_text().splitlines() if l.startswith('model name')),'unknown'),'logical_cpus':os.cpu_count(),'ram_bytes':int(subprocess.check_output("awk '/MemTotal/ {print $2*1024}' /proc/meminfo,shell=True,text=True).strip().split('.')[0]),'disk_free_bytes':shutil.disk_usage('/').free},
+            'host':{'cpu_model':next((l.split(':',1)[1].strip() for l in Path('/proc/cpuinfo').read_text().splitlines() if l.startswith('model name')),'unknown'),'logical_cpus':os.cpu_count(),'ram_bytes':int(subprocess.check_output("awk '/MemTotal/ {print $2*1024}' /proc/meminfo",shell=True,text=True).strip().split('.')[0]),'disk_free_bytes':shutil.disk_usage('/').free},
             'gpu':[],'displays':[],
             'toolchain':{'dotnet_sdk':None,'dotnet_runtime':None,'compiler':subprocess.check_output(['g++','--version'],text=True).splitlines()[0],'compiler_detail':subprocess.check_output(['g++','--version'],text=True).splitlines()[0],'windows_sdk':None,'cmake':subprocess.check_output(['cmake','--version'],text=True).splitlines()[0].split()[-1],'ninja':subprocess.check_output(['ninja','--version'],text=True).strip(),'runner_image':None},
             'framework':{'name':'qt','version':'6.11.1'},'build':{'configuration':'Release','options':{'cxx':'20','generator':'Ninja'}},
