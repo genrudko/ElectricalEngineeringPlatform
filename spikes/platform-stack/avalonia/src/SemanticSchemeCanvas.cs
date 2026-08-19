@@ -18,34 +18,68 @@ public sealed class SemanticSchemeCanvas : Control
     private static readonly IBrush HoverBrush = new SolidColorBrush(Color.Parse("#8AA7C0"));
     private static readonly IBrush WarningBrush = new SolidColorBrush(Color.Parse("#B78300"));
     private static readonly IBrush TerminalFillBrush = new SolidColorBrush(Color.Parse("#FFFFFF"));
+    private static readonly IBrush SimulatedBrush = new SolidColorBrush(Color.Parse("#7A4D96"));
     private static readonly Typeface CanvasTypeface = new(new FontFamily("Noto Sans"));
 
     private readonly P2CanvasController _controller;
+    private readonly string _tierLabel;
     private bool _panning;
     private ScenePoint _lastPanScreen;
     private string? _dragEntityId;
     private ScenePoint _dragStartWorld;
     private ScenePoint _dragOriginal;
     private string _dragTopology = string.Empty;
+    private P2ViewportMode? _requestedViewportMode;
+    private bool _applyViewportOnNextRender;
 
     public SemanticSchemeCanvas()
+        : this(P2SemanticFixtureLoader.Load(), "DEMO")
     {
-        _controller = new P2CanvasController(P2SemanticFixtureLoader.Load());
+    }
+
+    public SemanticSchemeCanvas(P2SemanticScene scene, string tierLabel)
+    {
+        _controller = new P2CanvasController(scene);
+        _tierLabel = tierLabel;
         Focusable = true;
         ClipToBounds = true;
     }
 
     public P2CanvasController Controller => _controller;
+    public string TierLabel => _tierLabel;
     public event Action<string>? StatusChanged;
     public event Action<string>? EntitySelected;
 
+    public void ApplyViewportMode(P2ViewportMode mode)
+    {
+        _requestedViewportMode = mode;
+        _applyViewportOnNextRender = true;
+        InvalidateVisual();
+    }
+
     public override void Render(DrawingContext context)
     {
+        var width = Math.Max(1, Bounds.Width);
+        var height = Math.Max(1, Bounds.Height);
+        if (_applyViewportOnNextRender && _requestedViewportMode is { } mode)
+        {
+            _controller.ApplyViewportMode(mode, width, height);
+            _applyViewportOnNextRender = false;
+        }
+
         context.FillRectangle(BackgroundBrush, new Rect(Bounds.Size));
-        DrawGrid(context);
-        DrawConnections(context);
-        DrawEntities(context);
-        DrawOverlay(context);
+        if (_controller.Zoom >= 0.20)
+        {
+            DrawGrid(context);
+        }
+
+        var visibleEntityIds = _controller.VisibleEntityIds(width, height);
+        var visibleConnectionIds = _controller.VisibleConnectionIds(width, height);
+        var markerIds = _controller.Scene.ValidationMarkers.Select(marker => marker.EntityId).ToHashSet(StringComparer.Ordinal);
+
+        DrawConnections(context, visibleConnectionIds);
+        DrawEntities(context, visibleEntityIds, markerIds);
+        DrawOverlay(context, visibleEntityIds, visibleConnectionIds);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -58,6 +92,7 @@ public sealed class SemanticSchemeCanvas : Control
         if (point.Properties.IsMiddleButtonPressed || point.Properties.IsRightButtonPressed)
         {
             _panning = true;
+            _requestedViewportMode = null;
             _lastPanScreen = screen;
             e.Pointer.Capture(this);
             e.Handled = true;
@@ -165,9 +200,10 @@ public sealed class SemanticSchemeCanvas : Control
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         base.OnPointerWheelChanged(e);
+        _requestedViewportMode = null;
         var screen = ToScenePoint(e.GetPosition(this));
         _controller.ZoomAt(screen, e.Delta.Y > 0 ? 1.12 : 1 / 1.12);
-        StatusChanged?.Invoke($"P2 zoom: {_controller.Zoom:P0}");
+        StatusChanged?.Invoke($"P2 {_tierLabel} zoom: {_controller.Zoom:P0}");
         InvalidateVisual();
         e.Handled = true;
     }
@@ -217,27 +253,27 @@ public sealed class SemanticSchemeCanvas : Control
         var startX = Math.Floor(topLeft.X / step) * step;
         for (var x = startX; x <= bottomRight.X; x += step)
         {
-            var a = ToPoint(_controller.WorldToScreen(new ScenePoint(x, topLeft.Y)));
-            var b = ToPoint(_controller.WorldToScreen(new ScenePoint(x, bottomRight.Y)));
-            context.DrawLine(pen, a, b);
+            context.DrawLine(pen,
+                ToPoint(_controller.WorldToScreen(new ScenePoint(x, topLeft.Y))),
+                ToPoint(_controller.WorldToScreen(new ScenePoint(x, bottomRight.Y))));
         }
 
         var startY = Math.Floor(topLeft.Y / step) * step;
         for (var y = startY; y <= bottomRight.Y; y += step)
         {
-            var a = ToPoint(_controller.WorldToScreen(new ScenePoint(topLeft.X, y)));
-            var b = ToPoint(_controller.WorldToScreen(new ScenePoint(bottomRight.X, y)));
-            context.DrawLine(pen, a, b);
+            context.DrawLine(pen,
+                ToPoint(_controller.WorldToScreen(new ScenePoint(topLeft.X, y))),
+                ToPoint(_controller.WorldToScreen(new ScenePoint(bottomRight.X, y))));
         }
     }
 
-    private void DrawConnections(DrawingContext context)
+    private void DrawConnections(DrawingContext context, IReadOnlyList<string> connectionIds)
     {
-        foreach (var connection in _controller.Scene.Connections.Values)
+        foreach (var connectionId in connectionIds)
         {
-            var selected = connection.Id == _controller.SelectedConnectionId;
-            var pen = new Pen(selected ? SelectedBrush : NormalBrush, selected ? 3 : 2);
-            var route = _controller.ConnectionRoute(connection.Id);
+            var selected = connectionId == _controller.SelectedConnectionId;
+            var pen = new Pen(selected ? SelectedBrush : NormalBrush, selected ? 3 : 1.5);
+            var route = _controller.ConnectionRoute(connectionId);
             for (var i = 0; i < route.Count - 1; i++)
             {
                 context.DrawLine(pen, ToPoint(_controller.WorldToScreen(route[i])), ToPoint(_controller.WorldToScreen(route[i + 1])));
@@ -245,49 +281,74 @@ public sealed class SemanticSchemeCanvas : Control
         }
     }
 
-    private void DrawEntities(DrawingContext context)
+    private void DrawEntities(DrawingContext context, IReadOnlyList<string> entityIds, ISet<string> markerIds)
     {
-        foreach (var entity in _controller.Scene.Entities.Values)
+        var lowDetail = _controller.Zoom < 0.18;
+        var showLabels = _controller.Zoom >= 0.35;
+        var showTerminals = _controller.Zoom >= 0.45;
+
+        foreach (var entityId in entityIds)
         {
+            var entity = _controller.Scene.Entities[entityId];
             var bounds = ToRect(_controller.EntityBounds(entity.Id));
             var selected = entity.Id == _controller.SelectedEntityId;
             var hovered = entity.Id == _controller.HoveredEntityId;
             var stateBrush = StateBrush(entity.State);
-            var statePen = new Pen(stateBrush, Math.Max(1.5, 2 * _controller.Zoom));
 
-            switch (entity.Kind)
+            if (lowDetail)
             {
-                case SemanticEntityKind.Busbar:
-                    context.DrawLine(new Pen(stateBrush, Math.Max(3, 5 * _controller.Zoom)),
-                        new Point(bounds.Left, bounds.Center.Y), new Point(bounds.Right, bounds.Center.Y));
-                    break;
-                case SemanticEntityKind.CircuitBreaker:
-                    DrawCircuitBreaker(context, bounds, entity.State, statePen);
-                    break;
-                case SemanticEntityKind.Disconnector:
-                    DrawDisconnector(context, bounds, entity.State, statePen);
-                    break;
-                case SemanticEntityKind.EarthingSwitch:
-                    DrawEarthingSwitch(context, bounds, entity.State, statePen);
-                    break;
+                if (entity.Kind == SemanticEntityKind.Busbar)
+                {
+                    context.DrawLine(new Pen(stateBrush, 2), new Point(bounds.Left, bounds.Center.Y), new Point(bounds.Right, bounds.Center.Y));
+                }
+                else
+                {
+                    context.FillRectangle(stateBrush, bounds);
+                }
+            }
+            else
+            {
+                var statePen = new Pen(stateBrush, Math.Max(1.5, 2 * _controller.Zoom));
+                switch (entity.Kind)
+                {
+                    case SemanticEntityKind.Busbar:
+                        context.DrawLine(new Pen(stateBrush, Math.Max(3, 5 * _controller.Zoom)),
+                            new Point(bounds.Left, bounds.Center.Y), new Point(bounds.Right, bounds.Center.Y));
+                        break;
+                    case SemanticEntityKind.CircuitBreaker:
+                        DrawCircuitBreaker(context, bounds, entity.State, statePen);
+                        break;
+                    case SemanticEntityKind.Disconnector:
+                        DrawDisconnector(context, bounds, entity.State, statePen);
+                        break;
+                    case SemanticEntityKind.EarthingSwitch:
+                        DrawEarthingSwitch(context, bounds, entity.State, statePen);
+                        break;
+                }
             }
 
             if (selected || hovered)
             {
-                context.DrawRectangle(null, new Pen(selected ? SelectedBrush : HoverBrush, selected ? 2 : 1), bounds.Inflate(6));
+                context.DrawRectangle(null, new Pen(selected ? SelectedBrush : HoverBrush, selected ? 2 : 1), bounds.Inflate(5));
             }
 
-            DrawLabel(context, entity.Designation, new Point(bounds.Left, bounds.Bottom + 7), 12, NormalBrush);
-
-            foreach (var terminal in entity.Terminals)
+            if (showLabels)
             {
-                var point = ToPoint(_controller.WorldToScreen(_controller.TerminalAnchor(terminal.Id)));
-                context.DrawEllipse(TerminalFillBrush, new Pen(NormalBrush, 1.5), point, 4, 4);
+                DrawLabel(context, entity.Designation, new Point(bounds.Left, bounds.Bottom + 7), 12, NormalBrush);
             }
 
-            if (_controller.Scene.ValidationMarkers.Any(marker => marker.EntityId == entity.Id))
+            if (showTerminals)
             {
-                context.DrawEllipse(WarningBrush, null, new Point(bounds.Right + 5, bounds.Top - 5), 5, 5);
+                foreach (var terminal in entity.Terminals)
+                {
+                    var point = ToPoint(_controller.WorldToScreen(_controller.TerminalAnchor(terminal.Id)));
+                    context.DrawEllipse(TerminalFillBrush, new Pen(NormalBrush, 1.2), point, 3.5, 3.5);
+                }
+            }
+
+            if (markerIds.Contains(entity.Id) && _controller.Zoom >= 0.12)
+            {
+                context.DrawEllipse(WarningBrush, null, new Point(bounds.Right + 4, bounds.Top - 4), 4, 4);
             }
         }
     }
@@ -298,14 +359,9 @@ public sealed class SemanticSchemeCanvas : Control
         context.DrawRectangle(null, pen, new Rect(centerX - 18, bounds.Center.Y - 16, 36, 32));
         context.DrawLine(pen, new Point(centerX, bounds.Top), new Point(centerX, bounds.Center.Y - 16));
         context.DrawLine(pen, new Point(centerX, bounds.Center.Y + 16), new Point(centerX, bounds.Bottom));
-        if (state == SemanticState.Closed || state == SemanticState.SimulatedClosed)
-        {
-            context.DrawLine(pen, new Point(centerX, bounds.Center.Y - 12), new Point(centerX, bounds.Center.Y + 12));
-        }
-        else
-        {
-            context.DrawLine(pen, new Point(centerX - 8, bounds.Center.Y + 10), new Point(centerX + 9, bounds.Center.Y - 8));
-        }
+        context.DrawLine(pen,
+            state is SemanticState.Closed or SemanticState.SimulatedClosed ? new Point(centerX, bounds.Center.Y - 12) : new Point(centerX - 8, bounds.Center.Y + 10),
+            state is SemanticState.Closed or SemanticState.SimulatedClosed ? new Point(centerX, bounds.Center.Y + 12) : new Point(centerX + 9, bounds.Center.Y - 8));
     }
 
     private static void DrawDisconnector(DrawingContext context, Rect bounds, SemanticState state, Pen pen)
@@ -317,8 +373,7 @@ public sealed class SemanticSchemeCanvas : Control
         context.DrawLine(pen, lower, new Point(x, bounds.Bottom));
         context.DrawEllipse(TerminalFillBrush, pen, upper, 3, 3);
         context.DrawEllipse(TerminalFillBrush, pen, lower, 3, 3);
-        var bladeEnd = state == SemanticState.Closed ? upper : new Point(x + 22, bounds.Center.Y - 8);
-        context.DrawLine(pen, lower, bladeEnd);
+        context.DrawLine(pen, lower, state == SemanticState.Closed ? upper : new Point(x + 22, bounds.Center.Y - 8));
     }
 
     private static void DrawEarthingSwitch(DrawingContext context, Rect bounds, SemanticState state, Pen pen)
@@ -327,23 +382,25 @@ public sealed class SemanticSchemeCanvas : Control
         var pivot = new Point(bounds.Center.X - 8, bounds.Center.Y);
         var earth = new Point(bounds.Center.X, bounds.Bottom);
         context.DrawLine(pen, left, pivot);
-        var bladeEnd = state == SemanticState.Closed ? new Point(bounds.Center.X, bounds.Center.Y + 18) : new Point(bounds.Center.X + 18, bounds.Center.Y - 12);
-        context.DrawLine(pen, pivot, bladeEnd);
+        context.DrawLine(pen, pivot, state == SemanticState.Closed ? new Point(bounds.Center.X, bounds.Center.Y + 18) : new Point(bounds.Center.X + 18, bounds.Center.Y - 12));
         context.DrawLine(pen, new Point(bounds.Center.X, bounds.Center.Y + 18), earth);
         context.DrawLine(pen, new Point(bounds.Center.X - 14, bounds.Bottom), new Point(bounds.Center.X + 14, bounds.Bottom));
         context.DrawLine(pen, new Point(bounds.Center.X - 9, bounds.Bottom + 5), new Point(bounds.Center.X + 9, bounds.Bottom + 5));
         context.DrawLine(pen, new Point(bounds.Center.X - 4, bounds.Bottom + 10), new Point(bounds.Center.X + 4, bounds.Bottom + 10));
     }
 
-    private void DrawOverlay(DrawingContext context)
+    private void DrawOverlay(DrawingContext context, IReadOnlyList<string> entityIds, IReadOnlyList<string> connectionIds)
     {
         var selected = _controller.SelectedEntityId ?? "—";
         var connection = _controller.SelectedConnectionId ?? "—";
+        var terminalCount = entityIds.Sum(id => _controller.Scene.Entities[id].Terminals.Count);
+        var visibleSemantic = entityIds.Count + terminalCount + connectionIds.Count;
+        var mode = _requestedViewportMode?.ToString().ToUpperInvariant() ?? "CUSTOM";
         DrawLabel(context,
-            $"P2 Semantic Canvas  ·  zoom {_controller.Zoom:P0}  ·  entity {selected}  ·  connection {connection}",
+            $"P2 {_tierLabel} · {mode} · zoom {_controller.Zoom:P1} · visible semantic {visibleSemantic} · entity {selected} · connection {connection}",
             new Point(12, 10), 12, NormalBrush);
         DrawLabel(context,
-            "ЛКМ: select/drag · ПКМ/СКМ: pan · колесо: zoom · connection + Ctrl+click terminal: reconnect · S: state · Ctrl+Z/Y",
+            "ЛКМ select/drag · ПКМ/СКМ pan · wheel zoom · connection + Ctrl+click terminal reconnect · S state · Ctrl+Z/Y",
             new Point(12, 29), 11, UnknownBrush);
     }
 
@@ -359,7 +416,7 @@ public sealed class SemanticSchemeCanvas : Control
         SemanticState.Open => OpenBrush,
         SemanticState.Intermediate => WarningBrush,
         SemanticState.Unknown => UnknownBrush,
-        SemanticState.SimulatedClosed => new SolidColorBrush(Color.Parse("#7A4D96")),
+        SemanticState.SimulatedClosed => SimulatedBrush,
         _ => NormalBrush
     };
 
