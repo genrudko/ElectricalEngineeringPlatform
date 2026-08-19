@@ -11,6 +11,7 @@
     <Compile Include="../src/P1Commands.cs" Link="P1Commands.cs" />
     <Compile Include="../src/P2SemanticModel.cs" Link="P2SemanticModel.cs" />
     <Compile Include="../src/P2SemanticCommands.cs" Link="P2SemanticCommands.cs" />
+    <Compile Include="../src/P2CanvasController.cs" Link="P2CanvasController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="../../shared/fixtures/p1-shell-fixture.json" Link="Fixtures/p1-shell-fixture.json" CopyToOutputDirectory="PreserveNewest" />
