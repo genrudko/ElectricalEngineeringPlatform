@@ -1,0 +1,139 @@
+name: Platform Stack P1 Windows
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/platform-stack-p1-windows.yml'
+      - 'spikes/platform-stack/avalonia/**'
+      - 'spikes/platform-stack/shared/**'
+      - 'spikes/platform-stack/scripts/materialize_dotnet.py'
+      - 'spikes/platform-stack/scripts/materialize_noto.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  avalonia-windows:
+    name: P1.4 Avalonia Windows x64 preview
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact event head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: Exact-head and runner fingerprint
+        shell: pwsh
+        env:
+          EXACT_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if ((git rev-parse HEAD) -ne $env:EXACT_HEAD) { throw 'exact-head mismatch' }
+          "exact_head=$env:EXACT_HEAD"
+          "ImageOS=$env:ImageOS"
+          "ImageVersion=$env:ImageVersion"
+          Get-ComputerInfo | Select-Object WindowsProductName,WindowsVersion,OsBuildNumber,CsSystemType | Format-List
+          Get-PSDrive C | Format-List Used,Free
+
+      - name: Materialize .NET SDK 10.0.302 and Noto Sans 2.015
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $toolRoot = Join-Path $env:RUNNER_TEMP 'eep-p1-windows-tools'
+          $evidence = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-evidence'
+          Remove-Item $toolRoot,$evidence -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item $toolRoot,$evidence -ItemType Directory -Force | Out-Null
+          python spikes/platform-stack/scripts/materialize_dotnet.py --version 10.0.302 --rid win-x64 --install-dir (Join-Path $toolRoot 'dotnet-10.0.302') --provenance (Join-Path $evidence 'dotnet-acquisition.json')
+          $dotnet = Join-Path $toolRoot 'dotnet-10.0.302\dotnet.exe'
+          if ((& $dotnet --version) -ne '10.0.302') { throw 'wrong dotnet SDK' }
+          (Split-Path $dotnet) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "DOTNET_ROOT=$(Split-Path $dotnet)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $fontDir = 'spikes/platform-stack/avalonia/src/Assets/Fonts'
+          Remove-Item $fontDir -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item $fontDir -ItemType Directory -Force | Out-Null
+          python spikes/platform-stack/scripts/materialize_noto.py --destination $fontDir --provenance (Join-Path $evidence 'noto-acquisition.json')
+          if ((Get-FileHash "$fontDir/NotoSans-Regular.ttf" -Algorithm SHA256).Hash.ToLower() -ne '478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823') { throw 'Regular font hash mismatch' }
+          if ((Get-FileHash "$fontDir/NotoSans-SemiBold.ttf" -Algorithm SHA256).Hash.ToLower() -ne 'a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0') { throw 'SemiBold font hash mismatch' }
+
+      - name: Locked restore, Release build and behavior smoke
+        shell: pwsh
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          dotnet restore spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj --locked-mode
+          dotnet restore spikes/platform-stack/avalonia/smoke/EEP.P1.Avalonia.Smoke.csproj --locked-mode
+          dotnet build spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj -c Release --no-restore
+          dotnet build spikes/platform-stack/avalonia/smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-restore
+          dotnet run --project spikes/platform-stack/avalonia/smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-build
+
+      - name: Publish self-contained Windows x64 preview
+        shell: pwsh
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-x64'
+          Remove-Item $out -Recurse -Force -ErrorAction SilentlyContinue
+          dotnet publish spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj -c Release -r win-x64 --self-contained true -o $out
+          if (-not (Test-Path (Join-Path $out 'EEP.P1.Avalonia.exe'))) { throw 'preview exe missing' }
+
+      - name: Capture environment, dependencies and package checksum
+        shell: pwsh
+        env:
+          EXACT_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-x64'
+          $evidence = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-evidence'
+          $zip = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-x64.zip'
+          dotnet --info | Out-File (Join-Path $evidence 'dotnet-info.txt') -Encoding utf8
+          dotnet list spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj package --include-transitive | Out-File (Join-Path $evidence 'dependencies.txt') -Encoding utf8
+          Get-ChildItem $out -File -Recurse | Sort-Object FullName | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.FullName.Substring($out.Length + 1) } | Out-File (Join-Path $evidence 'preview-files.sha256') -Encoding utf8
+          $environment = [ordered]@{
+            schema='eep.environment/v1'; work_item='PLATFORM-STACK-SPIKE-001'; candidate='avalonia'; git_sha=$env:EXACT_HEAD; run_id=$env:GITHUB_RUN_ID;
+            timestamp_utc=(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ');
+            os=@{name='Windows Server';version='2022';build=[System.Environment]::OSVersion.Version.ToString();kernel='NT';arch='x64'};
+            host=@{cpu_model=(Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name);logical_cpus=[Environment]::ProcessorCount;ram_bytes=[int64](Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory;disk_free_bytes=[int64](Get-PSDrive C).Free};
+            gpu=@();displays=@();
+            toolchain=@{dotnet_sdk=(dotnet --version);dotnet_runtime=((dotnet --list-runtimes | Select-String '^Microsoft.NETCore.App ' | Select-Object -First 1).ToString().Split()[1]);compiler='C#/.NET SDK';compiler_detail=(dotnet --version);windows_sdk=$null;cmake=$null;ninja=$null;runner_image=$env:ImageVersion};
+            framework=@{name='avalonia';version='12.1.1'};build=@{configuration='Release';options=@{tfm='net10.0';rid='win-x64';self_contained=$true}};
+            renderer=@{name='not measured in package job';backend='none';software=$false};
+            fixture=@{schema='eep.p1-shell-fixture/v1';manifest_sha256=(Get-FileHash 'spikes/platform-stack/shared/fixtures/p1-shell-fixture.json' -Algorithm SHA256).Hash.ToLower()};
+            font=@{family='Noto Sans';version='2.015';files_sha256=@('478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823','a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0')}
+          }
+          $environment | ConvertTo-Json -Depth 8 | Out-File (Join-Path $evidence 'environment.json') -Encoding utf8
+          Compress-Archive -Path (Join-Path $out '*') -DestinationPath $zip -CompressionLevel Optimal -Force
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          $size=(Get-Item $zip).Length
+          "sha256=$hash`nsize_bytes=$size" | Out-File (Join-Path $evidence 'preview-archive.txt') -Encoding utf8
+          "AVALONIA_PREVIEW_SHA256=$hash" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "AVALONIA_PREVIEW_SIZE=$size" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload Avalonia Windows preview
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: eep-p1-avalonia-windows-x64
+          path: ${{ runner.temp }}/eep-p1-avalonia-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Avalonia Windows evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: p1-avalonia-windows-evidence
+          path: ${{ runner.temp }}/eep-p1-avalonia-windows-evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Cleanup temporary materialization
+        if: always()
+        shell: pwsh
+        run: |
+          Remove-Item "$env:RUNNER_TEMP/eep-p1-windows-tools","$env:RUNNER_TEMP/eep-p1-avalonia-windows-x64","$env:RUNNER_TEMP/eep-p1-avalonia-windows-evidence","$env:RUNNER_TEMP/eep-p1-avalonia-windows-x64.zip" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item 'spikes/platform-stack/avalonia/src/Assets/Fonts' -Recurse -Force -ErrorAction SilentlyContinue
