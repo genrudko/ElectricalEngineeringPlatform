@@ -1,0 +1,75 @@
+{
+  "schema": "eep.p2-semantic-scene/v1",
+  "entities": [
+    {
+      "id": "BUS-35-A",
+      "designation": "1СШ-35 кВ",
+      "kind": "Busbar",
+      "state": "Closed",
+      "terminals": [
+        { "id": "T-BUS-A1", "role": "branch" },
+        { "id": "T-BUS-A2", "role": "branch" }
+      ]
+    },
+    {
+      "id": "QF-35-01",
+      "designation": "QF-35-01",
+      "kind": "CircuitBreaker",
+      "state": "Closed",
+      "terminals": [
+        { "id": "T-QF-35-01-A", "role": "line-a" },
+        { "id": "T-QF-35-01-B", "role": "line-b" }
+      ]
+    },
+    {
+      "id": "QS-35-01",
+      "designation": "QS-35-01",
+      "kind": "Disconnector",
+      "state": "Open",
+      "terminals": [
+        { "id": "T-QS-35-01-A", "role": "line-a" },
+        { "id": "T-QS-35-01-B", "role": "line-b" }
+      ]
+    },
+    {
+      "id": "QSG-35-01",
+      "designation": "QSG-35-01",
+      "kind": "EarthingSwitch",
+      "state": "Open",
+      "terminals": [
+        { "id": "T-QSG-35-01-A", "role": "line" },
+        { "id": "T-QSG-35-01-E", "role": "earth" }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "C-BUS-QF",
+      "fromTerminalId": "T-BUS-A1",
+      "toTerminalId": "T-QF-35-01-A"
+    },
+    {
+      "id": "C-QF-QS",
+      "fromTerminalId": "T-QF-35-01-B",
+      "toTerminalId": "T-QS-35-01-A"
+    },
+    {
+      "id": "C-QS-QSG",
+      "fromTerminalId": "T-QS-35-01-B",
+      "toTerminalId": "T-QSG-35-01-A"
+    }
+  ],
+  "placements": [
+    { "entityId": "BUS-35-A", "x": 120, "y": 120 },
+    { "entityId": "QF-35-01", "x": 280, "y": 220 },
+    { "entityId": "QS-35-01", "x": 280, "y": 360 },
+    { "entityId": "QSG-35-01", "x": 430, "y": 360 }
+  ],
+  "validationMarkers": [
+    {
+      "entityId": "QSG-35-01",
+      "layer": "LAYOUT_WARNING",
+      "message": "P2 fixture marker: проверьте взаимное расположение заземляющего ножа и разъединителя."
+    }
+  ]
+}
