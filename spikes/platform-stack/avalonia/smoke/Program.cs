@@ -18,6 +18,13 @@ Check(equipmentIds.Contains("QF-35-01"), "equipment tree contains QF-35-01");
 Check(equipmentIds.Contains("QS-35-01"), "equipment tree contains QS-35-01");
 Check(equipmentIds.Contains("QSG-35-01"), "equipment tree contains QSG-35-01");
 
+foreach (var leafId in new[] { "QF-35-01", "QS-35-01", "QSG-35-01" })
+{
+    Check(fixture.Equipment.TryGetValue(leafId, out var leafEquipment), $"equipment leaf {leafId} resolves inspector data");
+    Check(leafEquipment!.Designation == leafId, $"equipment leaf {leafId} inspector designation matches selection");
+    Check(leafEquipment.Properties.Count > 0, $"equipment leaf {leafId} inspector has properties");
+}
+
 Check(fixture.Equipment.TryGetValue(fixture.SelectedEquipmentId, out var selected), "selected equipment resolves");
 Check(selected!.Designation == "QF-35-01", "selected designation");
 Check(selected.Name == "Выключатель 35 кВ", "selected equipment name");
