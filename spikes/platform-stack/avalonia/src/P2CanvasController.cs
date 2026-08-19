@@ -2,12 +2,25 @@ namespace Eep.PlatformStack.P2.Semantics;
 
 public readonly record struct SceneRect(double X, double Y, double Width, double Height)
 {
+    public double Right => X + Width;
+    public double Bottom => Y + Height;
+
     public bool Contains(ScenePoint point, double tolerance = 0) =>
-        point.X >= X - tolerance && point.X <= X + Width + tolerance &&
-        point.Y >= Y - tolerance && point.Y <= Y + Height + tolerance;
+        point.X >= X - tolerance && point.X <= Right + tolerance &&
+        point.Y >= Y - tolerance && point.Y <= Bottom + tolerance;
+
+    public bool Intersects(SceneRect other) =>
+        X <= other.Right && Right >= other.X && Y <= other.Bottom && Bottom >= other.Y;
 }
 
 public readonly record struct TerminalHit(string TerminalId, ScenePoint Position);
+
+public enum P2ViewportMode
+{
+    Normal,
+    Dense,
+    ZoomToFit
+}
 
 public sealed class P2CanvasController
 {
@@ -41,11 +54,83 @@ public sealed class P2CanvasController
     public void ZoomAt(ScenePoint screenAnchor, double factor)
     {
         var worldAnchor = ScreenToWorld(screenAnchor);
-        var target = Math.Clamp(Zoom * factor, 0.25, 4.0);
+        var target = Math.Clamp(Zoom * factor, 0.05, 8.0);
         Zoom = target;
         Pan = new ScenePoint(
             screenAnchor.X - worldAnchor.X * Zoom,
             screenAnchor.Y - worldAnchor.Y * Zoom);
+    }
+
+    public void ApplyViewportMode(P2ViewportMode mode, double viewportWidth, double viewportHeight)
+    {
+        switch (mode)
+        {
+            case P2ViewportMode.Normal:
+                SetViewport(0.50, new ScenePoint(50, 50));
+                break;
+            case P2ViewportMode.Dense:
+                SetViewport(0.25, new ScenePoint(40, 40));
+                break;
+            case P2ViewportMode.ZoomToFit:
+                FitScene(viewportWidth, viewportHeight, 32);
+                break;
+        }
+    }
+
+    public SceneRect VisibleWorldRect(double viewportWidth, double viewportHeight)
+    {
+        var topLeft = ScreenToWorld(new ScenePoint(0, 0));
+        var bottomRight = ScreenToWorld(new ScenePoint(viewportWidth, viewportHeight));
+        return new SceneRect(
+            Math.Min(topLeft.X, bottomRight.X),
+            Math.Min(topLeft.Y, bottomRight.Y),
+            Math.Abs(bottomRight.X - topLeft.X),
+            Math.Abs(bottomRight.Y - topLeft.Y));
+    }
+
+    public SceneRect SceneBounds()
+    {
+        if (Scene.Entities.Count == 0)
+        {
+            return new SceneRect(0, 0, 1, 1);
+        }
+
+        var first = true;
+        double left = 0, top = 0, right = 0, bottom = 0;
+        foreach (var entityId in Scene.Entities.Keys)
+        {
+            var bounds = EntityBounds(entityId);
+            if (first)
+            {
+                left = bounds.X;
+                top = bounds.Y;
+                right = bounds.Right;
+                bottom = bounds.Bottom;
+                first = false;
+            }
+            else
+            {
+                left = Math.Min(left, bounds.X);
+                top = Math.Min(top, bounds.Y);
+                right = Math.Max(right, bounds.Right);
+                bottom = Math.Max(bottom, bounds.Bottom);
+            }
+        }
+        return new SceneRect(left, top, right - left, bottom - top);
+    }
+
+    public IReadOnlyList<string> VisibleEntityIds(double viewportWidth, double viewportHeight)
+    {
+        var visible = VisibleWorldRect(viewportWidth, viewportHeight);
+        var ids = new List<string>();
+        foreach (var entityId in Scene.Entities.Keys)
+        {
+            if (EntityBounds(entityId).Intersects(visible))
+            {
+                ids.Add(entityId);
+            }
+        }
+        return ids;
     }
 
     public SceneRect EntityBounds(string entityId)
@@ -189,6 +274,23 @@ public sealed class P2CanvasController
 
     public bool Undo() => History.Undo(Scene);
     public bool Redo() => History.Redo(Scene);
+
+    private void SetViewport(double zoom, ScenePoint pan)
+    {
+        Zoom = Math.Clamp(zoom, 0.05, 8.0);
+        Pan = pan;
+    }
+
+    private void FitScene(double viewportWidth, double viewportHeight, double margin)
+    {
+        var bounds = SceneBounds();
+        var usableWidth = Math.Max(1, viewportWidth - margin * 2);
+        var usableHeight = Math.Max(1, viewportHeight - margin * 2);
+        var zoom = Math.Clamp(Math.Min(usableWidth / Math.Max(1, bounds.Width), usableHeight / Math.Max(1, bounds.Height)), 0.05, 8.0);
+        var panX = margin - bounds.X * zoom + (usableWidth - bounds.Width * zoom) / 2;
+        var panY = margin - bounds.Y * zoom + (usableHeight - bounds.Height * zoom) / 2;
+        SetViewport(zoom, new ScenePoint(panX, panY));
+    }
 
     private static double Distance(ScenePoint a, ScenePoint b)
     {
