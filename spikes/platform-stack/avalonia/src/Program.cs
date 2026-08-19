@@ -28,19 +28,23 @@ internal static class Program
 
     internal static void TraceStartup(string stage)
     {
-        if (!string.Equals(Environment.GetEnvironmentVariable("EEP_P2_STARTUP_TRACE"), "1", StringComparison.Ordinal))
+        var explicitTrace = string.Equals(Environment.GetEnvironmentVariable("EEP_P2_STARTUP_TRACE"), "1", StringComparison.Ordinal);
+        var ciTrace = string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true", StringComparison.OrdinalIgnoreCase);
+        if (!explicitTrace && !ciTrace)
         {
             return;
         }
 
         try
         {
-            var target = Path.Combine(Path.GetTempPath(), "EEP.P1.Avalonia.startup-trace.log");
-            File.AppendAllText(target, $"{DateTimeOffset.UtcNow:O} {stage}{Environment.NewLine}", Encoding.UTF8);
+            // Reuse the already-collected startup diagnostic channel on CI.
+            // Physical owner runs do not create this trace unless explicitly requested.
+            var target = Path.Combine(Path.GetTempPath(), "EEP.P1.Avalonia.startup-failure.log");
+            File.AppendAllText(target, $"TRACE {DateTimeOffset.UtcNow:O} {stage}{Environment.NewLine}", Encoding.UTF8);
         }
         catch
         {
-            // CI-only trace must never alter application behavior.
+            // Diagnostics must never alter application behavior.
         }
     }
 
