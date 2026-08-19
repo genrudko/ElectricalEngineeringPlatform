@@ -84,7 +84,53 @@ jobs:
           dotnet publish spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj -c Release -r win-x64 --self-contained true -o $out
           if (-not (Test-Path (Join-Path $out 'EEP.P1.Avalonia.exe'))) { throw 'preview exe missing' }
 
+      - name: Launch published Windows preview startup smoke
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-x64'
+          $evidence = Join-Path $env:RUNNER_TEMP 'eep-p1-avalonia-windows-evidence'
+          $exe = Join-Path $out 'EEP.P1.Avalonia.exe'
+          $baseLog = Join-Path $out 'EEP.P1.Avalonia.startup-failure.log'
+          $tempLog = Join-Path $env:TEMP 'EEP.P1.Avalonia.startup-failure.log'
+          Remove-Item $baseLog,$tempLog -Force -ErrorAction SilentlyContinue
+
+          $started = Get-Date
+          $process = Start-Process -FilePath $exe -WorkingDirectory $out -PassThru
+          Start-Sleep -Seconds 6
+          $process.Refresh()
+
+          $failed = $false
+          if ($process.HasExited) {
+            "status=exited_before_acceptance_window`nexit_code=$($process.ExitCode)" | Out-File (Join-Path $evidence 'packaged-startup-smoke.txt') -Encoding utf8
+            $failed = $true
+          } elseif ($process.MainWindowHandle -eq [IntPtr]::Zero) {
+            "status=no_main_window_after_6s`nprocess_id=$($process.Id)" | Out-File (Join-Path $evidence 'packaged-startup-smoke.txt') -Encoding utf8
+            $failed = $true
+          } else {
+            "status=pass`nprocess_id=$($process.Id)`nmain_window_handle=$($process.MainWindowHandle)" | Out-File (Join-Path $evidence 'packaged-startup-smoke.txt') -Encoding utf8
+          }
+
+          foreach ($log in @($baseLog,$tempLog)) {
+            if (Test-Path $log) {
+              Copy-Item $log (Join-Path $evidence ([IO.Path]::GetFileName($log))) -Force
+              Get-Content $log
+            }
+          }
+
+          if ($failed) {
+            Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=$started.AddSeconds(-5)} -ErrorAction SilentlyContinue |
+              Where-Object { $_.Message -match 'EEP\.P1\.Avalonia|\.NET Runtime|Application Error' } |
+              Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message |
+              Format-List | Out-File (Join-Path $evidence 'windows-application-events.txt') -Encoding utf8
+            if (-not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
+            throw 'Published EEP.P1.Avalonia.exe failed real packaged startup smoke.'
+          }
+
+          Stop-Process -Id $process.Id -Force
+          $process.WaitForExit()
+
       - name: Capture environment, dependencies and package checksum
+        if: always()
         shell: pwsh
         env:
           EXACT_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
@@ -103,7 +149,7 @@ jobs:
             gpu=@();displays=@();
             toolchain=@{dotnet_sdk=(dotnet --version);dotnet_runtime=((dotnet --list-runtimes | Select-String '^Microsoft.NETCore.App ' | Select-Object -First 1).ToString().Split()[1]);compiler='C#/.NET SDK';compiler_detail=(dotnet --version);windows_sdk=$null;cmake=$null;ninja=$null;runner_image=$env:ImageVersion};
             framework=@{name='avalonia';version='12.1.1'};build=@{configuration='Release';options=@{tfm='net10.0';rid='win-x64';self_contained=$true}};
-            renderer=@{name='not measured in package job';backend='none';software=$false};
+            renderer=@{name='packaged startup smoke';backend='windows hosted runner';software=$false};
             fixture=@{schema='eep.p1-shell-fixture/v1';manifest_sha256=(Get-FileHash 'spikes/platform-stack/shared/fixtures/p1-shell-fixture.json' -Algorithm SHA256).Hash.ToLower()};
             font=@{family='Noto Sans';version='2.015';files_sha256=@('478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823','a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0')}
           }
@@ -116,6 +162,7 @@ jobs:
           "AVALONIA_PREVIEW_SIZE=$size" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Upload Avalonia Windows preview
+        if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: eep-p1-avalonia-windows-x64
@@ -124,6 +171,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Avalonia Windows evidence
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: p1-avalonia-windows-evidence
