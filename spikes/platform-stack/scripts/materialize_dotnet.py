@@ -32,6 +32,11 @@ def download(url: str, target: Path) -> str:
     return digest.hexdigest()
 
 
+def is_archive(item: dict) -> bool:
+    url = item.get("url", "").lower()
+    return url.endswith(".tar.gz") or url.endswith(".zip")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", required=True)
@@ -45,9 +50,9 @@ def main():
     if len(matching_sdks) != 1:
         raise SystemExit(f"Expected exactly one SDK {args.version} in official metadata, found {len(matching_sdks)}")
     sdk = matching_sdks[0]
-    matching_files = [item for item in sdk.get("files", []) if item.get("rid") == args.rid]
+    matching_files = [item for item in sdk.get("files", []) if item.get("rid") == args.rid and is_archive(item)]
     if len(matching_files) != 1:
-        raise SystemExit(f"Expected exactly one SDK file for {args.version}/{args.rid}, found {len(matching_files)}")
+        raise SystemExit(f"Expected exactly one SDK archive for {args.version}/{args.rid}, found {len(matching_files)}")
     item = matching_files[0]
     url = item["url"]
     expected_sha512 = item["hash"].lower()
