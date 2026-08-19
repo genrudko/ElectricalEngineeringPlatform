@@ -1,0 +1,20 @@
+{
+  "schema": "eep.p2-scene-tiers/v1",
+  "seed": 20260819,
+  "countContract": {
+    "semanticElementCount": "entities + terminals + connections",
+    "excludedFromSemanticElementCount": ["placements", "validationMarkers"],
+    "rationale": "Placements are SchemeView geometry and validation markers are overlay evidence; both remain explicitly counted in generated manifests."
+  },
+  "tiers": {
+    "S": 2000,
+    "M": 10000,
+    "L": 25000,
+    "XL": 50000
+  },
+  "viewportModes": {
+    "NORMAL": 500,
+    "DENSE": 2000,
+    "ZOOM_TO_FIT": "scene-dependent"
+  }
+}
