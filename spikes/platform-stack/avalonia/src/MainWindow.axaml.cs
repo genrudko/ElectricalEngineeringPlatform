@@ -3,7 +3,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Markup.Xaml;
 
 namespace Eep.PlatformStack.P1.Avalonia;
 
@@ -47,8 +46,6 @@ public sealed partial class MainWindow : Window
     public IReadOnlyDictionary<string, string> Shortcuts => ShortcutMap;
     public int SelectedDocumentIndex => DocumentTabs.SelectedIndex;
     public bool IsUiGallerySelected => DocumentTabs.SelectedIndex == _fixture.Documents.FindIndex(document => document.Kind == "ui-gallery");
-
-    private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
     private void BuildEquipmentTree()
     {
