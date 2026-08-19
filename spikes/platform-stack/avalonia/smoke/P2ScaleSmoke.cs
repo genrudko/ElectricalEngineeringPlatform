@@ -14,6 +14,7 @@ internal static class P2ScaleSmoke
         Check(manifest.Tiers["XL"] == 50_000, "P2 XL target");
 
         string? sFingerprint = null;
+        GeneratedP2Scene? xl = null;
         foreach (var tier in new[] { "S", "M", "L", "XL" })
         {
             var generated = P2SceneScaleGenerator.Generate(tier, manifest);
@@ -33,6 +34,10 @@ internal static class P2ScaleSmoke
             {
                 sFingerprint = generated.FingerprintSha256;
             }
+            if (tier == "XL")
+            {
+                xl = generated;
+            }
 
             Console.WriteLine($"P2_TIER {tier} semantic={generated.Counts.SemanticElementCount} entities={generated.Counts.EntityCount} terminals={generated.Counts.TerminalCount} connections={generated.Counts.ConnectionCount} placements={generated.Counts.PlacementCount} markers={generated.Counts.ValidationMarkerCount} sha256={generated.FingerprintSha256}");
         }
@@ -40,7 +45,27 @@ internal static class P2ScaleSmoke
         var repeatS = P2SceneScaleGenerator.Generate("S", manifest);
         Check(repeatS.FingerprintSha256 == sFingerprint, "P2 generator deterministic repeat for same seed/tier");
 
-        Console.WriteLine("P2 deterministic scale generator smoke: PASS");
+        Check(xl is not null, "P2 XL retained for viewport smoke");
+        var controller = new P2CanvasController(xl!.Scene);
+        const double viewportWidth = 900;
+        const double viewportHeight = 700;
+
+        controller.ApplyViewportMode(P2ViewportMode.Normal, viewportWidth, viewportHeight);
+        var normalVisible = controller.VisibleSemanticElementCount(viewportWidth, viewportHeight);
+        Check(normalVisible >= 350 && normalVisible <= 700, "P2 NORMAL approximately 500 visible semantic elements");
+
+        controller.ApplyViewportMode(P2ViewportMode.Dense, viewportWidth, viewportHeight);
+        var denseVisible = controller.VisibleSemanticElementCount(viewportWidth, viewportHeight);
+        Check(denseVisible >= 1_500 && denseVisible <= 2_500, "P2 DENSE approximately 2000 visible semantic elements");
+        Check(denseVisible > normalVisible, "P2 DENSE exposes more semantic elements than NORMAL");
+
+        controller.ApplyViewportMode(P2ViewportMode.ZoomToFit, viewportWidth, viewportHeight);
+        var fitVisible = controller.VisibleSemanticElementCount(viewportWidth, viewportHeight);
+        Check(fitVisible >= 45_000, "P2 ZOOM_TO_FIT exposes the overwhelming majority of XL scene");
+        Check(controller.Zoom >= 0.05, "P2 zoom-to-fit respects bounded minimum zoom");
+
+        Console.WriteLine($"P2_VIEWPORT NORMAL={normalVisible} DENSE={denseVisible} ZOOM_TO_FIT={fitVisible} fit_zoom={controller.Zoom:F4}");
+        Console.WriteLine("P2 deterministic scale + viewport smoke: PASS");
     }
 
     private static void Check(bool condition, string name)
