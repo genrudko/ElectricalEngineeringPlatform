@@ -29,9 +29,12 @@ public sealed class P2CanvasController
     private const double BusbarWidth = 320;
     private const double BusbarHeight = 24;
 
+    private readonly P2SpatialIndex _spatial;
+
     public P2CanvasController(P2SemanticScene scene)
     {
         Scene = scene;
+        _spatial = new P2SpatialIndex(scene, EntityBounds, TerminalAnchor, ConnectionBounds);
     }
 
     public P2SemanticScene Scene { get; }
@@ -122,29 +125,17 @@ public sealed class P2CanvasController
     public IReadOnlyList<string> VisibleEntityIds(double viewportWidth, double viewportHeight)
     {
         var visible = VisibleWorldRect(viewportWidth, viewportHeight);
-        var ids = new List<string>();
-        foreach (var entityId in Scene.Entities.Keys)
-        {
-            if (EntityBounds(entityId).Intersects(visible))
-            {
-                ids.Add(entityId);
-            }
-        }
-        return ids;
+        return _spatial.QueryEntities(visible)
+            .Where(entityId => EntityBounds(entityId).Intersects(visible))
+            .ToArray();
     }
 
     public IReadOnlyList<string> VisibleConnectionIds(double viewportWidth, double viewportHeight)
     {
         var visible = VisibleWorldRect(viewportWidth, viewportHeight);
-        var ids = new List<string>();
-        foreach (var connectionId in Scene.Connections.Keys)
-        {
-            if (ConnectionBounds(connectionId).Intersects(visible))
-            {
-                ids.Add(connectionId);
-            }
-        }
-        return ids;
+        return _spatial.QueryConnections(visible)
+            .Where(connectionId => ConnectionBounds(connectionId).Intersects(visible))
+            .ToArray();
     }
 
     public int VisibleSemanticElementCount(double viewportWidth, double viewportHeight)
@@ -179,7 +170,8 @@ public sealed class P2CanvasController
 
     public string? HitTestEntity(ScenePoint world, double tolerance = 4)
     {
-        foreach (var entityId in Scene.Entities.Keys.Reverse())
+        var region = new SceneRect(world.X - tolerance, world.Y - tolerance, tolerance * 2, tolerance * 2);
+        foreach (var entityId in _spatial.QueryEntities(region).Reverse())
         {
             if (EntityBounds(entityId).Contains(world, tolerance))
             {
@@ -193,14 +185,15 @@ public sealed class P2CanvasController
     {
         TerminalHit? best = null;
         var bestDistance = double.MaxValue;
-        foreach (var terminal in Scene.Terminals.Values)
+        var region = new SceneRect(world.X - tolerance, world.Y - tolerance, tolerance * 2, tolerance * 2);
+        foreach (var terminalId in _spatial.QueryTerminals(region))
         {
-            var position = TerminalAnchor(terminal.Id);
+            var position = TerminalAnchor(terminalId);
             var distance = Distance(world, position);
             if (distance <= tolerance && distance < bestDistance)
             {
                 bestDistance = distance;
-                best = new TerminalHit(terminal.Id, position);
+                best = new TerminalHit(terminalId, position);
             }
         }
         return best;
@@ -210,16 +203,17 @@ public sealed class P2CanvasController
     {
         string? bestId = null;
         var bestDistance = double.MaxValue;
-        foreach (var connection in Scene.Connections.Values)
+        var region = new SceneRect(world.X - tolerance, world.Y - tolerance, tolerance * 2, tolerance * 2);
+        foreach (var connectionId in _spatial.QueryConnections(region))
         {
-            var route = ConnectionRoute(connection.Id);
+            var route = ConnectionRoute(connectionId);
             for (var i = 0; i < route.Count - 1; i++)
             {
                 var distance = DistanceToSegment(world, route[i], route[i + 1]);
                 if (distance <= tolerance && distance < bestDistance)
                 {
                     bestDistance = distance;
-                    bestId = connection.Id;
+                    bestId = connectionId;
                 }
             }
         }
@@ -275,8 +269,11 @@ public sealed class P2CanvasController
         return new[] { from, new ScenePoint(midX, from.Y), new ScenePoint(midX, to.Y), to };
     }
 
-    public void MoveEntity(string entityId, ScenePoint target) =>
+    public void MoveEntity(string entityId, ScenePoint target)
+    {
         History.Execute(Scene, new MoveRepresentationCommand(entityId, target));
+        _spatial.ReindexEntityGeometry(entityId);
+    }
 
     public bool ReconnectSelectedTo(string targetTerminalId)
     {
@@ -285,6 +282,7 @@ public sealed class P2CanvasController
             return false;
         }
         History.Execute(Scene, new ReconnectTerminalCommand(SelectedConnectionId, reconnectFrom: false, targetTerminalId));
+        _spatial.ReindexConnection(SelectedConnectionId);
         return true;
     }
 
@@ -307,8 +305,25 @@ public sealed class P2CanvasController
         return true;
     }
 
-    public bool Undo() => History.Undo(Scene);
-    public bool Redo() => History.Redo(Scene);
+    public bool Undo()
+    {
+        if (!History.Undo(Scene))
+        {
+            return false;
+        }
+        _spatial.Rebuild();
+        return true;
+    }
+
+    public bool Redo()
+    {
+        if (!History.Redo(Scene))
+        {
+            return false;
+        }
+        _spatial.Rebuild();
+        return true;
+    }
 
     public void SetViewport(double zoom, ScenePoint pan)
     {
