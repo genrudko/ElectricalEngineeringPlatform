@@ -43,6 +43,28 @@
         { "key": "state", "label": "Состояние", "value": "UNKNOWN", "displayValue": "Состояние неизвестно", "state": "unknown", "editable": true },
         { "key": "dispatcherName", "label": "Диспетчерское наименование", "value": "Выключатель ввода секции 1 КРУ 35 кВ", "state": "error", "editable": true, "message": "Диспетчерское наименование должно быть подтверждено перед публикацией.\nИсправьте значение или отметьте источник данных." }
       ]
+    },
+    "QS-35-01": {
+      "designation": "QS-35-01",
+      "name": "Разъединитель 35 кВ",
+      "properties": [
+        { "key": "designation", "label": "Обозначение", "value": "QS-35-01", "state": "normal", "editable": true },
+        { "key": "equipmentType", "label": "Тип оборудования", "value": "Разъединитель", "state": "normal", "editable": false },
+        { "key": "voltageClass", "label": "Класс напряжения", "value": "35 кВ", "state": "normal", "editable": true },
+        { "key": "state", "label": "Состояние", "value": "OPEN", "displayValue": "Отключен", "state": "normal", "editable": false },
+        { "key": "dispatcherName", "label": "Диспетчерское наименование", "value": "Разъединитель QS-35-01 секции 1 КРУ 35 кВ", "state": "normal", "editable": true }
+      ]
+    },
+    "QSG-35-01": {
+      "designation": "QSG-35-01",
+      "name": "Заземляющий нож 35 кВ",
+      "properties": [
+        { "key": "designation", "label": "Обозначение", "value": "QSG-35-01", "state": "normal", "editable": true },
+        { "key": "equipmentType", "label": "Тип оборудования", "value": "Заземляющий нож", "state": "normal", "editable": false },
+        { "key": "voltageClass", "label": "Класс напряжения", "value": "35 кВ", "state": "normal", "editable": true },
+        { "key": "state", "label": "Состояние", "value": "OPEN", "displayValue": "Отключен", "state": "normal", "editable": false },
+        { "key": "dispatcherName", "label": "Диспетчерское наименование", "value": "Заземляющий нож QSG-35-01 секции 1 КРУ 35 кВ", "state": "normal", "editable": true }
+      ]
     }
   },
   "gallery": {
