@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eep.stack-benchmark/v1",
+  "title": "EEP platform-stack raw benchmark record",
+  "description": "Reserved for P2+ raw performance evidence. P1 does not synthesize percentile data.",
+  "type": "object",
+  "required": ["schema", "work_item", "candidate", "git_sha", "environment_sha256", "fixture_sha256", "scenario", "samples", "status"],
+  "properties": {
+    "schema": { "const": "eep.stack-benchmark/v1" },
+    "work_item": { "const": "PLATFORM-STACK-SPIKE-001" },
+    "candidate": { "enum": ["avalonia", "qt"] },
+    "git_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "environment_sha256": { "type": "string" },
+    "fixture_sha256": { "type": "string" },
+    "scenario": { "type": "string" },
+    "samples": { "type": "array" },
+    "status": { "enum": ["pass", "fail", "error"] },
+    "errors": { "type": "array" }
+  },
+  "not": {
+    "anyOf": [
+      { "required": ["winner"] },
+      { "required": ["recommended_stack"] },
+      { "required": ["score"] }
+    ]
+  }
+}

@@ -1,0 +1,251 @@
+name: Platform Stack P1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/platform-stack-p1.yml'
+      - 'spikes/platform-stack/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-stack-p1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-preflight:
+    name: P1.0 Linux pre-install preflight
+    runs-on: [self-hosted, linux, x64, eep-vps]
+    timeout-minutes: 5
+    steps:
+      - name: Runner and exact-head identity
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ github.head_ref }}
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          echo "runner_name=${RUNNER_NAME:-unknown}"
+          echo "runner_os=${RUNNER_OS:-unknown}"
+          echo "runner_arch=${RUNNER_ARCH:-unknown}"
+          echo "user=$(id -un)"
+          echo "uid=$(id -u)"
+          echo "host=$(hostname)"
+          test "$(id -un)" = "eep-runner"
+          test "$(hostname)" = "eod-development-vps"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ACTUAL_HEAD="$(curl --fail --silent --show-error \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${REPOSITORY}/git/ref/heads/${HEAD_REF}" \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin)["object"]["sha"])')"
+            echo "expected_head=${EXPECTED_HEAD}"
+            echo "actual_head=${ACTUAL_HEAD}"
+            test "${ACTUAL_HEAD}" = "${EXPECTED_HEAD}"
+          fi
+
+      - name: Checkout exact event head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: System capacity and existing tool inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat /etc/os-release
+          uname -a
+          nproc
+          free -b
+          df -B1 /
+          for cmd in git python3 gcc g++ dotnet cmake ninja qmake6 qtpaths6 Xvfb fc-list; do
+            printf '%-12s ' "$cmd"
+            if command -v "$cmd" >/dev/null 2>&1; then command -v "$cmd"; else echo MISSING; fi
+          done
+          git --version
+          python3 --version
+          gcc --version | head -1
+          g++ --version | head -1
+
+      - name: Native desktop dependency inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          packages=(
+            libx11-6 libx11-xcb1 libxcb1 libxext6 libxrender1 libxi6
+            libfontconfig1 libfreetype6 libice6 libsm6
+            libxkbcommon0 libxkbcommon-x11-0
+            libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xfixes0 libxcb-xkb1
+            libgl1 libglx0 libegl1 libopengl0
+            libdbus-1-3 libglib2.0-0 xvfb xauth
+          )
+          missing=0
+          for pkg in "${packages[@]}"; do
+            if dpkg-query -W -f='${Status} ${Version}\n' "$pkg" 2>/dev/null | grep -q '^install ok installed '; then
+              printf 'PRESENT %-28s ' "$pkg"
+              dpkg-query -W -f='${Version}\n' "$pkg"
+            else
+              printf 'MISSING %-28s\n' "$pkg"
+              missing=$((missing+1))
+            fi
+          done
+          echo "inventory_missing_count=${missing}"
+          ldconfig -p 2>/dev/null | grep -E 'lib(X11|xcb|xkbcommon|fontconfig|freetype|GL|EGL|OpenGL|dbus|glib)' | head -80 || true
+          echo 'NOTE: inventory only; no package installation or configuration change performed.'
+
+  avalonia-linux-materialize:
+    name: P1.2 Avalonia Linux build + behavior evidence
+    needs: linux-preflight
+    runs-on: [self-hosted, linux, x64, eep-vps]
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact event head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: true
+
+      - name: Materialize .NET SDK 10.0.302 in runner temp
+        shell: bash
+        run: |
+          set -euo pipefail
+          TOOL_ROOT="$RUNNER_TEMP/eep-p1-tools"
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          rm -rf "$TOOL_ROOT" "$EVIDENCE"
+          mkdir -p "$TOOL_ROOT" "$EVIDENCE"
+          python3 spikes/platform-stack/scripts/materialize_dotnet.py \
+            --version 10.0.302 --rid linux-x64 \
+            --install-dir "$TOOL_ROOT/dotnet-10.0.302" \
+            --provenance "$EVIDENCE/dotnet-acquisition.json"
+          echo "$TOOL_ROOT/dotnet-10.0.302" >> "$GITHUB_PATH"
+          echo "DOTNET_ROOT=$TOOL_ROOT/dotnet-10.0.302" >> "$GITHUB_ENV"
+          test "$("$TOOL_ROOT/dotnet-10.0.302/dotnet" --version)" = "10.0.302"
+
+      - name: Materialize and verify Noto Sans 2.015
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          FONT_DIR="spikes/platform-stack/avalonia/src/Assets/Fonts"
+          rm -rf "$FONT_DIR"
+          mkdir -p "$FONT_DIR"
+          python3 spikes/platform-stack/scripts/materialize_noto.py \
+            --destination "$FONT_DIR" \
+            --provenance "$EVIDENCE/noto-acquisition.json"
+          echo '478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823  spikes/platform-stack/avalonia/src/Assets/Fonts/NotoSans-Regular.ttf' | sha256sum --check -
+          echo 'a4e91fd530ac2b4ef5367240144ff37d7d65d66cf76f2e9a2187b93c676f92d0  spikes/platform-stack/avalonia/src/Assets/Fonts/NotoSans-SemiBold.ttf' | sha256sum --check -
+          sha256sum "$FONT_DIR/NotoSans-Regular.ttf" "$FONT_DIR/NotoSans-SemiBold.ttf" | tee "$EVIDENCE/noto-fonts.sha256"
+
+      - name: Restore committed locks in locked mode
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cd spikes/platform-stack/avalonia
+          timeout 120s dotnet restore src/EEP.P1.Avalonia.csproj --locked-mode
+          timeout 120s dotnet restore smoke/EEP.P1.Avalonia.Smoke.csproj --locked-mode
+
+      - name: Build Avalonia app Release
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cd spikes/platform-stack/avalonia
+          timeout 120s dotnet build src/EEP.P1.Avalonia.csproj -c Release --no-restore
+
+      - name: Build and run deterministic presentation-behavior smoke
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cd spikes/platform-stack/avalonia
+          timeout 120s dotnet build smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-restore
+          timeout 30s dotnet run --project smoke/EEP.P1.Avalonia.Smoke.csproj -c Release --no-build
+
+      - name: Capture dependency and exact-head environment evidence
+        shell: bash
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+          DOTNET_NOLOGO: '1'
+          EXACT_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          EVIDENCE="$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          mkdir -p "$EVIDENCE/lockfiles"
+          cp spikes/platform-stack/avalonia/src/packages.lock.json "$EVIDENCE/lockfiles/src.packages.lock.json"
+          cp spikes/platform-stack/avalonia/smoke/packages.lock.json "$EVIDENCE/lockfiles/smoke.packages.lock.json"
+          cp spikes/platform-stack/avalonia/HEADLESS_LIMITATION.md "$EVIDENCE/headless-full-window-limitation.md"
+          dotnet list spikes/platform-stack/avalonia/src/EEP.P1.Avalonia.csproj package --include-transitive > "$EVIDENCE/dependencies.txt"
+          sha256sum spikes/platform-stack/shared/fixtures/p1-shell-fixture.json > "$EVIDENCE/fixture.sha256"
+          find spikes/platform-stack/avalonia/src/bin/Release/net10.0 -type f -print0 | sort -z | xargs -0 sha256sum > "$EVIDENCE/release-files.sha256"
+          python3 - <<'PY'
+          import hashlib, json, os, platform, shutil, subprocess
+          from pathlib import Path
+          evidence = Path(os.environ['RUNNER_TEMP']) / 'eep-p1-avalonia-evidence'
+          fixture = Path('spikes/platform-stack/shared/fixtures/p1-shell-fixture.json')
+          font_provenance = json.loads((evidence / 'noto-acquisition.json').read_text(encoding='utf-8'))
+          runtimes = subprocess.check_output(['dotnet', '--list-runtimes'], text=True).splitlines()
+          runtime = next((line.split()[1] for line in runtimes if line.startswith('Microsoft.NETCore.App ')), 'unknown')
+          record = {
+              'schema': 'eep.environment/v1',
+              'work_item': 'PLATFORM-STACK-SPIKE-001',
+              'candidate': 'avalonia',
+              'git_sha': os.environ['EXACT_HEAD'],
+              'run_id': os.environ['GITHUB_RUN_ID'],
+              'timestamp_utc': subprocess.check_output(['date','-u','+%Y-%m-%dT%H:%M:%SZ'], text=True).strip(),
+              'os': {'name': 'Ubuntu', 'version': '24.04.4 LTS', 'build': '', 'kernel': platform.release(), 'arch': platform.machine()},
+              'host': {
+                  'cpu_model': next((line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')), 'unknown'),
+                  'logical_cpus': os.cpu_count(),
+                  'ram_bytes': int(subprocess.check_output("awk '/MemTotal/ {print $2*1024}' /proc/meminfo", shell=True, text=True).strip().split('.')[0]),
+                  'disk_free_bytes': shutil.disk_usage('/').free
+              },
+              'gpu': [], 'displays': [],
+              'toolchain': {'dotnet_sdk': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'dotnet_runtime': runtime, 'compiler': 'C#/.NET SDK', 'compiler_detail': subprocess.check_output(['dotnet','--version'], text=True).strip(), 'windows_sdk': None, 'cmake': None, 'ninja': None, 'runner_image': None},
+              'framework': {'name': 'avalonia', 'version': '12.1.1'},
+              'build': {'configuration': 'Release', 'options': {'tfm': 'net10.0', 'restore': 'locked-mode'}},
+              'renderer': {'name': 'not exercised in Linux behavior smoke', 'backend': 'none', 'software': False},
+              'fixture': {'schema': 'eep.p1-shell-fixture/v1', 'manifest_sha256': hashlib.sha256(fixture.read_bytes()).hexdigest()},
+              'font': {'family': 'Noto Sans', 'version': '2.015', 'files_sha256': [f['sha256'] for f in font_provenance['files']]}
+          }
+          (evidence / 'environment.json').write_text(json.dumps(record, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+          cat "$EVIDENCE/environment.json"
+
+      - name: Upload Avalonia Linux evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: p1-avalonia-linux-materialization
+          path: ${{ runner.temp }}/eep-p1-avalonia-evidence/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Clean user-scoped temporary materialization
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/eep-p1-tools"
+          rm -rf "$RUNNER_TEMP/eep-p1-avalonia-evidence"
+          rm -rf spikes/platform-stack/avalonia/src/Assets/Fonts
+          echo 'P1 temporary tools/evidence/fonts cleaned; no system packages changed.'

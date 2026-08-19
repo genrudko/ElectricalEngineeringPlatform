@@ -1,0 +1,11 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Eep.PlatformStack.P1.Avalonia.App"
+             RequestedThemeVariant="Light">
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+  <Application.Resources>
+    <FontFamily x:Key="P1Font">avares://EEP.P1.Avalonia/Assets/Fonts#Noto Sans</FontFamily>
+  </Application.Resources>
+</Application>

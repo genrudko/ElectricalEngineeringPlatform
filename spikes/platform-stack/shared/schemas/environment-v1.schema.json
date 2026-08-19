@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eep.environment/v1",
+  "title": "EEP platform-stack environment evidence",
+  "type": "object",
+  "required": ["schema", "work_item", "candidate", "git_sha", "run_id", "timestamp_utc", "os", "host", "toolchain", "framework", "build", "fixture", "font"],
+  "properties": {
+    "schema": { "const": "eep.environment/v1" },
+    "work_item": { "const": "PLATFORM-STACK-SPIKE-001" },
+    "candidate": { "enum": ["avalonia", "qt"] },
+    "git_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "run_id": { "type": "string" },
+    "timestamp_utc": { "type": "string" },
+    "os": { "type": "object" },
+    "host": { "type": "object" },
+    "gpu": { "type": "array" },
+    "displays": { "type": "array" },
+    "toolchain": { "type": "object" },
+    "framework": { "type": "object" },
+    "build": { "type": "object" },
+    "renderer": { "type": "object" },
+    "fixture": { "type": "object" },
+    "font": { "type": "object" }
+  },
+  "additionalProperties": true
+}
